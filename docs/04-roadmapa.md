@@ -13,24 +13,27 @@
 
 **Cel:** działający szkielet monorepo i odpowiedź na ryzyka R1–R3, zanim powstanie właściwy kod.
 
+**Plan nauki krok po kroku:** [05-implementacja-poczatkowa.md](05-implementacja-poczatkowa.md).
+
 **Zakres:**
 - monorepo pnpm (`apps/extension`, `apps/api`, `packages/shared`), TypeScript strict, ESLint, Prettier, Vitest, `pnpm check`;
 - WXT z Vue 3, Nuxt UI (`@nuxt/ui/vite`) i Tailwind v4, punkt wejścia `newtab`, stały `key` w manifeście;
 - **R1:** komponent Nuxt UI renderuje się na nowej karcie;
 - **R2:** ikona Lucide wyświetla się bez żądań do API Iconify;
 - **R3:** zmiana akcentu w trakcie działania przez zmienne `--ui-color-primary-*` i tryb ciemny sterowany własną klasą;
-- Hono na Node z `/api/health`, `env.ts`, `createApp({ db })`;
-- Drizzle z Postgresem (`docker-compose.yml`), pierwsza migracja, helper `createTestApp()` na PGlite z jednym testem;
+- Hono na Node z `/api/health` (sprawdza połączenie z bazą), `env.ts`, `createApp({ db, allowedOrigins })`, CORS;
+- Drizzle z Postgresem (`docker-compose.yml`), helper `createTestApp()` na PGlite;
+- połączenie nowej karty z API przez klienta Hono RPC (`hc<AppType>`), plakietka ze stanem API;
 - pomiar rozmiaru startowego JS i ustalenie budżetu.
 
-**DoD:** `pnpm dev` uruchamia API i przeglądarkę z rozszerzeniem. Nowa karta pokazuje przycisk Nuxt UI z ikoną bez żądań do zewnętrznych hostów, a akcent zmienia się w trakcie działania. `/api/health` odpowiada, test na PGlite przechodzi. Dla każdego ryzyka R1–R3 jest zapisany wynik, a w razie porażki wybrany plan awaryjny.
+**DoD:** `pnpm dev` uruchamia API i przeglądarkę z rozszerzeniem. Nowa karta pokazuje przycisk Nuxt UI z ikoną bez żądań do zewnętrznych hostów, akcent zmienia się w trakcie działania, a plakietka pokazuje stan API. `/api/health` odpowiada, testy na PGlite przechodzą. Dla każdego ryzyka R1–R3 jest zapisany wynik, a w razie porażki wybrany plan awaryjny.
 
 ### Etap 1. Logowanie
 
 **Wymagania:** F-AUTH-01 … F-AUTH-06.
 
 **Zakres:**
-- API: Better Auth (e-mail i hasło, `bearer`, `trustedOrigins`, rate limiting), tabele auth w Drizzle, `cors`, `requestId`, `logger`, `requireAuth`, `app.onError` i format błędów;
+- API: Better Auth (e-mail i hasło, `bearer`, `trustedOrigins`, rate limiting), tabele auth w Drizzle, konfiguracja `drizzle-kit` i pierwsza migracja, `requestId`, `logger`, `requireAuth`, `app.onError` i format błędów;
 - rozszerzenie: klient API z tokenem, `createAuthClient`, ekrany logowania i rejestracji (`UForm` ze schematami z `shared`), obsługa 401, wylogowanie;
 - infrastruktura i18n (`vue-i18n`, PL i EN dla ekranów auth);
 - **R5:** potwierdzenie działania Better Auth z originem `chrome-extension://`.

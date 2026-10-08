@@ -16,7 +16,7 @@ Dokument opisuje, **jak** zrealizować [specyfikację MVP](02-specyfikacja.md). 
 └────────────────────────────┬──────────────────────────────────┘
                              │ HTTPS · JSON · Authorization: Bearer
 ┌────────────────────────────▼──────────────────────────────────┐
-│  API: Hono · Node 22                                           │
+│  API: Hono · Node 24                                           │
 │   ├─ Better Auth             /api/auth/*                       │
 │   └─ moduły                  settings · contexts · widgets · todos │
 └────────────────────────────┬──────────────────────────────────┘
@@ -33,7 +33,7 @@ Serwer jest źródłem prawdy. Rozszerzenie trzyma kopię danych w cache zapyta�
 | Warstwa | Technologia | Rola |
 |---|---|---|
 | Monorepo | pnpm workspaces | `apps/extension`, `apps/api`, `packages/shared` |
-| Język | TypeScript (strict) | cały kod |
+| Język | TypeScript 6.0 (strict) | cały kod; nie 7.x, bo `typescript-eslint` obsługuje TypeScript poniżej 6.1 |
 | Rozszerzenie | WXT (Manifest V3) | build, manifest, dev z hot reloadem |
 | UI | Vue 3, Nuxt UI (plugin `@nuxt/ui/vite`), Tailwind CSS v4 | komponenty, motywy |
 | Dane w UI | `@tanstack/vue-query` z persisterem | cache, odświeżanie, mutacje optymistyczne |
@@ -43,10 +43,10 @@ Serwer jest źródłem prawdy. Rozszerzenie trzyma kopię danych w cache zapyta�
 | i18n | `vue-i18n` | PL i EN |
 | Kolejność | `fractional-indexing` | pozycje jako indeksy ułamkowe |
 | ID | UUIDv7 (np. pakiet `uuid`) | ID generowane po stronie klienta |
-| API | Hono na Node 22 (`@hono/node-server`) | HTTP, klient RPC `hc` |
+| API | Hono na Node 24 LTS (`@hono/node-server`) | HTTP, klient RPC `hc` |
 | Walidacja | Zod, `@hono/zod-validator` | wspólne schematy dla frontu i API |
 | Auth | Better Auth (e-mail i hasło, plugin `bearer`) | konta i sesje |
-| Baza | PostgreSQL 17, Drizzle ORM, drizzle-kit | dane i migracje |
+| Baza | PostgreSQL 18, Drizzle ORM, drizzle-kit | dane i migracje |
 | Testy | Vitest, `@vue/test-utils`, PGlite, Playwright | jednostkowe, integracyjne, E2E |
 | Jakość | ESLint, Prettier | `pnpm check` |
 
@@ -58,9 +58,10 @@ Konkretne wersje pakietów ustalamy przy instalacji w Etapie 0 i zapisujemy w `p
 one-place/
 ├─ apps/
 │  ├─ extension/
-│  │  ├─ entrypoints/newtab/      index.html, main.ts, App.vue
 │  │  ├─ public/theme-boot.js     skrypt startowy motywu (klasyczny, blokujący)
-│  │  ├─ src/
+│  │  ├─ src/                     srcDir WXT (aliasy @ i ~)
+│  │  │  ├─ entrypoints/newtab/   index.html, main.ts, App.vue
+│  │  │  ├─ assets/main.css       Tailwind (theme(static)) i Nuxt UI
 │  │  │  ├─ api/                  klient hc<AppType>, token, obsługa 401
 │  │  │  ├─ queries/              composables per zasób, klucze zapytań
 │  │  │  ├─ stores/               Pinia: ui.ts
@@ -88,7 +89,9 @@ one-place/
 ├─ packages/
 │  └─ shared/src/                 schematy Zod, typy DTO, stałe (WIDGET_TYPES, ACCENT_COLORS, CONTEXT_ICONS)
 ├─ docs/
+├─ scripts/generate-extension-key.mjs   klucz i stałe ID rozszerzenia
 ├─ docker-compose.yml             Postgres do developmentu
+├─ .npmrc                         public-hoist-pattern dla @wxt-dev/* (wymagane przez WXT na Node 24)
 └─ pnpm-workspace.yaml
 ```
 
@@ -293,7 +296,7 @@ Serwisy nie znają Hono, a trasy nie znają Drizzle. `createApp({ db })` przyjmu
 ### Manifest
 
 - `permissions: ['storage']`, bez `host_permissions`. Do API łączymy się przez CORS (wymaganie niefunkcjonalne „Uprawnienia”).
-- Nadpisanie nowej karty: WXT generuje `chrome_url_overrides.newtab` z punktu wejścia `entrypoints/newtab/`.
+- Nadpisanie nowej karty: WXT generuje `chrome_url_overrides.newtab` z punktu wejścia `src/entrypoints/newtab/`.
 - `key` w manifeście developerskim, żeby ID rozszerzenia (a więc origin w `ALLOWED_ORIGINS`) było stałe między instalacjami. Przy publikacji używamy klucza z panelu Chrome Web Store.
 - Adres API pochodzi ze zmiennej `WXT_API_URL` ustawianej przy buildzie (domyślnie `http://localhost:3000`).
 
@@ -351,8 +354,9 @@ Mutacje są udostępniane przez composables w `src/queries/` (`useCreateContext(
   - ustawia akcent przez nadpisanie zmiennych `--ui-color-primary-50 … -950` na `:root` wartościami `var(--color-<accent>-<odcień>)`;
   - zapisuje motyw efektywny w `localStorage` dla `theme-boot.js`.
 - Ten sam mechanizm zmiennych CSS jest używany w `theme-boot.js` i w aplikacji, więc oba miejsca dają identyczny wynik.
-- Wbudowane zarządzanie trybem kolorów Nuxt UI jest wyłączone, bo trybem zarządza moduł `theme/` (do potwierdzenia w Etapie 0, ryzyko R3).
-- Palety wszystkich `ACCENT_COLORS` muszą być obecne w wynikowym CSS. Tailwind v4 domyślnie usuwa nieużywane zmienne motywu, więc palety deklarujemy przez `@theme static` lub jawnie (ryzyko R3).
+- Wbudowane zarządzanie trybem kolorów Nuxt UI jest wyłączone (`colorMode: false` w pluginie Vite), bo trybem zarządza moduł `theme/`.
+- Akcent ustawiamy jako styl inline na `<html>`. Wygrywa on z regułą `:root`, którą Nuxt UI wstrzykuje w trakcie działania.
+- Palety wszystkich `ACCENT_COLORS` muszą być obecne w wynikowym CSS. Tailwind v4 domyślnie usuwa nieużywane zmienne motywu, więc `main.css` importuje Tailwind przez `@import 'tailwindcss' theme(static)`. Bez tego `var(--color-green-500)` jest puste, a tło przycisków znika (sprawdzone w prototypie).
 - Tło pulpitu (F-THEME-06): `applyTheme` w MVP ignoruje `background.type === 'none'`. Kolejne typy tła dojdą jako nowe gałęzie unii i nowa obsługa w `applyTheme`.
 
 ### System widgetów
@@ -452,7 +456,7 @@ pnpm dev                      # API (watch) + WXT dev, który uruchamia przeglą
 |---|---|---|---|
 | D1 | Backend jest źródłem prawdy, lokalnie tylko cache | `chrome.storage.sync`, tylko lokalnie | synchronizacja między urządzeniami bez limitów `storage.sync` |
 | D2 | TanStack Query z persisterem (stale-while-revalidate, mutacje optymistyczne) | własny silnik sync (outbox i delta), Zero/Electric/PowerSync | najkrótsza droga do działającego MVP; API z `version` i `updatedAt` pozwala później przejść na własny silnik |
-| D3 | Hono na Node 22, docelowo VPS | Cloudflare Workers | wybór autora; wdrożenie po MVP |
+| D3 | Hono na Node 24 LTS, docelowo VPS | Cloudflare Workers | wybór autora; wdrożenie po MVP |
 | D4 | PostgreSQL i Drizzle; PGlite w testach | SQLite | `jsonb`, współbieżne zapisy wielu użytkowników, zgodność z silnikami synchronizacji |
 | D5 | Better Auth, e-mail i hasło, plugin `bearer` | Google OAuth, klucz synchronizacji, ciasteczka | prostota; token w nagłówku działa przewidywalnie z originu rozszerzenia; magic link później |
 | D6 | Logowanie wymagane w MVP | tryb lokalny z opcjonalnym kontem | mniej przypadków brzegowych; tryb bez konta przed publikacją |
