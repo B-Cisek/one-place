@@ -360,23 +360,23 @@ export * from './theme'
 
 **Kroki:**
 
-- [ ] **1. Pakiet API.** Utwórz `apps/api/package.json` (`@one-place/api`, `"type": "module"`, skrypty `typecheck`: `tsc --noEmit` i `test`: `vitest run`) oraz `tsconfig.json` z `"types": ["node"]` i `include: ["src", "test"]`.
-- [ ] **2. Zależności.**
+- [x] **1. Pakiet API.** Utwórz `apps/api/package.json` (`@one-place/api`, `"type": "module"`, skrypty `typecheck`: `tsc --noEmit` i `test`: `vitest run`) oraz `tsconfig.json` z `"types": ["node"]` i `include: ["src", "test"]`.
+- [x] **2. Zależności.**
 
   ```bash
   pnpm --filter @one-place/api add zod@^4
   pnpm --filter @one-place/api add -D @types/node@^24
   ```
 
-- [ ] **3. Czerwone testy.** W `src/env.test.ts` napisz trzy przypadki:
+- [x] **3. Czerwone testy.** W `src/env.test.ts` napisz trzy przypadki:
   - poprawny `DATABASE_URL` bez innych zmiennych daje `PORT === 3000` i `ALLOWED_ORIGINS` równe `[]`;
   - `ALLOWED_ORIGINS: 'chrome-extension://a, chrome-extension://b'` daje tablicę dwóch originów bez spacji;
   - pusty obiekt rzuca błąd, którego treść zawiera `DATABASE_URL`.
-- [ ] **4. Uruchom.** `pnpm --filter @one-place/api test`. Oczekiwany wynik: **FAIL**.
-- [ ] **5. Implementacja** `src/env.ts`: schemat Zod i funkcja `parseEnv`, która przy błędzie rzuca `Error` z treścią z `z.prettifyError`.
-- [ ] **6. Zielone testy.** Oczekiwany wynik: **PASS (3 testy)**.
-- [ ] **7. `.env.example`** z przykładowymi wartościami (patrz rozwiązanie).
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): walidacja zmiennych środowiskowych`.
+- [x] **4. Uruchom.** `pnpm --filter @one-place/api test`. Oczekiwany wynik: **FAIL**.
+- [x] **5. Implementacja** `src/env.ts`: schemat Zod i funkcja `parseEnv`, która przy błędzie rzuca `Error` z treścią z `z.prettifyError`.
+- [x] **6. Zielone testy.** Oczekiwany wynik: **PASS (3 testy)**.
+- [x] **7. `.env.example`** z przykładowymi wartościami (patrz rozwiązanie).
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): walidacja zmiennych środowiskowych`.
 
 <details>
 <summary>Podpowiedź</summary>
