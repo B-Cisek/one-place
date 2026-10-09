@@ -8,7 +8,7 @@ Ten plik prowadzi przez [Etap 0 z roadmapy](04-roadmapa.md#etap-0-fundament-i-sp
 
 **Specyfikacja:** [01-wizja.md](01-wizja.md), [02-specyfikacja.md](02-specyfikacja.md), [03-architektura.md](03-architektura.md), [04-roadmapa.md](04-roadmapa.md).
 
-> Rozwiązania sprawdziłem na prototypie 9.10.2026 (macOS, Node 24.7, pnpm 10.24, Chromium 156): testy, lint, typecheck, build oraz działanie nowej karty w przeglądarce, w tym połączenie z API.
+> Rozwiązania sprawdziłem na prototypie 9.10.2026 (macOS, Node 24.7, pnpm 10.24, Chromium 156): testy, lint, typecheck, build oraz działanie nowej karty w przeglądarce, w tym połączenie z API. Poprawkę obsługi błędów puli `pg` w zadaniu 3 sprawdziłem 10.10.2026.
 
 ## Jak korzystać z planu
 
@@ -46,13 +46,13 @@ Obowiązują w każdym zadaniu.
 
 - Pakiety wewnętrzne: `@one-place/shared`, `@one-place/api`, `@one-place/extension`. Zależności między nimi przez `workspace:*`.
 - Rozszerzenie ma tylko uprawnienie `storage` i stały `key`.
-- Nazwy w kodzie po angielsku. Teksty w UI i komunikaty błędów po polsku (w Etapie 1 przejdą do i18n).
+- Nazwy w kodzie, opisy testów, komunikaty błędów i logi po angielsku. Teksty w UI po polsku (w Etapie 1 przejdą do i18n).
 
 ## Na co uważać
 
 Pięć sytuacji, których testy jednostkowe łatwo nie obejmują, a które najczęściej psują wrażenie z używania:
 
-1. **API startuje bez bazy:** `/api/health` ma zwrócić 503, a nie wywrócić procesu. Test w zadaniu 3.
+1. **API bez bazy:** `/api/health` ma zwrócić 503, a nie wywrócić procesu, także gdy baza padnie w trakcie działania. Test i sprawdzenie ręczne w zadaniu 3.
 2. **Brak lub zła zmienna środowiskowa:** proces kończy się czytelnym błędem z nazwą zmiennej. Test w zadaniu 2.
 3. **Żądanie z obcego originu:** odpowiedź nie ma nagłówka `Access-Control-Allow-Origin`. Test w zadaniu 6.
 4. **API wyłączone przy otwartej karcie:** plakietka pokazuje `unreachable`, bez nieobsłużonego wyjątku w konsoli. Sprawdzenie ręczne w zadaniu 6.
@@ -285,13 +285,13 @@ import { describe, expect, it } from 'vitest'
 import { accentCssVariables, COLOR_SHADES } from './theme'
 
 describe('accentCssVariables', () => {
-  it('mapuje każdy odcień primary na odcień wybranego akcentu', () => {
+  it('maps every primary shade to the same shade of the chosen accent', () => {
     const vars = accentCssVariables('green')
     expect(vars['--ui-color-primary-500']).toBe('var(--color-green-500)')
     expect(vars['--ui-color-primary-950']).toBe('var(--color-green-950)')
   })
 
-  it('zwraca dokładnie jedną zmienną na każdy odcień', () => {
+  it('returns exactly one variable per shade', () => {
     expect(Object.keys(accentCssVariables('blue'))).toHaveLength(COLOR_SHADES.length)
   })
 })
@@ -422,13 +422,13 @@ import { describe, expect, it } from 'vitest'
 import { parseEnv } from './env'
 
 describe('parseEnv', () => {
-  it('parsuje poprawną konfigurację i ustawia domyślny port', () => {
+  it('parses a valid config and sets the default port', () => {
     const env = parseEnv({ DATABASE_URL: 'postgres://one:one@localhost:5432/one_place' })
     expect(env.PORT).toBe(3000)
     expect(env.ALLOWED_ORIGINS).toEqual([])
   })
 
-  it('dzieli ALLOWED_ORIGINS po przecinkach i obcina spacje', () => {
+  it('splits ALLOWED_ORIGINS on commas and trims whitespace', () => {
     const env = parseEnv({
       DATABASE_URL: 'postgres://one:one@localhost:5432/one_place',
       ALLOWED_ORIGINS: 'chrome-extension://a, chrome-extension://b',
@@ -436,7 +436,7 @@ describe('parseEnv', () => {
     expect(env.ALLOWED_ORIGINS).toEqual(['chrome-extension://a', 'chrome-extension://b'])
   })
 
-  it('rzuca czytelny błąd, gdy brakuje DATABASE_URL', () => {
+  it('throws a readable error when DATABASE_URL is missing', () => {
     expect(() => parseEnv({})).toThrow(/DATABASE_URL/)
   })
 })
@@ -466,7 +466,7 @@ export type Env = z.infer<typeof EnvSchema>
 export function parseEnv(source: Record<string, string | undefined>): Env {
   const result = EnvSchema.safeParse(source)
   if (!result.success) {
-    throw new Error(`Niepoprawna konfiguracja środowiska:\n${z.prettifyError(result.error)}`)
+    throw new Error(`Invalid environment configuration:\n${z.prettifyError(result.error)}`)
   }
   return result.data
 }
@@ -512,37 +512,45 @@ ALLOWED_ORIGINS=
 
 **Kroki:**
 
-- [ ] **1. Zależności.**
+- [x] **1. Zależności.**
 
   ```bash
   pnpm --filter @one-place/api add hono@^4 @hono/node-server@^2 drizzle-orm@^0.45 pg@^8
   pnpm --filter @one-place/api add -D tsx @types/pg @electric-sql/pglite@^0.5
   ```
 
-- [ ] **2. Typ bazy.** W `src/db/client.ts` zdefiniuj `type Database` wspólny dla Postgresa i PGlite oraz funkcję `createDb(databaseUrl)`.
-- [ ] **3. Pomocnik testowy.** W `test/create-test-app.ts` utwórz `createTestApp()`, który tworzy `new PGlite()`, opakowuje go przez `drizzle({ client })` i zwraca `{ app, client }`.
-- [ ] **4. Czerwone testy** w `test/health.test.ts`:
+- [x] **2. Typ bazy.** W `src/db/client.ts` zdefiniuj `type Database` wspólny dla Postgresa i PGlite oraz funkcję `createDb(databaseUrl)`. Funkcja tworzy `Pool` z `pg`, dodaje nasłuch na zdarzenie `error` i przekazuje pulę do `drizzle({ client: pool })`. Po co ten nasłuch, wyjaśnia sekcja „Pułapki” poniżej.
+- [x] **3. Pomocnik testowy.** W `test/create-test-app.ts` utwórz `createTestApp()`, który tworzy `new PGlite()`, opakowuje go przez `drizzle({ client })` i zwraca `{ app, client }`.
+- [x] **4. Czerwone testy** w `test/health.test.ts`:
   - `GET /api/health` zwraca `200` i `{ status: 'ok', db: 'ok' }`;
   - po `await client.close()` zwraca `503` i `{ status: 'error', db: 'unreachable' }` (to jest punkt 1 z [Na co uważać](#na-co-uważać)).
-- [ ] **5. Uruchom.** Oczekiwany wynik: **FAIL**, bo `createApp` nie istnieje.
-- [ ] **6. Implementacja** `src/app.ts`: `new Hono().basePath('/api').get('/health', …)`. Zapytanie `select 1` umieść w `try`/`catch`. Wyeksportuj `type AppType = ReturnType<typeof createApp>`.
-- [ ] **7. Zielone testy.** Oczekiwany wynik: **PASS (5 testów w pakiecie API)**.
-- [ ] **8. Punkt wejścia** `src/index.ts`: `parseEnv(process.env)` → `createDb` → `createApp` → `serve()`. Dodaj skrypt `"dev": "tsx watch --env-file=.env src/index.ts"`.
-- [ ] **9. Postgres w Dockerze.** Utwórz `docker-compose.yml` z obrazem `postgres:18` i uruchom `docker compose up -d`.
-- [ ] **10. Sprawdzenie ręczne.**
+- [x] **5. Uruchom.** Oczekiwany wynik: **FAIL**, bo `createApp` nie istnieje.
+- [x] **6. Implementacja** `src/app.ts`: `new Hono().basePath('/api').get('/health', …)`. Zapytanie `select 1` umieść w `try`/`catch`. Wyeksportuj `type AppType = ReturnType<typeof createApp>`.
+- [x] **7. Zielone testy.** Oczekiwany wynik: **PASS (5 testów w pakiecie API)**.
+- [x] **8. Punkt wejścia** `src/index.ts`: `parseEnv(process.env)` → `createDb` → `createApp` → `serve()`. Dodaj skrypt `"dev": "tsx watch --env-file=.env src/index.ts"`.
+- [x] **9. Postgres w Dockerze.** Utwórz `docker-compose.yml` z obrazem `postgres:18` i uruchom `docker compose up -d`.
+- [x] **10. Sprawdzenie ręczne.**
 
   ```bash
   cp apps/api/.env.example apps/api/.env
   pnpm --filter @one-place/api dev
   curl -i localhost:3000/api/health      # 200 {"status":"ok","db":"ok"}
-  docker compose stop
+  docker compose stop                    # od razu, w ciągu 10 s od curl
   curl -i localhost:3000/api/health      # 503 {"status":"error","db":"unreachable"}, serwer działa dalej
   docker compose start
+  curl -i localhost:3000/api/health      # znowu 200, bez restartu API
   ```
+
+  Zatrzymaj bazę zaraz po pierwszym `curl`. Wtedy w puli czeka otwarte połączenie, które Postgres zerwie przy zatrzymaniu. To najtrudniejszy przypadek: po 10 s bezczynności pula sama zamyka połączenie, a wtedy błąd z sekcji „Pułapki” się nie pojawi.
 
   Sprawdź też punkt 2 z [Na co uważać](#na-co-uważać): uruchom serwer z pustym `DATABASE_URL` i zobacz komunikat z nazwą zmiennej.
 
-- [ ] **11.** `pnpm format && pnpm check`, potem commit: `feat(api): Hono, połączenie z bazą i /api/health`.
+- [x] **11.** `pnpm format && pnpm check`, potem commit: `feat(api): Hono, połączenie z bazą i /api/health`.
+
+**Pułapki (sprawdzone na prototypie):**
+
+- **Proces pada po zatrzymaniu bazy** („Unhandled 'error' event” i `terminating connection due to administrator command`). Po pierwszym żądaniu pula `pg` trzyma bezczynne połączenie. Gdy Postgres się zamyka, zrywa je, a pula emituje zdarzenie `error`. Bez nasłuchu Node traktuje je jak nieobsłużony wyjątek i kończy proces. `try`/`catch` w trasie nie pomaga, bo błąd nie pochodzi z żadnego zapytania. `drizzle(databaseUrl)` tworzy pulę bez nasłuchu, dlatego tworzysz ją sam i dodajesz `pool.on('error', …)`.
+- **Typ `Database` zostaw jako `PgDatabase<PgQueryResultHKT>`.** Typ wywnioskowany z `createDb` (`NodePgDatabase & { $client: Pool }`) nie przyjmie bazy PGlite w `create-test-app.ts`.
 
 <details>
 <summary>Podpowiedź</summary>
@@ -564,11 +572,16 @@ ALLOWED_ORIGINS=
 ```ts
 import { drizzle } from 'drizzle-orm/node-postgres'
 import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
+import { Pool } from 'pg'
 
 export type Database = PgDatabase<PgQueryResultHKT>
 
 export function createDb(databaseUrl: string): Database {
-  return drizzle(databaseUrl)
+  const pool = new Pool({ connectionString: databaseUrl })
+  // pg emits 'error' on the pool when the server drops an idle connection.
+  // Without a listener, Node treats it as an uncaught exception and exits.
+  pool.on('error', (error) => console.error('Postgres pool error:', error.message))
+  return drizzle({ client: pool })
 }
 ```
 
@@ -594,14 +607,14 @@ import { describe, expect, it } from 'vitest'
 import { createTestApp } from './create-test-app'
 
 describe('GET /api/health', () => {
-  it('zwraca ok, gdy baza odpowiada', async () => {
+  it('returns ok when the database responds', async () => {
     const { app } = createTestApp()
     const res = await app.request('/api/health')
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ status: 'ok', db: 'ok' })
   })
 
-  it('zwraca 503, gdy baza nie odpowiada', async () => {
+  it('returns 503 when the database is unreachable', async () => {
     const { app, client } = createTestApp()
     await client.close()
     const res = await app.request('/api/health')
@@ -648,7 +661,7 @@ const env = parseEnv(process.env)
 const app = createApp({ db: createDb(env.DATABASE_URL) })
 
 serve({ fetch: app.fetch, port: env.PORT }, (info) => {
-  console.log(`API działa na http://localhost:${info.port}`)
+  console.log(`API works at http://localhost:${info.port}`)
 })
 ```
 
@@ -679,6 +692,7 @@ volumes:
 1. **Po co fabryka `createApp({ db })` zamiast globalnego `app` z bazą utworzoną w środku?** Testy podają PGlite, a produkcja Postgresa. Ten sam kod tras działa na obu bazach, bez mocków.
 2. **Dlaczego PGlite, a nie mock bazy?** PGlite to prawdziwy Postgres (skompilowany do WASM). Testy sprawdzają prawdziwe SQL, ograniczenia i kolacje, a mock sprawdzałby tylko, czy wywołałeś funkcję.
 3. **Dlaczego błąd bazy daje 503, a nie 500?** 503 (Service Unavailable) mówi, że serwis chwilowo nie działa z powodu zależności. Monitoring i load balancery traktują to inaczej niż błąd w kodzie.
+4. **Dlaczego `try`/`catch` w `/api/health` nie wystarczy, żeby proces przeżył zatrzymanie bazy?** Łapie tylko błędy zapytań wykonanych w tej trasie. Zerwanie bezczynnego połączenia to osobne zdarzenie `error` na obiekcie `Pool`, które pojawia się poza jakimkolwiek żądaniem. Bez nasłuchu Node kończy proces.
 
 </details>
 
@@ -1097,7 +1111,7 @@ export function createTestApp() {
 Nowy przypadek w `apps/api/test/health.test.ts` (import `TEST_ORIGIN` z `./create-test-app`)
 
 ```ts
-it('pozwala na CORS tylko dla originu rozszerzenia', async () => {
+it('allows CORS only for the extension origin', async () => {
   const { app } = createTestApp()
   const allowed = await app.request('/api/health', { headers: { Origin: TEST_ORIGIN } })
   expect(allowed.headers.get('Access-Control-Allow-Origin')).toBe(TEST_ORIGIN)

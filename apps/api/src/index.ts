@@ -1,0 +1,11 @@
+import { serve } from '@hono/node-server'
+import { createApp } from './app'
+import { createDb } from './db/client'
+import { parseEnv } from './env'
+
+const env = parseEnv(process.env)
+const app = createApp({ db: createDb(env.DATABASE_URL) })
+
+serve({ fetch: app.fetch, port: env.PORT }, (info) => {
+  console.log(`API works at http://localhost:${info.port}`)
+})
