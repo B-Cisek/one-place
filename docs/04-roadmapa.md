@@ -16,6 +16,7 @@
 **Plan nauki krok po kroku:** [05-implementacja-poczatkowa.md](05-implementacja-poczatkowa.md).
 
 **Zakres:**
+
 - monorepo pnpm (`apps/extension`, `apps/api`, `packages/shared`), TypeScript strict, ESLint, Prettier, Vitest, `pnpm check`;
 - WXT z Vue 3, Nuxt UI (`@nuxt/ui/vite`) i Tailwind v4, punkt wejścia `newtab`, stały `key` w manifeście;
 - **R1:** komponent Nuxt UI renderuje się na nowej karcie;
@@ -33,6 +34,7 @@
 **Wymagania:** F-AUTH-01 … F-AUTH-06.
 
 **Zakres:**
+
 - API: Better Auth (e-mail i hasło, `bearer`, `trustedOrigins`, rate limiting), tabele auth w Drizzle, konfiguracja `drizzle-kit` i pierwsza migracja, `requestId`, `logger`, `requireAuth`, `app.onError` i format błędów;
 - rozszerzenie: klient API z tokenem, `createAuthClient`, ekrany logowania i rejestracji (`UForm` ze schematami z `shared`), obsługa 401, wylogowanie;
 - infrastruktura i18n (`vue-i18n`, PL i EN dla ekranów auth);
@@ -45,6 +47,7 @@
 **Wymagania:** F-CTX-01 … F-CTX-08, F-SYNC-01 … F-SYNC-07, F-I18N-01 … F-I18N-03.
 
 **Zakres:**
+
 - API: moduły `settings` (z leniwym tworzeniem wiersza) i `contexts`, idempotentne `POST`, limity, testy 401/404/400;
 - rozszerzenie: TanStack Query z persisterem na `chrome.storage.local` (`buster`, throttle), wzorzec mutacji optymistycznej, `stores/ui.ts` z `activeContextId`;
 - pusty stan „pierwszy kontekst”, przełącznik w nagłówku, zarządzanie kontekstami (nazwa, ikona, kolejność, usuwanie z potwierdzeniem);
@@ -58,6 +61,7 @@
 **Wymagania:** F-GRID-01 … F-GRID-05, F-WGT-01 … F-WGT-07.
 
 **Zakres:**
+
 - `shared`: `WIDGET_TYPES`, `widgetConfigSchemas`, schematy układu;
 - API: moduł `widgets` (`GET`, `POST`, `PATCH`, `DELETE`, `PUT layout` w transakcji), walidacja typu i konfiguracji, limity;
 - rozszerzenie: kontrakt `WidgetDefinition`, `registry.ts`, `WidgetFrame` (menu, błędy, nieznany typ, walidacja konfiguracji), `DashboardGrid` z `grid-layout-plus`, tryb edycji, katalog widgetów, zapis układu z debounce, widok jednokolumnowy;
@@ -71,6 +75,7 @@
 **Wymagania:** F-TODO-01 … F-TODO-08.
 
 **Zakres:**
+
 - API: moduł `todos` z sortowaniem po `position COLLATE "C"`, limit 500, sprawdzenie typu widgetu;
 - rozszerzenie: `useTodos()`, `TaskSource` z implementacją `local`, `TaskList.vue` (dodawanie, checkbox, edycja w miejscu, usuwanie, przeciąganie przez `vue-draggable-plus`), `TodoSettings.vue` (tytuł, ukryj ukończone);
 - `config.source = { type: 'local' }` w domyślnej konfiguracji.
@@ -82,6 +87,7 @@
 **Wymagania:** F-THEME-01 … F-THEME-06.
 
 **Zakres:**
+
 - `shared`: `ThemeSettingsSchema`, `ThemeOverrideSchema`, `resolveTheme` z testami;
 - rozszerzenie: `applyTheme`, `public/theme-boot.js`, ustawienia globalne (tryb, próbki akcentów), sekcja „Wygląd” w ustawieniach kontekstu z opcją „Używaj motywu globalnego”;
 - obsługa zmiany motywu systemu na żywo.
@@ -91,6 +97,7 @@
 ### Etap 6. Domknięcie MVP
 
 **Zakres:**
+
 - testy E2E dla wszystkich 10 scenariuszy akceptacyjnych, w tym test prywatności;
 - komplet tłumaczeń EN;
 - pomiar wydajności (pierwszy render z cache poniżej 200 ms) i sprawdzenie budżetu JS;
@@ -110,6 +117,7 @@ Postgres produkcyjny, proces API pod systemd lub w kontenerze, reverse proxy z H
 ### Etap 8. Kolejne widgety
 
 Każdy widget dostaje własną krótką specyfikację.
+
 - **Notatki:** szybkie notatki; edytor do wyboru w specyfikacji.
 - **Linki:** zapisane linki z faviconami (favicony bez zewnętrznych usług lub jako uprawnienie opcjonalne).
 - **Pomodoro:** timer w service workerze (`chrome.alarms`), powiadomienia jako uprawnienie opcjonalne (`optional_permissions`).

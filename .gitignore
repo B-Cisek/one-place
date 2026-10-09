@@ -1,0 +1,7 @@
+node_modules
+.output
+.wxt
+.env
+*.local
+apps/extension/components.d.ts
+apps/extension/auto-imports.d.ts

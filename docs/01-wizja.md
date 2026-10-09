@@ -60,10 +60,10 @@ Paleta Cmd+K, pozostałe widgety (Notatki, Linki, Pomodoro, Pogoda, Health-check
 
 ## Dokumenty
 
-| Dokument | Zawartość |
-|---|---|
-| [01-wizja.md](01-wizja.md) | cel, odbiorcy, zasady, zakres MVP |
-| [02-specyfikacja.md](02-specyfikacja.md) | słownik, wymagania funkcjonalne i niefunkcjonalne MVP, kryteria akceptacji |
-| [03-architektura.md](03-architektura.md) | stack, struktura, model danych, API, rozszerzenie, system widgetów, testy, decyzje i ryzyka |
-| [04-roadmapa.md](04-roadmapa.md) | etapy MVP z definicją ukończenia, etapy po MVP, pomysły |
-| [05-implementacja-poczatkowa.md](05-implementacja-poczatkowa.md) | plan nauki: Etap 0 krok po kroku, z podpowiedziami i rozwiązaniami |
+| Dokument                                                         | Zawartość                                                                                   |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [01-wizja.md](01-wizja.md)                                       | cel, odbiorcy, zasady, zakres MVP                                                           |
+| [02-specyfikacja.md](02-specyfikacja.md)                         | słownik, wymagania funkcjonalne i niefunkcjonalne MVP, kryteria akceptacji                  |
+| [03-architektura.md](03-architektura.md)                         | stack, struktura, model danych, API, rozszerzenie, system widgetów, testy, decyzje i ryzyka |
+| [04-roadmapa.md](04-roadmapa.md)                                 | etapy MVP z definicją ukończenia, etapy po MVP, pomysły                                     |
+| [05-implementacja-poczatkowa.md](05-implementacja-poczatkowa.md) | plan nauki: Etap 0 krok po kroku, z podpowiedziami i rozwiązaniami                          |

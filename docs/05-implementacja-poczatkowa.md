@@ -31,18 +31,18 @@ Ten plik prowadzi przez [Etap 0 z roadmapy](04-roadmapa.md#etap-0-fundament-i-sp
 
 Obowiązują w każdym zadaniu.
 
-| Pakiet | Wersja | Uwagi |
-|---|---|---|
-| TypeScript | `~6.0.3` | **Nie 7.x:** `typescript-eslint` obsługuje TypeScript poniżej 6.1 |
-| Node | `>=24` | `"type": "module"` w każdym `package.json` |
-| Vitest | `^5` | |
-| ESLint | `^10` | flat config, `typescript-eslint`, `eslint-plugin-vue` |
-| Zod | `^4` | API różni się od Zod 3, np. `z.url()` i `z.prettifyError()` |
-| Hono | `^4.13` | `@hono/node-server` `^2` |
-| Drizzle ORM | `^0.45` | `@electric-sql/pglite` `^0.5` w testach |
-| WXT | `^0.21` | `@wxt-dev/module-vue` `^1` |
-| Nuxt UI | `^4.11` | Tailwind CSS `^4`, Vue `^3.5` |
-| PostgreSQL | `18` | obraz `postgres:18` |
+| Pakiet      | Wersja   | Uwagi                                                             |
+| ----------- | -------- | ----------------------------------------------------------------- |
+| TypeScript  | `~6.0.3` | **Nie 7.x:** `typescript-eslint` obsługuje TypeScript poniżej 6.1 |
+| Node        | `>=24`   | `"type": "module"` w każdym `package.json`                        |
+| Vitest      | `^5`     |                                                                   |
+| ESLint      | `^10`    | flat config, `typescript-eslint`, `eslint-plugin-vue`             |
+| Zod         | `^4`     | API różni się od Zod 3, np. `z.url()` i `z.prettifyError()`       |
+| Hono        | `^4.13`  | `@hono/node-server` `^2`                                          |
+| Drizzle ORM | `^0.45`  | `@electric-sql/pglite` `^0.5` w testach                           |
+| WXT         | `^0.21`  | `@wxt-dev/module-vue` `^1`                                        |
+| Nuxt UI     | `^4.11`  | Tailwind CSS `^4`, Vue `^3.5`                                     |
+| PostgreSQL  | `18`     | obraz `postgres:18`                                               |
 
 - Pakiety wewnętrzne: `@one-place/shared`, `@one-place/api`, `@one-place/extension`. Zależności między nimi przez `workspace:*`.
 - Rozszerzenie ma tylko uprawnienie `storage` i stały `key`.
@@ -91,16 +91,18 @@ one-place/
 **Czego się nauczysz:** pnpm workspaces, wspólny `tsconfig`, ESLint flat config, Prettier, Vitest, cykl czerwony → zielony.
 
 **Pliki:**
+
 - Utwórz: `pnpm-workspace.yaml`, `package.json`, `.gitignore`, `tsconfig.base.json`, `eslint.config.js`, `.prettierrc.json`, `.prettierignore`
 - Utwórz: `packages/shared/package.json`, `packages/shared/tsconfig.json`, `packages/shared/src/theme.ts`, `packages/shared/src/index.ts`
 - Test: `packages/shared/src/theme.test.ts`
 
 **Interfejsy:**
+
 - Wytwarza: `ACCENT_COLORS` (krotka 10 nazw kolorów), `type AccentColor`, `COLOR_SHADES` (`50 … 950`), `accentCssVariables(accent: AccentColor): Record<string, string>`. Funkcja zwraca mapę `--ui-color-primary-<odcień>` → `var(--color-<akcent>-<odcień>)`. Używa jej zadanie 5.
 
 **Kroki:**
 
-- [ ] **1. Konfiguracja workspace.** Utwórz `pnpm-workspace.yaml` (pakiety z `apps/*` i `packages/*`), główny `package.json` (prywatny, `"type": "module"`, `engines.node >= 24`, skrypty poniżej) i `.gitignore`.
+- [x] **1. Konfiguracja workspace.** Utwórz `pnpm-workspace.yaml` (pakiety z `apps/*` i `packages/*`), główny `package.json` (prywatny, `"type": "module"`, `engines.node >= 24`, skrypty poniżej) i `.gitignore`.
 
   Skrypty w głównym `package.json`:
 
@@ -116,21 +118,21 @@ one-place/
   }
   ```
 
-- [ ] **2. Wspólny TypeScript.** Utwórz `tsconfig.base.json` z trybem strict. Pakiety będą go rozszerzać.
-- [ ] **3. Narzędzia.** Zainstaluj w katalogu głównym:
+- [x] **2. Wspólny TypeScript.** Utwórz `tsconfig.base.json` z trybem strict. Pakiety będą go rozszerzać.
+- [x] **3. Narzędzia.** Zainstaluj w katalogu głównym:
 
   ```bash
   pnpm add -w -D typescript@~6.0.3 vitest@^5 eslint@^10 @eslint/js@^10 typescript-eslint@^8 eslint-plugin-vue globals prettier@^3
   ```
 
-- [ ] **4. ESLint i Prettier.** Utwórz `eslint.config.js` (JS, TypeScript i Vue z regułami `flat/essential`), `.prettierrc.json` i `.prettierignore`.
-- [ ] **5. Pakiet `shared`.** Utwórz `packages/shared/package.json` z `"exports": { ".": "./src/index.ts" }` oraz skryptami `typecheck` (`tsc --noEmit`) i `test` (`vitest run`). Dodaj `tsconfig.json` rozszerzający bazowy.
-- [ ] **6. Czerwony test.** Napisz `src/theme.test.ts` z dwoma przypadkami: (a) dla `'green'` zmienna `--ui-color-primary-500` ma wartość `var(--color-green-500)`, a `-950` ma `var(--color-green-950)`; (b) funkcja zwraca dokładnie tyle wpisów, ile jest odcieni.
-- [ ] **7. Uruchom test.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./theme` nie istnieje.
-- [ ] **8. Implementacja.** Napisz `src/theme.ts` (stałe, typ i funkcję) oraz `src/index.ts`, który eksportuje wszystko z `./theme`.
-- [ ] **9. Zielony test.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **PASS (2 testy)**.
-- [ ] **10. Cały check.** `pnpm format`, potem `pnpm check`. Oczekiwany wynik: lint bez błędów, formatowanie OK, typecheck OK, testy przechodzą.
-- [ ] **11. Commit.**
+- [x] **4. ESLint i Prettier.** Utwórz `eslint.config.js` (JS, TypeScript i Vue z regułami `flat/essential`), `.prettierrc.json` i `.prettierignore`.
+- [x] **5. Pakiet `shared`.** Utwórz `packages/shared/package.json` z `"exports": { ".": "./src/index.ts" }` oraz skryptami `typecheck` (`tsc --noEmit`) i `test` (`vitest run`). Dodaj `tsconfig.json` rozszerzający bazowy.
+- [x] **6. Czerwony test.** Napisz `src/theme.test.ts` z dwoma przypadkami: (a) dla `'green'` zmienna `--ui-color-primary-500` ma wartość `var(--color-green-500)`, a `-950` ma `var(--color-green-950)`; (b) funkcja zwraca dokładnie tyle wpisów, ile jest odcieni.
+- [x] **7. Uruchom test.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./theme` nie istnieje.
+- [x] **8. Implementacja.** Napisz `src/theme.ts` (stałe, typ i funkcję) oraz `src/index.ts`, który eksportuje wszystko z `./theme`.
+- [x] **9. Zielony test.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **PASS (2 testy)**.
+- [x] **10. Cały check.** `pnpm format`, potem `pnpm check`. Oczekiwany wynik: lint bez błędów, formatowanie OK, typecheck OK, testy przechodzą.
+- [x] **11. Commit.**
 
   ```bash
   git add -A && git commit -m "chore: monorepo, narzędzia jakości i pakiet shared"
@@ -149,6 +151,7 @@ one-place/
 <summary>Rozwiązanie: pliki konfiguracyjne</summary>
 
 `pnpm-workspace.yaml`
+
 ```yaml
 packages:
   - apps/*
@@ -156,6 +159,7 @@ packages:
 ```
 
 `package.json` (bez `devDependencies`, które dopisze `pnpm add`)
+
 ```json
 {
   "name": "one-place",
@@ -176,6 +180,7 @@ packages:
 ```
 
 `.gitignore`
+
 ```
 node_modules
 .output
@@ -187,6 +192,7 @@ apps/extension/auto-imports.d.ts
 ```
 
 `tsconfig.base.json`
+
 ```json
 {
   "compilerOptions": {
@@ -204,6 +210,7 @@ apps/extension/auto-imports.d.ts
 ```
 
 `eslint.config.js`
+
 ```js
 import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
@@ -227,6 +234,7 @@ export default defineConfig(
 ```
 
 `.prettierrc.json`
+
 ```json
 {
   "semi": false,
@@ -236,6 +244,7 @@ export default defineConfig(
 ```
 
 `.prettierignore`
+
 ```
 pnpm-lock.yaml
 .output
@@ -244,6 +253,7 @@ pnpm-lock.yaml
 ```
 
 `packages/shared/package.json`
+
 ```json
 {
   "name": "@one-place/shared",
@@ -258,6 +268,7 @@ pnpm-lock.yaml
 ```
 
 `packages/shared/tsconfig.json`
+
 ```json
 { "extends": "../../tsconfig.base.json", "include": ["src"] }
 ```
@@ -268,6 +279,7 @@ pnpm-lock.yaml
 <summary>Rozwiązanie: test i implementacja</summary>
 
 `packages/shared/src/theme.test.ts`
+
 ```ts
 import { describe, expect, it } from 'vitest'
 import { accentCssVariables, COLOR_SHADES } from './theme'
@@ -286,6 +298,7 @@ describe('accentCssVariables', () => {
 ```
 
 `packages/shared/src/theme.ts`
+
 ```ts
 export const ACCENT_COLORS = [
   'blue',
@@ -312,6 +325,7 @@ export function accentCssVariables(accent: AccentColor): Record<string, string> 
 ```
 
 `packages/shared/src/index.ts`
+
 ```ts
 export * from './theme'
 ```
@@ -336,10 +350,12 @@ export * from './theme'
 **Czego się nauczysz:** Zod 4 (`safeParse`, `coerce`, `default`, `transform`, `prettifyError`), funkcja testowalna dzięki przyjmowaniu źródła danych jako parametru.
 
 **Pliki:**
+
 - Utwórz: `apps/api/package.json`, `apps/api/tsconfig.json`, `apps/api/src/env.ts`, `apps/api/.env.example`
 - Test: `apps/api/src/env.test.ts`
 
 **Interfejsy:**
+
 - Wytwarza: `parseEnv(source: Record<string, string | undefined>): Env`, gdzie `Env = { DATABASE_URL: string; PORT: number; ALLOWED_ORIGINS: string[] }`. Używają go zadania 3 i 6.
 
 **Kroki:**
@@ -376,6 +392,7 @@ export * from './theme'
 <summary>Rozwiązanie</summary>
 
 `apps/api/package.json` (bez sekcji zależności)
+
 ```json
 {
   "name": "@one-place/api",
@@ -389,6 +406,7 @@ export * from './theme'
 ```
 
 `apps/api/tsconfig.json`
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -398,6 +416,7 @@ export * from './theme'
 ```
 
 `apps/api/src/env.test.ts`
+
 ```ts
 import { describe, expect, it } from 'vitest'
 import { parseEnv } from './env'
@@ -424,6 +443,7 @@ describe('parseEnv', () => {
 ```
 
 `apps/api/src/env.ts`
+
 ```ts
 import { z } from 'zod'
 
@@ -453,6 +473,7 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
 ```
 
 `apps/api/.env.example`
+
 ```
 DATABASE_URL=postgres://one:one@localhost:5432/one_place
 PORT=3000
@@ -479,11 +500,13 @@ ALLOWED_ORIGINS=
 **Czego się nauczysz:** Hono (`basePath`, `c.json`, `app.request()` w testach), Drizzle (połączenie, surowe zapytanie `sql`), wstrzykiwanie zależności przez fabrykę `createApp`, PGlite, Docker Compose.
 
 **Pliki:**
+
 - Utwórz: `apps/api/src/db/client.ts`, `apps/api/src/app.ts`, `apps/api/src/index.ts`, `docker-compose.yml`
 - Test: `apps/api/test/create-test-app.ts`, `apps/api/test/health.test.ts`
 - Zmień: `apps/api/package.json` (skrypt `dev`)
 
 **Interfejsy:**
+
 - Korzysta z: `parseEnv` (zadanie 2).
 - Wytwarza: `type Database`, `createDb(url: string): Database`, `createApp({ db }: { db: Database })` zwracające aplikację Hono z trasą `GET /api/health` (`200 { status: 'ok', db: 'ok' }` lub `503 { status: 'error', db: 'unreachable' }`), `type AppType` oraz `createTestApp(): { app, client }` w testach.
 
@@ -518,13 +541,14 @@ ALLOWED_ORIGINS=
   ```
 
   Sprawdź też punkt 2 z [Na co uważać](#na-co-uważać): uruchom serwer z pustym `DATABASE_URL` i zobacz komunikat z nazwą zmiennej.
+
 - [ ] **11.** `pnpm format && pnpm check`, potem commit: `feat(api): Hono, połączenie z bazą i /api/health`.
 
 <details>
 <summary>Podpowiedź</summary>
 
 - Drizzle ma osobne „drivery”: `drizzle-orm/node-postgres` dla produkcji i `drizzle-orm/pglite` dla testów. Oba zwracają obiekty dziedziczące po `PgDatabase` z `drizzle-orm/pg-core`, więc to dobry wspólny typ.
-- `` db.execute(sql`select 1`) `` wykonuje surowe zapytanie bez definiowania tabel.
+- ``db.execute(sql`select 1`)`` wykonuje surowe zapytanie bez definiowania tabel.
 - `app.request('/api/health')` wywołuje aplikację Hono bez uruchamiania serwera HTTP. Testy są dzięki temu szybkie i nie zajmują portów.
 - `c.json(obiekt, 503)` ustawia status. `as const` przy obiekcie zawęża typy literałów, co przyda się klientowi RPC w zadaniu 6.
 - **Pułapka Postgres 18:** w obrazie `postgres:18` wolumen montuje się do `/var/lib/postgresql`, a nie do `/var/lib/postgresql/data` jak we wcześniejszych wersjach.
@@ -536,6 +560,7 @@ ALLOWED_ORIGINS=
 <summary>Rozwiązanie</summary>
 
 `apps/api/src/db/client.ts`
+
 ```ts
 import { drizzle } from 'drizzle-orm/node-postgres'
 import type { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
@@ -548,6 +573,7 @@ export function createDb(databaseUrl: string): Database {
 ```
 
 `apps/api/test/create-test-app.ts`
+
 ```ts
 import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
@@ -562,6 +588,7 @@ export function createTestApp() {
 ```
 
 `apps/api/test/health.test.ts`
+
 ```ts
 import { describe, expect, it } from 'vitest'
 import { createTestApp } from './create-test-app'
@@ -585,6 +612,7 @@ describe('GET /api/health', () => {
 ```
 
 `apps/api/src/app.ts`
+
 ```ts
 import { Hono } from 'hono'
 import { sql } from 'drizzle-orm'
@@ -609,6 +637,7 @@ export type AppType = ReturnType<typeof createApp>
 ```
 
 `apps/api/src/index.ts`
+
 ```ts
 import { serve } from '@hono/node-server'
 import { createApp } from './app'
@@ -624,6 +653,7 @@ serve({ fetch: app.fetch, port: env.PORT }, (info) => {
 ```
 
 `docker-compose.yml` (w katalogu głównym repozytorium)
+
 ```yaml
 services:
   db:
@@ -661,11 +691,13 @@ volumes:
 **Czego się nauczysz:** struktura projektu WXT, nadpisanie nowej karty, plugin Vite Nuxt UI w trybie Vue (bez Nuxta), wkompilowanie ikon w paczkę, klucz i ID rozszerzenia, ładowanie rozszerzenia w trybie deweloperskim.
 
 **Pliki:**
+
 - Utwórz: `.npmrc`, `scripts/generate-extension-key.mjs`
 - Utwórz: `apps/extension/package.json`, `apps/extension/wxt.config.ts`, `apps/extension/tsconfig.json`
 - Utwórz: `apps/extension/src/entrypoints/newtab/index.html`, `main.ts`, `App.vue`, `apps/extension/src/assets/main.css`
 
 **Interfejsy:**
+
 - Wytwarza: zbudowane rozszerzenie w `apps/extension/.output/chrome-mv3/` oraz **ID rozszerzenia** (32 litery a–p), które w zadaniu 6 trafi do `ALLOWED_ORIGINS`.
 
 **Kroki:**
@@ -686,11 +718,13 @@ volumes:
 - [ ] **8. Uruchomienie.** `pnpm --filter @one-place/extension dev`. WXT buduje rozszerzenie i otwiera przeglądarkę. Otwórz nową kartę: widać przycisk z ikoną rakiety.
 
   Jeśli przeglądarka się nie otworzy albo nie ma w niej rozszerzenia, załaduj je ręcznie: `chrome://extensions` → włącz „Tryb dewelopera” → „Załaduj rozpakowane” → wskaż `apps/extension/.output/chrome-mv3-dev`.
+
 - [ ] **9. Sprawdź ID.** Na `chrome://extensions` ID rozszerzenia musi być takie samo jak to z kroku 7.
 - [ ] **10. Sprawdź R2 (punkt 5 z [Na co uważać](#na-co-uważać)).** Na nowej karcie otwórz DevTools → Network → zaznacz „Offline” → przeładuj. Ikona nadal widoczna, a w filtrze `iconify` brak żądań.
 - [ ] **11.** `pnpm --filter @one-place/extension build` przechodzi, potem `pnpm format && pnpm check` i commit: `feat(extension): nowa karta z WXT, Vue i Nuxt UI`.
 
 **Pułapki (sprawdzone na prototypie):**
+
 - **WXT nie znajduje `@wxt-dev/module-vue`** („Cannot find package”). WXT wczytuje moduły przez `import.meta.resolve(id, rodzic)`, a Node 24 bez flagi eksperymentalnej ignoruje drugi argument. Moduł jest więc szukany od miejsca, w którym leży sam WXT, a pnpm izoluje pakiety. `public-hoist-pattern[]=@wxt-dev/*` wynosi te pakiety do głównego `node_modules`. Jeśli zmienisz `.npmrc` po instalacji, pnpm zapyta o przebudowę `node_modules`: potwierdź.
 - **`postinstall: wxt prepare` przed konfiguracją** kończy instalację błędem, bo nie ma jeszcze `wxt.config.ts` ani modułów. Dlatego skrypt dochodzi dopiero w kroku 6.
 - **zsh i `workspace:*`:** w zsh gwiazdka jest wzorcem plików. Pisz `pnpm add '@one-place/shared@workspace:*'` w apostrofach.
@@ -711,11 +745,13 @@ volumes:
 <summary>Rozwiązanie</summary>
 
 `.npmrc`
+
 ```
 public-hoist-pattern[]=@wxt-dev/*
 ```
 
 `apps/extension/package.json` (stan po kroku 6, bez sekcji zależności)
+
 ```json
 {
   "name": "@one-place/extension",
@@ -732,6 +768,7 @@ public-hoist-pattern[]=@wxt-dev/*
 ```
 
 `apps/extension/wxt.config.ts`
+
 ```ts
 import { defineConfig } from 'wxt'
 import ui from '@nuxt/ui/vite'
@@ -759,11 +796,13 @@ export default defineConfig({
 ```
 
 `apps/extension/tsconfig.json`
+
 ```json
 { "extends": "./.wxt/tsconfig.json" }
 ```
 
 `apps/extension/src/entrypoints/newtab/index.html`
+
 ```html
 <!doctype html>
 <html lang="pl">
@@ -780,6 +819,7 @@ export default defineConfig({
 ```
 
 `apps/extension/src/entrypoints/newtab/main.ts`
+
 ```ts
 import { createApp } from 'vue'
 import ui from '@nuxt/ui/vue-plugin'
@@ -790,6 +830,7 @@ createApp(App).use(ui).mount('#app')
 ```
 
 `apps/extension/src/entrypoints/newtab/App.vue`
+
 ```vue
 <template>
   <UApp>
@@ -801,12 +842,14 @@ createApp(App).use(ui).mount('#app')
 ```
 
 `apps/extension/src/assets/main.css`
+
 ```css
 @import 'tailwindcss';
 @import '@nuxt/ui';
 ```
 
 `scripts/generate-extension-key.mjs`
+
 ```js
 import { createHash, generateKeyPairSync } from 'node:crypto'
 
@@ -846,9 +889,11 @@ Klucz publiczny nie jest sekretem i może być w repozytorium. Klucz prywatny ni
 **Czego się nauczysz:** jak Nuxt UI buduje kolory ze zmiennych CSS, kaskada (styl inline kontra arkusz), tree-shaking zmiennych motywu w Tailwind v4, import pakietu z workspace'u.
 
 **Pliki:**
+
 - Zmień: `apps/extension/package.json` (zależność `@one-place/shared`), `apps/extension/src/entrypoints/newtab/App.vue`, `apps/extension/src/assets/main.css`
 
 **Interfejsy:**
+
 - Korzysta z: `ACCENT_COLORS`, `AccentColor` i `accentCssVariables` z `@one-place/shared` (zadanie 1).
 
 **Kroki:**
@@ -876,12 +921,14 @@ Klucz publiczny nie jest sekretem i może być w repozytorium. Klucz prywatny ni
 <summary>Rozwiązanie</summary>
 
 `apps/extension/src/assets/main.css`
+
 ```css
 @import 'tailwindcss' theme(static);
 @import '@nuxt/ui';
 ```
 
 `apps/extension/src/entrypoints/newtab/App.vue`
+
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -947,11 +994,13 @@ function setAccent(accent: AccentColor) {
 **Czego się nauczysz:** klient RPC Hono (`hc<AppType>`) z typami prosto z backendu, composable w Vue, zmienne środowiskowe w WXT, CORS i origin rozszerzenia.
 
 **Pliki:**
+
 - Utwórz: `apps/extension/src/api/client.ts`, `apps/extension/src/api/use-api-health.ts`, `apps/extension/src/env.d.ts`, `apps/extension/.env.example`
 - Zmień: `apps/extension/src/entrypoints/newtab/App.vue`, `apps/api/package.json` (`exports`), `apps/api/src/app.ts`, `apps/api/src/index.ts`, `apps/api/test/create-test-app.ts`, `apps/api/.env.example`
 - Test: `apps/api/test/health.test.ts` (nowy przypadek CORS)
 
 **Interfejsy:**
+
 - Korzysta z: `AppType` i `createApp` (zadanie 3), `parseEnv` z polem `ALLOWED_ORIGINS` (zadanie 2), ID rozszerzenia (zadanie 4).
 - Zmienia: `createApp({ db, allowedOrigins }: { db: Database; allowedOrigins: string[] })`. Eksportuje `TEST_ORIGIN` z pomocnika testowego.
 - Wytwarza: `apiClient` (`hc<AppType>`) oraz `useApiHealth(): { health: Ref<'checking' | 'ok' | 'db-down' | 'unreachable'> }`.
@@ -967,9 +1016,10 @@ function setAccent(accent: AccentColor) {
   ```
 
   API jest zależnością deweloperską, bo importujesz z niego **tylko typ** (`import type`), który znika po kompilacji.
+
 - [ ] **3. Adres API.** `apps/extension/.env` i `.env.example` z `WXT_API_URL=http://localhost:3000`. Typ zmiennej zadeklaruj w `src/env.d.ts`.
 - [ ] **4. Klient i composable.** `src/api/client.ts` tworzy `apiClient = hc<AppType>(import.meta.env.WXT_API_URL)`. `src/api/use-api-health.ts` po zamontowaniu woła `apiClient.api.health.$get()` i ustawia stan: `ok`, `db-down` (odpowiedź inna niż 2xx) albo `unreachable` (wyjątek sieciowy).
-- [ ] **5. Plakietka.** W `App.vue` pokaż `` <UBadge :label="`API: ${health}`"> `` w kolorze `success` dla `ok`, a w pozostałych przypadkach `error`.
+- [ ] **5. Plakietka.** W `App.vue` pokaż ``<UBadge :label="`API: ${health}`">`` w kolorze `success` dla `ok`, a w pozostałych przypadkach `error`.
 - [ ] **6. Eksperyment.** Uruchom API i rozszerzenie (`pnpm dev` w katalogu głównym uruchomi oba). **Oczekiwany wynik: plakietka `API: unreachable`, a w konsoli DevTools błąd CORS** („blocked by CORS policy: No 'Access-Control-Allow-Origin' header”).
 - [ ] **7. Czerwony test.** W `health.test.ts` dodaj przypadek: żądanie z nagłówkiem `Origin: TEST_ORIGIN` dostaje `Access-Control-Allow-Origin: TEST_ORIGIN`, a żądanie z `Origin: https://evil.example` nie dostaje tego nagłówka wcale (punkt 3 z [Na co uważać](#na-co-uważać)). W `create-test-app.ts` wyeksportuj `TEST_ORIGIN = 'chrome-extension://test-extension-id'` i przekaż go do `createApp`. Oczekiwany wynik: **FAIL** (typecheck lub brak nagłówka).
 - [ ] **8. Implementacja.** `createApp` przyjmuje `allowedOrigins` i dodaje `.use(cors({ origin: allowedOrigins }))` z `hono/cors`. `index.ts` przekazuje `env.ALLOWED_ORIGINS`.
@@ -992,6 +1042,7 @@ function setAccent(accent: AccentColor) {
 <summary>Rozwiązanie: API</summary>
 
 `apps/api/src/app.ts`
+
 ```ts
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
@@ -1021,11 +1072,13 @@ export type AppType = ReturnType<typeof createApp>
 ```
 
 `apps/api/src/index.ts` (zmieniona linia)
+
 ```ts
 const app = createApp({ db: createDb(env.DATABASE_URL), allowedOrigins: env.ALLOWED_ORIGINS })
 ```
 
 `apps/api/test/create-test-app.ts`
+
 ```ts
 import { PGlite } from '@electric-sql/pglite'
 import { drizzle } from 'drizzle-orm/pglite'
@@ -1042,6 +1095,7 @@ export function createTestApp() {
 ```
 
 Nowy przypadek w `apps/api/test/health.test.ts` (import `TEST_ORIGIN` z `./create-test-app`)
+
 ```ts
 it('pozwala na CORS tylko dla originu rozszerzenia', async () => {
   const { app } = createTestApp()
@@ -1053,6 +1107,7 @@ it('pozwala na CORS tylko dla originu rozszerzenia', async () => {
 ```
 
 `apps/api/.env.example`
+
 ```
 DATABASE_URL=postgres://one:one@localhost:5432/one_place
 PORT=3000
@@ -1065,11 +1120,13 @@ ALLOWED_ORIGINS=chrome-extension://abcdefghijklmnopabcdefghijklmnop
 <summary>Rozwiązanie: rozszerzenie</summary>
 
 `apps/extension/.env.example`
+
 ```
 WXT_API_URL=http://localhost:3000
 ```
 
 `apps/extension/src/env.d.ts`
+
 ```ts
 interface ImportMetaEnv {
   readonly WXT_API_URL: string
@@ -1077,6 +1134,7 @@ interface ImportMetaEnv {
 ```
 
 `apps/extension/src/api/client.ts`
+
 ```ts
 import { hc } from 'hono/client'
 import type { AppType } from '@one-place/api'
@@ -1085,6 +1143,7 @@ export const apiClient = hc<AppType>(import.meta.env.WXT_API_URL)
 ```
 
 `apps/extension/src/api/use-api-health.ts`
+
 ```ts
 import { onMounted, ref } from 'vue'
 import { apiClient } from './client'
@@ -1108,18 +1167,17 @@ export function useApiHealth() {
 ```
 
 `App.vue`: w `<script setup>` dodaj
+
 ```ts
 import { useApiHealth } from '@/api/use-api-health'
 
 const { health } = useApiHealth()
 ```
+
 a w szablonie, pod przyciskiem „Nuxt UI działa”:
+
 ```vue
-<UBadge
-  :label="`API: ${health}`"
-  :color="health === 'ok' ? 'success' : 'error'"
-  variant="subtle"
-/>
+<UBadge :label="`API: ${health}`" :color="health === 'ok' ? 'success' : 'error'" variant="subtle" />
 ```
 
 </details>
@@ -1157,20 +1215,20 @@ a w szablonie, pod przyciskiem „Nuxt UI działa”:
 
 ## Materiały
 
-| Temat | Gdzie czytać |
-|---|---|
-| pnpm workspaces | https://pnpm.io/workspaces |
-| WXT (struktura, punkty wejścia, env) | https://wxt.dev |
-| Nuxt UI w Vue (bez Nuxta) | https://ui.nuxt.com/docs/getting-started/installation/vue |
-| Ikony Nuxt UI w Vue | https://ui.nuxt.com/docs/getting-started/integrations/icons/vue |
-| Tailwind v4: zmienne motywu | https://tailwindcss.com/docs/theme |
-| Hono: testowanie | https://hono.dev/docs/guides/testing |
-| Hono: RPC | https://hono.dev/docs/guides/rpc |
-| Drizzle z Postgresem | https://orm.drizzle.team/docs/get-started-postgresql |
-| Zod 4 | https://zod.dev |
-| Vitest | https://vitest.dev/guide/ |
-| Klucz manifestu i ID rozszerzenia | https://developer.chrome.com/docs/extensions/reference/manifest/key |
-| CORS | https://developer.mozilla.org/docs/Web/HTTP/CORS |
+| Temat                                | Gdzie czytać                                                        |
+| ------------------------------------ | ------------------------------------------------------------------- |
+| pnpm workspaces                      | https://pnpm.io/workspaces                                          |
+| WXT (struktura, punkty wejścia, env) | https://wxt.dev                                                     |
+| Nuxt UI w Vue (bez Nuxta)            | https://ui.nuxt.com/docs/getting-started/installation/vue           |
+| Ikony Nuxt UI w Vue                  | https://ui.nuxt.com/docs/getting-started/integrations/icons/vue     |
+| Tailwind v4: zmienne motywu          | https://tailwindcss.com/docs/theme                                  |
+| Hono: testowanie                     | https://hono.dev/docs/guides/testing                                |
+| Hono: RPC                            | https://hono.dev/docs/guides/rpc                                    |
+| Drizzle z Postgresem                 | https://orm.drizzle.team/docs/get-started-postgresql                |
+| Zod 4                                | https://zod.dev                                                     |
+| Vitest                               | https://vitest.dev/guide/                                           |
+| Klucz manifestu i ID rozszerzenia    | https://developer.chrome.com/docs/extensions/reference/manifest/key |
+| CORS                                 | https://developer.mozilla.org/docs/Web/HTTP/CORS                    |
 
 ## Co dalej
 
