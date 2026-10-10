@@ -742,7 +742,7 @@ volumes:
 - **WXT nie znajduje `@wxt-dev/module-vue`** („Cannot find package”). WXT wczytuje moduły przez `import.meta.resolve(id, rodzic)`, a Node 24 bez flagi eksperymentalnej ignoruje drugi argument. Moduł jest więc szukany od miejsca, w którym leży sam WXT, a pnpm izoluje pakiety. `public-hoist-pattern[]=@wxt-dev/*` wynosi te pakiety do głównego `node_modules`.
 - **`ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF` po dodaniu `.npmrc`.** `node_modules` powstał z innym wzorcem hoistowania, a `pnpm add` go nie przebuduje. Uruchom `pnpm install` w katalogu głównym i potwierdź usunięcie `node_modules` (`Y`). Bez terminala interaktywnego: `pnpm install --config.confirm-modules-purge=false`.
 - **`postinstall: wxt prepare` przed konfiguracją** kończy instalację błędem, bo nie ma jeszcze `wxt.config.ts` ani modułów. Dlatego skrypt dochodzi dopiero w kroku 6.
-- **`pnpm add` w rozszerzeniu pada na `postinstall`** (`wxt: command not found` albo `Cannot find module …` z `wxt.config.ts`). Wtedy pnpm nie zapisuje zmian w `package.json`, a kolejne `add` usuwa pakiety, których w nim nie ma, w tym te wyniesione przez `.npmrc`. Dodaj pakiety z flagą `--ignore-scripts`, a potem przeinstaluj wszystko od zera: `rm -rf node_modules apps/*/node_modules packages/*/node_modules && pnpm install`. Sam `pnpm install` nie wystarczy, bo przy instalacji przyrostowej nie odtwarza hoistingu.
+- **`pnpm add` w rozszerzeniu pada na `postinstall`** (`wxt: command not found` albo `Cannot find module …` z `wxt.config.ts`). Wtedy pnpm nie zapisuje zmian w `package.json`, a kolejne `add` usuwa pakiety, których w nim nie ma, w tym te wyniesione przez `.npmrc`. Dodaj pakiety z flagą `--ignore-scripts`, a potem przeinstaluj wszystko od zera: `rm -rf node_modules apps/*/node_modules packages/*/node_modules && pnpm install`. Sam `pnpm install` nie wystarczy, bo przy instalacji przyrostowej nxe odtwarza hoistingu.
 - **zsh i `workspace:*`:** w zsh gwiazdka jest wzorcem plików. Pisz `pnpm add '@one-place/shared@workspace:*'` w apostrofach.
 - **Alias `@` i `~`** w WXT wskazuje na `srcDir`. Bez `srcDir: 'src'` import `@/api/...` nie zadziała, bo alias wskazywałby katalog `apps/extension`.
 - **`document` w szablonie Vue jest niedostępne.** Operacje na DOM umieszczaj w funkcjach w `<script setup>`.
@@ -914,14 +914,14 @@ Klucz publiczny nie jest sekretem i może być w repozytorium. Klucz prywatny ni
 
 **Kroki:**
 
-- [ ] **1. Zależność od `shared`.** `pnpm --filter @one-place/extension add '@one-place/shared@workspace:*'`
-- [ ] **2. Przyciski akcentów.** W `App.vue` wyrenderuj przycisk dla każdego koloru z `ACCENT_COLORS`. Kliknięcie wywołuje `setAccent(accent)`, które ustawia każdą zmienną z `accentCssVariables(accent)` na `document.documentElement.style`.
-- [ ] **3. Tryb ciemny.** Przycisk z ikoną `i-lucide-moon` lub `i-lucide-sun` przełącza klasę `dark` na `<html>`.
-- [ ] **4. Eksperyment.** Uruchom rozszerzenie i kliknij `green`. **Oczekiwany wynik: przycisk „Nuxt UI działa” traci kolor tła (staje się przezroczysty).**
-- [ ] **5. Diagnoza.** W DevTools → Elements zaznacz `<html>`, zakładka Computed i znajdź `--color-green-500`. Wartość jest pusta. Zastanów się dlaczego, zanim otworzysz wyjaśnienie poniżej.
-- [ ] **6. Poprawka.** W `main.css` zmień pierwszy import na `@import 'tailwindcss' theme(static);`.
-- [ ] **7. Sprawdzenie.** Wszystkie 10 akcentów działa w trybie jasnym i ciemnym. W trybie ciemnym kolor jest jaśniejszy (odcień 400 zamiast 500). Zanotuj, o ile urósł CSS po buildzie (w prototypie było to około 14 kB).
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): zmiana akcentu i trybu w trakcie działania`.
+- [x] **1. Zależność od `shared`.** `pnpm --filter @one-place/extension add '@one-place/shared@workspace:*'`
+- [x] **2. Przyciski akcentów.** W `App.vue` wyrenderuj przycisk dla każdego koloru z `ACCENT_COLORS`. Kliknięcie wywołuje `setAccent(accent)`, które ustawia każdą zmienną z `accentCssVariables(accent)` na `document.documentElement.style`.
+- [x] **3. Tryb ciemny.** Przycisk z ikoną `i-lucide-moon` lub `i-lucide-sun` przełącza klasę `dark` na `<html>`.
+- [x] **4. Eksperyment.** Uruchom rozszerzenie i kliknij `green`. **Oczekiwany wynik: przycisk „Nuxt UI działa” traci kolor tła (staje się przezroczysty).**
+- [x] **5. Diagnoza.** W DevTools → Elements zaznacz `<html>`, zakładka Computed i znajdź `--color-green-500`. Wartość jest pusta. Zastanów się dlaczego, zanim otworzysz wyjaśnienie poniżej.
+- [x] **6. Poprawka.** W `main.css` zmień pierwszy import na `@import 'tailwindcss' theme(static);`.
+- [x] **7. Sprawdzenie.** Wszystkie 10 akcentów działa w trybie jasnym i ciemnym. W trybie ciemnym kolor jest jaśniejszy (odcień 400 zamiast 500). Zanotuj, o ile urósł CSS po buildzie (w prototypie było to około 14 kB).
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): zmiana akcentu i trybu w trakcie działania`.
 
 <details>
 <summary>Wyjaśnienie eksperymentu (otwórz po kroku 5)</summary>
