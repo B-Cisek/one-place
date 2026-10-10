@@ -1,0 +1,23 @@
+{
+  "name": "@one-place/extension",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "@nuxt/ui": "^4.11.3",
+    "tailwindcss": "^4.3.3",
+    "vue": "^3.5.43"
+  },
+  "devDependencies": {
+    "@iconify-json/lucide": "^1.2.142",
+    "@wxt-dev/module-vue": "^1.0.3",
+    "vue-tsc": "^3.3.12",
+    "wxt": "^0.21.4"
+  }
+}

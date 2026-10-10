@@ -5,3 +5,5 @@ node_modules
 *.local
 apps/extension/components.d.ts
 apps/extension/auto-imports.d.ts
+.vscode
+.DS_Store

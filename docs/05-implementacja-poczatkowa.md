@@ -716,31 +716,33 @@ volumes:
 
 **Kroki:**
 
-- [ ] **1. `.npmrc` w katalogu głównym** z linią `public-hoist-pattern[]=@wxt-dev/*`. Dlaczego, wyjaśnia sekcja „Pułapki” poniżej.
-- [ ] **2. `package.json` rozszerzenia, na razie bez `postinstall`.** Nazwa `@one-place/extension`, skrypty `dev`: `wxt`, `build`: `wxt build`, `typecheck`: `vue-tsc --noEmit`, `test`: `vitest run --passWithNoTests`.
-- [ ] **3. Zależności.**
+- [x] **1. `.npmrc` w katalogu głównym** z linią `public-hoist-pattern[]=@wxt-dev/*`. Dlaczego, wyjaśnia sekcja „Pułapki” poniżej. Potem uruchom `pnpm install` i potwierdź przebudowę `node_modules` (`Y`). Bez tego `pnpm add` w kroku 3 kończy się błędem `ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF`.
+- [x] **2. `package.json` rozszerzenia, na razie bez `postinstall`.** Nazwa `@one-place/extension`, skrypty `dev`: `wxt`, `build`: `wxt build`, `typecheck`: `vue-tsc --noEmit`, `test`: `vitest run --passWithNoTests`.
+- [x] **3. Zależności.**
 
   ```bash
   pnpm --filter @one-place/extension add vue@^3.5 @nuxt/ui@^4 tailwindcss@^4
   pnpm --filter @one-place/extension add -D wxt@^0.21 @wxt-dev/module-vue@^1 vue-tsc@^3 @iconify-json/lucide
   ```
 
-- [ ] **4. `wxt.config.ts`:** `srcDir: 'src'`, moduł Vue, plugin `ui()` z `router: false`, `colorMode: false` i `icon.clientBundle.scan: true` oraz manifest z nazwą, wersją i `permissions: ['storage']`.
-- [ ] **5. Punkt wejścia `newtab`.** WXT rozpoznaje nazwę katalogu `newtab` i sam dodaje `chrome_url_overrides.newtab` do manifestu. Utwórz `index.html`, `main.ts` (montuje Vue z pluginem Nuxt UI i importuje CSS), `App.vue` (`<UApp>` z jednym `<UButton icon="i-lucide-rocket">`) i `src/assets/main.css` (import Tailwind i Nuxt UI).
-- [ ] **6. Typy WXT.** Dodaj skrypt `"postinstall": "wxt prepare"`, `tsconfig.json` z `{ "extends": "./.wxt/tsconfig.json" }` i uruchom `pnpm install`.
-- [ ] **7. Stałe ID.** Napisz `scripts/generate-extension-key.mjs`, który generuje parę kluczy RSA i wypisuje klucz publiczny (base64 DER) oraz wyliczone z niego ID. Uruchom go: `node scripts/generate-extension-key.mjs`. Wklej klucz do `manifest.key` w `wxt.config.ts`, a **ID zapisz**, bo przyda się w zadaniu 6.
-- [ ] **8. Uruchomienie.** `pnpm --filter @one-place/extension dev`. WXT buduje rozszerzenie i otwiera przeglądarkę. Otwórz nową kartę: widać przycisk z ikoną rakiety.
+- [x] **4. `wxt.config.ts`:** `srcDir: 'src'`, moduł Vue, plugin `ui()` z `router: false`, `colorMode: false` i `icon.clientBundle.scan: true` oraz manifest z nazwą, wersją i `permissions: ['storage']`.
+- [x] **5. Punkt wejścia `newtab`.** WXT rozpoznaje nazwę katalogu `newtab` i sam dodaje `chrome_url_overrides.newtab` do manifestu. Utwórz `index.html`, `main.ts` (montuje Vue z pluginem Nuxt UI i importuje CSS), `App.vue` (`<UApp>` z jednym `<UButton icon="i-lucide-rocket">`) i `src/assets/main.css` (import Tailwind i Nuxt UI).
+- [x] **6. Typy WXT.** Dodaj skrypt `"postinstall": "wxt prepare"`, `tsconfig.json` z `{ "extends": "./.wxt/tsconfig.json" }` i uruchom `pnpm install`.
+- [x] **7. Stałe ID.** Napisz `scripts/generate-extension-key.mjs`, który generuje parę kluczy RSA i wypisuje klucz publiczny (base64 DER) oraz wyliczone z niego ID. Uruchom go: `node scripts/generate-extension-key.mjs`. Wklej klucz do `manifest.key` w `wxt.config.ts`, a **ID zapisz**, bo przyda się w zadaniu 6.
+- [x] **8. Uruchomienie.** `pnpm --filter @one-place/extension dev`. WXT buduje rozszerzenie i otwiera przeglądarkę. Otwórz nową kartę: widać przycisk z ikoną rakiety.
 
-  Jeśli przeglądarka się nie otworzy albo nie ma w niej rozszerzenia, załaduj je ręcznie: `chrome://extensions` → włącz „Tryb dewelopera” → „Załaduj rozpakowane” → wskaż `apps/extension/.output/chrome-mv3-dev`.
+  Jeśli przeglądarka się nie otworzy albo nie ma w niej rozszerzenia, załaduj je ręcznie: `chrome://extensions` → włącz „Tryb dewelopera” → „Załaduj rozpakowane” → wskaż `apps/extension/.output/chrome-mv3-dev`. Na macOS katalog `.output` jest ukryty: w oknie wyboru pokażesz go skrótem ⌘⇧. (kropka) albo wpiszesz pełną ścieżkę po ⌘⇧G.
 
-- [ ] **9. Sprawdź ID.** Na `chrome://extensions` ID rozszerzenia musi być takie samo jak to z kroku 7.
-- [ ] **10. Sprawdź R2 (punkt 5 z [Na co uważać](#na-co-uważać)).** Na nowej karcie otwórz DevTools → Network → zaznacz „Offline” → przeładuj. Ikona nadal widoczna, a w filtrze `iconify` brak żądań.
-- [ ] **11.** `pnpm --filter @one-place/extension build` przechodzi, potem `pnpm format && pnpm check` i commit: `feat(extension): nowa karta z WXT, Vue i Nuxt UI`.
+- [x] **9. Sprawdź ID.** Na `chrome://extensions` ID rozszerzenia musi być takie samo jak to z kroku 7.
+- [x] **10. Sprawdź R2 (punkt 5 z [Na co uważać](#na-co-uważać)).** Na nowej karcie otwórz DevTools → Network → zaznacz „Offline” → przeładuj. Ikona nadal widoczna, a w filtrze `iconify` brak żądań.
+- [x] **11.** `pnpm --filter @one-place/extension build` przechodzi, potem `pnpm format && pnpm check` i commit: `feat(extension): nowa karta z WXT, Vue i Nuxt UI`.
 
 **Pułapki (sprawdzone na prototypie):**
 
-- **WXT nie znajduje `@wxt-dev/module-vue`** („Cannot find package”). WXT wczytuje moduły przez `import.meta.resolve(id, rodzic)`, a Node 24 bez flagi eksperymentalnej ignoruje drugi argument. Moduł jest więc szukany od miejsca, w którym leży sam WXT, a pnpm izoluje pakiety. `public-hoist-pattern[]=@wxt-dev/*` wynosi te pakiety do głównego `node_modules`. Jeśli zmienisz `.npmrc` po instalacji, pnpm zapyta o przebudowę `node_modules`: potwierdź.
+- **WXT nie znajduje `@wxt-dev/module-vue`** („Cannot find package”). WXT wczytuje moduły przez `import.meta.resolve(id, rodzic)`, a Node 24 bez flagi eksperymentalnej ignoruje drugi argument. Moduł jest więc szukany od miejsca, w którym leży sam WXT, a pnpm izoluje pakiety. `public-hoist-pattern[]=@wxt-dev/*` wynosi te pakiety do głównego `node_modules`.
+- **`ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF` po dodaniu `.npmrc`.** `node_modules` powstał z innym wzorcem hoistowania, a `pnpm add` go nie przebuduje. Uruchom `pnpm install` w katalogu głównym i potwierdź usunięcie `node_modules` (`Y`). Bez terminala interaktywnego: `pnpm install --config.confirm-modules-purge=false`.
 - **`postinstall: wxt prepare` przed konfiguracją** kończy instalację błędem, bo nie ma jeszcze `wxt.config.ts` ani modułów. Dlatego skrypt dochodzi dopiero w kroku 6.
+- **`pnpm add` w rozszerzeniu pada na `postinstall`** (`wxt: command not found` albo `Cannot find module …` z `wxt.config.ts`). Wtedy pnpm nie zapisuje zmian w `package.json`, a kolejne `add` usuwa pakiety, których w nim nie ma, w tym te wyniesione przez `.npmrc`. Dodaj pakiety z flagą `--ignore-scripts`, a potem przeinstaluj wszystko od zera: `rm -rf node_modules apps/*/node_modules packages/*/node_modules && pnpm install`. Sam `pnpm install` nie wystarczy, bo przy instalacji przyrostowej nie odtwarza hoistingu.
 - **zsh i `workspace:*`:** w zsh gwiazdka jest wzorcem plików. Pisz `pnpm add '@one-place/shared@workspace:*'` w apostrofach.
 - **Alias `@` i `~`** w WXT wskazuje na `srcDir`. Bez `srcDir: 'src'` import `@/api/...` nie zadziała, bo alias wskazywałby katalog `apps/extension`.
 - **`document` w szablonie Vue jest niedostępne.** Operacje na DOM umieszczaj w funkcjach w `<script setup>`.
@@ -764,7 +766,7 @@ volumes:
 public-hoist-pattern[]=@wxt-dev/*
 ```
 
-`apps/extension/package.json` (stan po kroku 6, bez sekcji zależności)
+`apps/extension/package.json` (stan po kroku 6). Pokazuję tylko pola, które piszesz sam. Sekcje `dependencies` i `devDependencies` dopisał `pnpm add` w kroku 3, więc nie nadpisuj pliku tym fragmentem, tylko dodaj skrypt `postinstall`.
 
 ```json
 {
