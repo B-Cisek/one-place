@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { authClient } from '@/api/auth-client'
 import { apiClient } from '@/api/client'
 import { endSession } from '@/api/session'
 import { useApiHealth } from '@/api/use-api-health'
@@ -21,6 +20,7 @@ onMounted(async () => {
 
 async function signOut() {
   try {
+    const { authClient } = await import('@/api/auth-client')
     await authClient.signOut()
   } catch {
     // API unreachable: the server session will expire on its own

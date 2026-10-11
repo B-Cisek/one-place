@@ -1,5 +1,7 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'wxt'
 import ui from '@nuxt/ui/vite'
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 
 export default defineConfig({
   dev: {
@@ -11,6 +13,11 @@ export default defineConfig({
   modules: ['@wxt-dev/module-vue'],
   vite: () => ({
     plugins: [
+      // Compiles pl.json and en.json at build time, so the runtime message compiler is not needed
+      VueI18nPlugin({
+        include: [fileURLToPath(new URL('./src/i18n/*.json', import.meta.url))],
+        dropMessageCompiler: true,
+      }),
       ui({
         router: false,
         colorMode: false,

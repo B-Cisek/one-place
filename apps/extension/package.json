@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.142",
+    "@intlify/unplugin-vue-i18n": "^11.2.5",
     "@one-place/api": "workspace:*",
     "@wxt-dev/module-vue": "^1.0.3",
     "vue-tsc": "^3.3.12",
