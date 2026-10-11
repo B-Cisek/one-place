@@ -1,0 +1,23 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import SignInForm from './SignInForm.vue'
+import SignUpForm from './SignUpForm.vue'
+
+const { t } = useI18n()
+const mode = ref<'sign-in' | 'sign-up'>('sign-in')
+</script>
+
+<template>
+  <main class="grid min-h-screen place-items-center bg-default p-4">
+    <UCard class="w-full max-w-sm">
+      <template #header>
+        <h1 class="text-center text-xl font-semibold text-highlighted">
+          {{ t(mode === 'sign-in' ? 'auth.signIn.title' : 'auth.signUp.title') }}
+        </h1>
+      </template>
+      <SignInForm v-if="mode === 'sign-in'" @switch="mode = 'sign-up'" />
+      <SignUpForm v-else @switch="mode = 'sign-in'" />
+    </UCard>
+  </main>
+</template>
