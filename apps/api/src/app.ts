@@ -6,6 +6,7 @@ import type { Database } from './db/client'
 import { handleError, handleNotFound } from './lib/errors'
 import { requestId } from 'hono/request-id'
 import { requestLogger } from './middleware/logger'
+import { requireAuth } from './middleware/require-auth'
 import type { Logger } from 'pino'
 
 interface AppDeps {
@@ -35,6 +36,10 @@ export function createApp({ db, auth, allowedOrigins, logger }: AppDeps) {
       } catch {
         return c.json({ status: 'error', db: 'unreachable' } as const, 503)
       }
+    })
+    .get('/me', requireAuth(auth), (c) => {
+      const { id, name, email } = c.var.user
+      return c.json({ id, name, email })
     })
     .onError(handleError)
     .notFound(handleNotFound)

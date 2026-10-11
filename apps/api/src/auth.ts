@@ -33,7 +33,7 @@ export function createAuth({ db, secret, baseURL, trustedOrigins, logger }: Auth
     rateLimit: { enabled: true },
     telemetry: { enabled: false },
     logger: { log: (level, message, ...args) => logger[level]({ args }, message) },
-    plugins: [bearer()],
+    plugins: [bearer({ requireSignature: true })],
     // Better Auth skips the Origin check when NODE_ENV=test. Explicit false keeps tests honest.
     advanced: { disableOriginCheck: false },
     databaseHooks: {
