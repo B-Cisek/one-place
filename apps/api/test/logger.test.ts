@@ -45,7 +45,7 @@ describe('request logging', () => {
   })
 
   it('adds X-Request-Id to API responses', async () => {
-    const { app } = createTestApp()
+    const { app } = await createTestApp()
     const res = await app.request('/api/health')
     expect(res.headers.get('X-Request-Id')).toBeTruthy()
   })

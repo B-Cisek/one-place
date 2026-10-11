@@ -44,7 +44,7 @@ describe('error handling', () => {
   })
 
   it('returns NOT_FOUND in the standard format for unknown API routes', async () => {
-    const { app } = createTestApp()
+    const { app } = await createTestApp()
     const res = await app.request('/api/does-not-exist')
     expect(res.status).toBe(404)
     expect(await res.json()).toEqual({ error: { code: 'NOT_FOUND', message: 'Route not found' } })
