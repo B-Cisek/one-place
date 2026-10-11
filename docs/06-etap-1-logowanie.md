@@ -107,18 +107,18 @@ one-place/
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/shared add zod@^4`
-- [ ] **2. Czerwone testy** w `src/auth.test.ts`:
+- [x] **1. Zależność.** `pnpm --filter @one-place/shared add zod@^4`
+- [x] **2. Czerwone testy** w `src/auth.test.ts`:
   - poprawne dane przechodzą, a nazwa `'  Bartek  '` po parsowaniu to `'Bartek'`;
   - nazwa z samych spacji daje komunikat `validation.nameRequired`;
   - nazwa z 50 znaków przechodzi, a z 51 daje `validation.nameTooLong`;
   - hasło z 8 i 128 znaków przechodzi, z 7 daje `validation.passwordTooShort`, a ze 129 `validation.passwordTooLong`;
   - zły e-mail daje `validation.emailInvalid`;
   - `SignInSchema` przyjmuje hasło `'x'` (sprawdza tylko, czy jest), a puste daje `validation.passwordRequired`.
-- [ ] **3. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./auth` nie istnieje.
-- [ ] **4. Implementacja** `src/auth.ts`, a w `src/index.ts` dopisz `export * from './auth'`.
-- [ ] **5. Zielone testy.** Oczekiwany wynik: **PASS (8 testów w `shared`)**.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add sign-up and sign-in schemas`.
+- [x] **3. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./auth` nie istnieje.
+- [x] **4. Implementacja** `src/auth.ts`, a w `src/index.ts` dopisz `export * from './auth'`.
+- [x] **5. Zielone testy.** Oczekiwany wynik: **PASS (8 testów w `shared`)**.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add sign-up and sign-in schemas`.
 
 <details>
 <summary>Podpowiedź</summary>
@@ -265,15 +265,15 @@ export * from './theme'
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `test/errors.test.ts`. Do pierwszych trzech zbuduj w teście małą aplikację Hono z trasą `/boom`, która rzuca podany błąd, i z `.onError(handleError)`:
+- [x] **1. Czerwone testy** w `test/errors.test.ts`. Do pierwszych trzech zbuduj w teście małą aplikację Hono z trasą `/boom`, która rzuca podany błąd, i z `.onError(handleError)`:
   - `AppError(422, 'LIMIT_EXCEEDED', …)` daje status 422 i ten kod;
   - `ZodError` daje 400, kod `VALIDATION_ERROR` i `details.fieldErrors` z nazwą pola;
   - zwykły `Error('… postgres://secret')` daje 500 z kodem `INTERNAL_ERROR`, a tekst odpowiedzi nie zawiera `secret`;
   - w `createTestApp()` żądanie `/api/does-not-exist` daje 404 z kodem `NOT_FOUND`.
-- [ ] **2. Uruchom.** `pnpm --filter @one-place/api test`. Oczekiwany wynik: **FAIL**, bo `../src/lib/errors` nie istnieje.
-- [ ] **3. Implementacja** `src/lib/errors.ts`, a na końcu łańcucha w `createApp` dopisz `.onError(handleError).notFound(handleNotFound)`.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (10 testów w pakiecie API)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(api): add error format with onError and notFound`.
+- [x] **2. Uruchom.** `pnpm --filter @one-place/api test`. Oczekiwany wynik: **FAIL**, bo `../src/lib/errors` nie istnieje.
+- [x] **3. Implementacja** `src/lib/errors.ts`, a na końcu łańcucha w `createApp` dopisz `.onError(handleError).notFound(handleNotFound)`.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (10 testów w pakiecie API)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(api): add error format with onError and notFound`.
 
 <details>
 <summary>Podpowiedź</summary>
@@ -428,18 +428,18 @@ describe('error handling', () => {
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/api add pino@^10`
-- [ ] **2. `LOG_LEVEL`.** W pierwszym teście `env.test.ts` (zmień jego nazwę na `parses a valid config and sets defaults`) dopisz `expect(env.LOG_LEVEL).toBe('info')`. Zobacz czerwony test, potem dodaj do schematu `LOG_LEVEL` jako `z.enum([...]).default('info')` z poziomami pino. Dopisz `LOG_LEVEL=info` do `.env.example`.
-- [ ] **3. Czerwone testy** w `test/logger.test.ts`. Zbuduj w teście aplikację z `requestId()`, `requestLogger(logger)` i trasami `/ok` oraz `/boom`. Logger pino zapisuje linie do tablicy:
+- [x] **1. Zależność.** `pnpm --filter @one-place/api add pino@^10`
+- [x] **2. `LOG_LEVEL`.** W pierwszym teście `env.test.ts` (zmień jego nazwę na `parses a valid config and sets defaults`) dopisz `expect(env.LOG_LEVEL).toBe('info')`. Zobacz czerwony test, potem dodaj do schematu `LOG_LEVEL` jako `z.enum([...]).default('info')` z poziomami pino. Dopisz `LOG_LEVEL=info` do `.env.example`.
+- [x] **3. Czerwone testy** w `test/logger.test.ts`. Zbuduj w teście aplikację z `requestId()`, `requestLogger(logger)` i trasami `/ok` oraz `/boom`. Logger pino zapisuje linie do tablicy:
   - żądanie `/ok?token=secret` daje dokładnie jedną linię z poziomem 30 (info), `requestId` równym nagłówkowi `X-Request-Id`, `method`, `path: '/ok'`, `status: 200` i `durationMs`, a linia nie zawiera `secret`;
   - `/boom` daje jedną linię z poziomem 50 (error), `status: 500` i `err` z `message` oraz `stack`;
   - odpowiedź `/api/health` z `createTestApp()` ma nagłówek `X-Request-Id`.
-- [ ] **4. Uruchom.** Oczekiwany wynik: **FAIL**, bo `../src/middleware/logger` nie istnieje.
-- [ ] **5. Implementacja** `src/middleware/logger.ts`.
-- [ ] **6. Podłączenie.** `createApp` przyjmuje `logger` i zaczyna łańcuch od `.use(requestId()).use(requestLogger(logger))`, przed `cors`. `createTestApp` podaje `pino({ level: 'silent' })`, a `index.ts` tworzy `pino({ level: env.LOG_LEVEL })` i nim zastępuje `console.log` w `serve`.
-- [ ] **7. Zielone testy.** Oczekiwany wynik: **PASS (13 testów w pakiecie API)**.
-- [ ] **8. Sprawdzenie ręczne.** `pnpm --filter @one-place/api dev`, a w drugim terminalu `curl -i localhost:3000/api/health`. Odpowiedź ma nagłówek `X-Request-Id`, a w terminalu API pojawia się linia JSON z tym samym `requestId`.
-- [ ] **9.** `pnpm format && pnpm check`, potem commit: `feat(api): add request id and JSON request logs`.
+- [x] **4. Uruchom.** Oczekiwany wynik: **FAIL**, bo `../src/middleware/logger` nie istnieje.
+- [x] **5. Implementacja** `src/middleware/logger.ts`.
+- [x] **6. Podłączenie.** `createApp` przyjmuje `logger` i zaczyna łańcuch od `.use(requestId()).use(requestLogger(logger))`, przed `cors`. `createTestApp` podaje `pino({ level: 'silent' })`, a `index.ts` tworzy `pino({ level: env.LOG_LEVEL })` i nim zastępuje `console.log` w `serve`.
+- [x] **7. Zielone testy.** Oczekiwany wynik: **PASS (13 testów w pakiecie API)**.
+- [x] **8. Sprawdzenie ręczne.** `pnpm --filter @one-place/api dev`, a w drugim terminalu `curl -i localhost:3000/api/health`. Odpowiedź ma nagłówek `X-Request-Id`, a w terminalu API pojawia się linia JSON z tym samym `requestId`.
+- [x] **9.** `pnpm format && pnpm check`, potem commit: `feat(api): add request id and JSON request logs`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -665,24 +665,24 @@ serve({ fetch: app.fetch, port: env.PORT }, (info) => {
 
 **Kroki:**
 
-- [ ] **1. Zależności.**
+- [x] **1. Zależności.**
 
   ```bash
   pnpm --filter @one-place/api add better-auth@^1.7 '@one-place/shared@workspace:*'
   pnpm --filter @one-place/api add -D drizzle-kit@^0.31 auth@^1.7
   ```
 
-- [ ] **2. Pierwsza wersja `createAuth`** w `src/auth.ts`, **na razie bez** opcji `schema` w adapterze, bo schematu jeszcze nie ma. Opcje: `secret`, `baseURL`, `basePath: '/api/auth'`, `trustedOrigins`, `database: drizzleAdapter(db, { provider: 'pg' })`, `emailAndPassword` (włączone, długości hasła ze stałych z `shared`), `telemetry: { enabled: false }`, `logger` przekierowany do pino i `plugins: [bearer()]`. Pozostałe opcje dojdą w zadaniu 5, razem z testami.
-- [ ] **3. Konfiguracja dla CLI.** Utwórz `auth.config.ts`, który eksportuje `auth = createAuth({ db: drizzle.mock(), … })` z wymyślonymi wartościami. Dodaj skrypt `"db:auth-schema": "auth generate --config auth.config.ts --output src/db/schema/auth.ts --yes"`, a w `tsconfig.json` rozszerz `include` o `"*.config.ts"`.
-- [ ] **4. Generowanie schematu.** `pnpm --filter @one-place/api db:auth-schema`. Powstaje `src/db/schema/auth.ts` z czterema tabelami. Utwórz `src/db/schema/index.ts` z `export * from './auth'` i uruchom `pnpm format` (CLI pisze w cudzysłowach).
-- [ ] **5. Schemat w adapterze.** W `src/auth.ts` zaimportuj `* as schema from './db/schema'` i przekaż go: `drizzleAdapter(db, { provider: 'pg', schema })`.
-- [ ] **6. drizzle-kit.** Utwórz `drizzle.config.ts` (dialekt `postgresql`, schemat `./src/db/schema/index.ts`, katalog `./src/db/migrations`, adres z `DATABASE_URL`). Dodaj skrypty `"db:generate": "drizzle-kit generate"` i `"db:migrate": "drizzle-kit migrate"`. W `.prettierignore` dopisz w nowej linii `apps/api/src/db/migrations`.
-- [ ] **7. Migracja.** `pnpm --filter @one-place/api db:generate --name auth`. Przeczytaj powstały `src/db/migrations/0000_auth.sql`: cztery `CREATE TABLE`, klucze obce z `ON DELETE cascade` i indeksy.
-- [ ] **8. Czerwony test** w `test/migrations.test.ts`: po `await createTestApp()` lista tabel w schemacie `public` (z `information_schema.tables`) to `['account', 'session', 'user', 'verification']`. Oczekiwany wynik: **FAIL** (`expected [] to deeply equal [...]`).
-- [ ] **9. Implementacja.** `createTestApp` staje się `async` i przed `createApp` wywołuje `await migrate(db, { migrationsFolder })` z `drizzle-orm/pglite/migrator`. W pozostałych testach zamień `createTestApp()` na `await createTestApp()`.
-- [ ] **10. Zielone testy.** Oczekiwany wynik: **PASS (14 testów w pakiecie API)**.
-- [ ] **11. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem sprawdź tabele: `docker compose exec db psql -U one one_place -c '\dt'`. Oczekiwany wynik: cztery tabele.
-- [ ] **12.** `pnpm format && pnpm check`, potem commit: `feat(api): add Better Auth schema and first migration`.
+- [x] **2. Pierwsza wersja `createAuth`** w `src/auth.ts`, **na razie bez** opcji `schema` w adapterze, bo schematu jeszcze nie ma. Opcje: `secret`, `baseURL`, `basePath: '/api/auth'`, `trustedOrigins`, `database: drizzleAdapter(db, { provider: 'pg' })`, `emailAndPassword` (włączone, długości hasła ze stałych z `shared`), `telemetry: { enabled: false }`, `logger` przekierowany do pino i `plugins: [bearer()]`. Pozostałe opcje dojdą w zadaniu 5, razem z testami.
+- [x] **3. Konfiguracja dla CLI.** Utwórz `auth.config.ts`, który eksportuje `auth = createAuth({ db: drizzle.mock(), … })` z wymyślonymi wartościami. Dodaj skrypt `"db:auth-schema": "auth generate --config auth.config.ts --output src/db/schema/auth.ts --yes"`, a w `tsconfig.json` rozszerz `include` o `"*.config.ts"`.
+- [x] **4. Generowanie schematu.** `pnpm --filter @one-place/api db:auth-schema`. Powstaje `src/db/schema/auth.ts` z czterema tabelami. Utwórz `src/db/schema/index.ts` z `export * from './auth'` i uruchom `pnpm format` (CLI pisze w cudzysłowach).
+- [x] **5. Schemat w adapterze.** W `src/auth.ts` zaimportuj `* as schema from './db/schema'` i przekaż go: `drizzleAdapter(db, { provider: 'pg', schema })`.
+- [x] **6. drizzle-kit.** Utwórz `drizzle.config.ts` (dialekt `postgresql`, schemat `./src/db/schema/index.ts`, katalog `./src/db/migrations`, adres z `DATABASE_URL`). Dodaj skrypty `"db:generate": "drizzle-kit generate"` i `"db:migrate": "drizzle-kit migrate"`. W `.prettierignore` dopisz w nowej linii `apps/api/src/db/migrations`.
+- [x] **7. Migracja.** `pnpm --filter @one-place/api db:generate --name auth`. Przeczytaj powstały `src/db/migrations/0000_auth.sql`: cztery `CREATE TABLE`, klucze obce z `ON DELETE cascade` i indeksy.
+- [x] **8. Czerwony test** w `test/migrations.test.ts`: po `await createTestApp()` lista tabel w schemacie `public` (z `information_schema.tables`) to `['account', 'session', 'user', 'verification']`. Oczekiwany wynik: **FAIL** (`expected [] to deeply equal [...]`).
+- [x] **9. Implementacja.** `createTestApp` staje się `async` i przed `createApp` wywołuje `await migrate(db, { migrationsFolder })` z `drizzle-orm/pglite/migrator`. W pozostałych testach zamień `createTestApp()` na `await createTestApp()`.
+- [x] **10. Zielone testy.** Oczekiwany wynik: **PASS (14 testów w pakiecie API)**.
+- [x] **11. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem sprawdź tabele: `docker compose exec db psql -U one one_place -c '\dt'`. Oczekiwany wynik: cztery tabele.
+- [x] **12.** `pnpm format && pnpm check`, potem commit: `feat(api): add Better Auth schema and first migration`.
 
 **Pułapki (sprawdzone na prototypie):**
 
