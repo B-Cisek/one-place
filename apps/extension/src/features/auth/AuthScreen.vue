@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { session } from '@/api/session'
 import SignInForm from './SignInForm.vue'
 import SignUpForm from './SignUpForm.vue'
 
@@ -16,6 +17,14 @@ const mode = ref<'sign-in' | 'sign-up'>('sign-in')
           {{ t(mode === 'sign-in' ? 'auth.signIn.title' : 'auth.signUp.title') }}
         </h1>
       </template>
+      <UAlert
+        v-if="session.notice.value === 'session-expired'"
+        class="mb-4"
+        color="warning"
+        variant="subtle"
+        icon="i-lucide-clock-alert"
+        :title="t('auth.sessionExpired')"
+      />
       <SignInForm v-if="mode === 'sign-in'" @switch="mode = 'sign-up'" />
       <SignUpForm v-else @switch="mode = 'sign-in'" />
     </UCard>
