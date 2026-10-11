@@ -15,3 +15,55 @@ Każda funkcjonalność jest osobnym widgetem. Widgety można dodawać, usuwać 
 - **Pogoda**: aktualna pogoda i prognoza
 - **Health-checki**: monitoring dostępności serwerów VPS i endpointów
 - **Paleta Cmd+K**: szybkie wyszukiwanie i uruchamianie akcji z klawiatury
+
+## Uruchomienie lokalne
+
+### Wymagania
+
+- Node.js 24 lub nowszy
+- pnpm 10 (wersję z `packageManager` w `package.json` ustawi `corepack enable`)
+- Docker z Docker Compose
+- Chrome lub Brave
+
+### Kroki
+
+1. Zainstaluj zależności:
+
+   ```bash
+   pnpm install
+   ```
+
+2. Uruchom bazę danych (Postgres na porcie 5432):
+
+   ```bash
+   docker compose up -d
+   ```
+
+3. Skopiuj pliki ze zmiennymi środowiskowymi:
+
+   ```bash
+   cp apps/api/.env.example apps/api/.env
+   cp apps/extension/.env.example apps/extension/.env
+   ```
+
+4. W `apps/api/.env` wpisz origin rozszerzenia, żeby API przepuściło jego żądania przez CORS:
+
+   ```
+   ALLOWED_ORIGINS=chrome-extension://lclohdcgnfnnkehmmojjpgjicodhjpkh
+   ```
+
+   ID wynika z klucza publicznego w `manifest.key` w `apps/extension/wxt.config.ts`, więc jest takie samo na każdym komputerze. Własną parę kluczy, na przykład w forku, wygenerujesz poleceniem `node scripts/generate-extension-key.mjs`. Wypisany `KEY` wklej do `manifest.key`, a `ID` do `ALLOWED_ORIGINS`.
+
+5. Uruchom API i rozszerzenie:
+
+   ```bash
+   pnpm dev
+   ```
+
+   API działa pod `http://localhost:3000` (`/api/health` pokazuje stan API i bazy). WXT uruchamia serwer deweloperski na porcie 3001 i otwiera przeglądarkę z rozszerzeniem. Jeśli przeglądarka się nie otworzy, wejdź na `chrome://extensions`, włącz „Tryb dewelopera”, kliknij „Załaduj rozpakowane” i wskaż `apps/extension/.output/chrome-mv3-dev`.
+
+Przed commitem uruchom `pnpm check` (lint, formatowanie, typy i testy).
+
+## Dokumentacja
+
+Wizja, specyfikacja, architektura, roadmapa i plan implementacji są w katalogu [docs/](docs/).

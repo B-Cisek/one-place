@@ -1215,17 +1215,17 @@ a w szablonie, pod przyciskiem „Nuxt UI działa”:
 
 **Kroki:**
 
-- [ ] **1. Pomiar.** `pnpm --filter @one-place/extension build` i zanotuj rozmiary JS i CSS z podsumowania. W prototypie było to około 268 kB JS i 211 kB CSS (bez kompresji).
-- [ ] **2. Budżet.** Wpisz budżet startowego JS do [02-specyfikacja.md](02-specyfikacja.md) w wierszu „Wydajność”, np. „zmierzony rozmiar + 25%”, w miejsce zdania o ustaleniu budżetu w Etapie 0.
-- [ ] **3. Wyniki ryzyk.** W [03-architektura.md](03-architektura.md), w tabeli ryzyk, oznacz R1, R2 i R3 jako potwierdzone i krótko opisz zastosowane rozwiązania: `.npmrc` z hoistem, `srcDir`, `icon.clientBundle`, `colorMode: false`, `theme(static)`.
-- [ ] **4. README.** Dodaj sekcję „Uruchomienie lokalne”: wymagania, `docker compose up -d`, kopiowanie obu plików `.env.example`, generowanie klucza, `pnpm install`, `pnpm dev` i odnośnik do `docs/`.
-- [ ] **5. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-0-fundament-i-sprawdzenie-ryzyk):
+- [x] **1. Pomiar.** `pnpm --filter @one-place/extension build` i zanotuj rozmiary JS i CSS z podsumowania. W prototypie było to około 268 kB JS i 211 kB CSS (bez kompresji).
+- [x] **2. Budżet.** Wpisz budżet startowego JS do [02-specyfikacja.md](02-specyfikacja.md) w wierszu „Wydajność”, np. „zmierzony rozmiar + 25%”, w miejsce zdania o ustaleniu budżetu w Etapie 0.
+- [x] **3. Wyniki ryzyk.** W [03-architektura.md](03-architektura.md), w tabeli ryzyk, oznacz R1, R2 i R3 jako potwierdzone i krótko opisz zastosowane rozwiązania: `.npmrc` z hoistem, `srcDir`, `icon.clientBundle`, `colorMode: false`, `theme(static)`.
+- [x] **4. README.** Dodaj sekcję „Uruchomienie lokalne”: wymagania, `docker compose up -d`, kopiowanie obu plików `.env.example`, generowanie klucza, `pnpm install`, `pnpm dev` i odnośnik do `docs/`.
+- [x] **5. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-0-fundament-i-sprawdzenie-ryzyk):
   - [ ] `pnpm dev` uruchamia API i przeglądarkę z rozszerzeniem;
-  - [ ] nowa karta pokazuje przycisk Nuxt UI z ikoną bez żądań do zewnętrznych hostów;
-  - [ ] akcent i tryb zmieniają się w trakcie działania;
-  - [ ] `/api/health` odpowiada, a testy na PGlite przechodzą;
-  - [ ] wyniki R1–R3 są zapisane.
-- [ ] **6.** `pnpm check`, potem commit: `docs: wyniki Etapu 0, budżet rozmiaru i uruchomienie lokalne`.
+  - [x] nowa karta pokazuje przycisk Nuxt UI z ikoną bez żądań do zewnętrznych hostów;
+  - [x] akcent i tryb zmieniają się w trakcie działania;
+  - [x] `/api/health` odpowiada, a testy na PGlite przechodzą;
+  - [x] wyniki R1–R3 są zapisane.
+- [x] **6.** `pnpm check`, potem commit: `docs: wyniki Etapu 0, budżet rozmiaru i uruchomienie lokalne`.
 
 ---
 
