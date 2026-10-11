@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { sql } from 'drizzle-orm'
+import type { Auth } from './auth'
 import type { Database } from './db/client'
 import { handleError, handleNotFound } from './lib/errors'
 import { requestId } from 'hono/request-id'
@@ -9,16 +10,24 @@ import type { Logger } from 'pino'
 
 interface AppDeps {
   db: Database
+  auth: Auth
   allowedOrigins: string[]
   logger: Logger
 }
 
-export function createApp({ db, allowedOrigins, logger }: AppDeps) {
+export function createApp({ db, auth, allowedOrigins, logger }: AppDeps) {
   return new Hono()
     .basePath('/api')
     .use(requestId())
     .use(requestLogger(logger))
-    .use(cors({ origin: allowedOrigins }))
+    .use(
+      cors({
+        origin: allowedOrigins,
+        allowHeaders: ['Authorization', 'Content-Type'],
+        exposeHeaders: ['set-auth-token'],
+      }),
+    )
+    .on(['GET', 'POST'], '/auth/*', (c) => auth.handler(c.req.raw))
     .get('/health', async (c) => {
       try {
         await db.execute(sql`select 1`)
