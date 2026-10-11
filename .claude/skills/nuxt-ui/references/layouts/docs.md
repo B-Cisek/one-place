@@ -34,15 +34,19 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 
 const route = useRoute()
 
-const { data: navigation } = await useAsyncData('navigation', () => queryCollectionNavigation('docs'))
+const { data: navigation } = await useAsyncData('navigation', () =>
+  queryCollectionNavigation('docs'),
+)
 
 provide('navigation', navigation)
 
-const items = computed<NavigationMenuItem[]>(() => [{
-  label: 'Docs',
-  to: '/docs/getting-started',
-  active: route.path.startsWith('/docs')
-}])
+const items = computed<NavigationMenuItem[]>(() => [
+  {
+    label: 'Docs',
+    to: '/docs/getting-started',
+    active: route.path.startsWith('/docs'),
+  },
+])
 </script>
 
 <template>

@@ -11,7 +11,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 
 const schema = z.object({
   email: z.email('Invalid email'),
-  password: z.string().min(8, 'Min 8 characters')
+  password: z.string().min(8, 'Min 8 characters'),
 })
 
 type Schema = z.output<typeof schema>
@@ -47,14 +47,14 @@ function onSubmit(event: FormSubmitEvent<Schema>) {
 
 ## UFormField props
 
-| Prop | Purpose |
-|---|---|
-| `name` | Links to schema field for validation errors |
-| `label` | Visible label text |
-| `description` | Help text below the input |
-| `hint` | Right-aligned hint text (e.g., "Optional") |
-| `required` | Shows required indicator |
-| `size` | Inherits to child input |
+| Prop          | Purpose                                     |
+| ------------- | ------------------------------------------- |
+| `name`        | Links to schema field for validation errors |
+| `label`       | Visible label text                          |
+| `description` | Help text below the input                   |
+| `hint`        | Right-aligned hint text (e.g., "Optional")  |
+| `required`    | Shows required indicator                    |
+| `size`        | Inherits to child input                     |
 
 ## Field layout patterns
 
@@ -192,9 +192,7 @@ async function validateEmail() {
 }
 
 function setServerError() {
-  form.value?.setErrors([
-    { name: 'email', message: 'Email already taken' }
-  ])
+  form.value?.setErrors([{ name: 'email', message: 'Email already taken' }])
 }
 
 function resetErrors() {
@@ -216,7 +214,12 @@ By default, `validate()` throws a `FormValidationException` when validation fail
 Use `#footer="{ close }"` scoped slot for cancel/submit actions. Wrap the modal body in `UForm` with a `type="submit"` button in the footer so validation runs on submit.
 
 ```vue
-<UModal v-model:open="isOpen" title="Edit profile" description="Update your information." :ui="{ footer: 'justify-end' }">
+<UModal
+  v-model:open="isOpen"
+  title="Edit profile"
+  description="Update your information."
+  :ui="{ footer: 'justify-end' }"
+>
   <template #body>
     <UForm id="profile-form" :schema="schema" :state="state" class="space-y-4" @submit="onSave">
       <UFormField name="name" label="Name">

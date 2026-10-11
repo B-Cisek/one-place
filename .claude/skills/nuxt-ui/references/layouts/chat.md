@@ -30,10 +30,7 @@ pnpm add ai @ai-sdk/vue @comark/vue
 
 ```ts [nuxt.config.ts]
 export default defineNuxtConfig({
-  modules: [
-    '@nuxt/ui',
-    '@comark/nuxt'
-  ]
+  modules: ['@nuxt/ui', '@comark/nuxt'],
 })
 ```
 
@@ -62,7 +59,12 @@ These examples target AI SDK v7 (`instructions`, `toUIMessageStream`).
 Using [Vercel AI Gateway](https://vercel.com/ai-gateway) (recommended):
 
 ```ts [server/api/chat.post.ts]
-import { streamText, convertToModelMessages, toUIMessageStream, createUIMessageStreamResponse } from 'ai'
+import {
+  streamText,
+  convertToModelMessages,
+  toUIMessageStream,
+  createUIMessageStreamResponse,
+} from 'ai'
 
 export default defineEventHandler(async (event) => {
   const { messages } = await readBody(event)
@@ -70,7 +72,7 @@ export default defineEventHandler(async (event) => {
   const result = streamText({
     model: 'anthropic/claude-sonnet-5.5',
     instructions: 'You are a helpful assistant.',
-    messages: await convertToModelMessages(messages)
+    messages: await convertToModelMessages(messages),
   })
 
   const stream = toUIMessageStream({ stream: result.stream })
@@ -81,7 +83,12 @@ export default defineEventHandler(async (event) => {
 Or with a direct provider (e.g., `pnpm add @ai-sdk/openai`):
 
 ```ts [server/api/chat.post.ts]
-import { streamText, convertToModelMessages, toUIMessageStream, createUIMessageStreamResponse } from 'ai'
+import {
+  streamText,
+  convertToModelMessages,
+  toUIMessageStream,
+  createUIMessageStreamResponse,
+} from 'ai'
 import { openai } from '@ai-sdk/openai'
 
 export default defineEventHandler(async (event) => {
@@ -90,7 +97,7 @@ export default defineEventHandler(async (event) => {
   const result = streamText({
     model: openai('gpt-5-nano'),
     instructions: 'You are a helpful assistant.',
-    messages: await convertToModelMessages(messages)
+    messages: await convertToModelMessages(messages),
   })
 
   const stream = toUIMessageStream({ stream: result.stream })
@@ -126,7 +133,7 @@ const input = ref('')
 const { messages, status, error, sendMessage, stop, regenerate } = useChat({
   onError(error) {
     console.error(error)
-  }
+  },
 })
 
 function onSubmit() {
@@ -146,7 +153,10 @@ function onSubmit() {
       <UContainer>
         <UChatMessages :messages="messages" :status="status">
           <template #content="{ message }">
-            <template v-for="(part, index) in message.parts" :key="`${message.id}-${part.type}-${index}`">
+            <template
+              v-for="(part, index) in message.parts"
+              :key="`${message.id}-${part.type}-${index}`"
+            >
               <UChatReasoning
                 v-if="isReasoningUIPart(part)"
                 :text="part.text"
