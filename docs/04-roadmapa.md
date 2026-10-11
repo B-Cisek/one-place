@@ -33,6 +33,8 @@
 
 **Wymagania:** F-AUTH-01 … F-AUTH-06.
 
+**Plan nauki krok po kroku:** [06-etap-1-logowanie.md](06-etap-1-logowanie.md).
+
 **Zakres:**
 
 - API: Better Auth (e-mail i hasło, `bearer`, `trustedOrigins`, rate limiting), tabele auth w Drizzle, konfiguracja `drizzle-kit` i pierwsza migracja, `requestId`, `logger`, `requireAuth`, `app.onError` i format błędów;

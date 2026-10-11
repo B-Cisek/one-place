@@ -1248,4 +1248,4 @@ a w szablonie, pod przyciskiem „Nuxt UI działa”:
 
 ## Co dalej
 
-Po Etapie 0 kolejnym krokiem jest [Etap 1: Logowanie](04-roadmapa.md#etap-1-logowanie). Przygotuję dla niego podobny plan nauki, gdy będziesz gotowy. Etap 1 wprowadzi pierwsze tabele (Better Auth), konfigurację `drizzle-kit` i migracje.
+Po Etapie 0 kolejnym krokiem jest [Etap 1: Logowanie](04-roadmapa.md#etap-1-logowanie). Plan nauki dla niego jest w [06-etap-1-logowanie.md](06-etap-1-logowanie.md).
