@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { parseEnv } from './env'
 
 describe('parseEnv', () => {
-  it('parses a valid config and sets the default port', () => {
+  it('parses a valid config and sets defaults', () => {
     const env = parseEnv({ DATABASE_URL: 'postgres://one:one@localhost:5432/one_place' })
     expect(env.PORT).toBe(3000)
     expect(env.ALLOWED_ORIGINS).toEqual([])
+    expect(env.LOG_LEVEL).toBe('info')
   })
 
   it('splits ALLOWED_ORIGINS on commas and trims whitespace', () => {
