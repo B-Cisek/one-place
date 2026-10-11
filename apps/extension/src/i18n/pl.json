@@ -1,0 +1,44 @@
+{
+  "app": {
+    "title": "Nowa karta"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Zaloguj się",
+      "submit": "Zaloguj się",
+      "switch": "Nie masz konta?",
+      "switchAction": "Załóż konto"
+    },
+    "signUp": {
+      "title": "Załóż konto",
+      "submit": "Załóż konto",
+      "switch": "Masz już konto?",
+      "switchAction": "Zaloguj się"
+    },
+    "fields": {
+      "name": "Nazwa",
+      "email": "E-mail",
+      "password": "Hasło"
+    },
+    "errors": {
+      "invalidCredentials": "Nieprawidłowy e-mail lub hasło",
+      "emailTaken": "Konto z tym adresem e-mail już istnieje",
+      "tooManyAttempts": "Zbyt wiele prób. Spróbuj ponownie za chwilę.",
+      "network": "Brak połączenia z serwerem",
+      "unknown": "Coś poszło nie tak. Spróbuj ponownie."
+    },
+    "sessionExpired": "Sesja wygasła. Zaloguj się ponownie.",
+    "signOut": "Wyloguj"
+  },
+  "home": {
+    "greeting": "Cześć, {name}!"
+  },
+  "validation": {
+    "nameRequired": "Podaj nazwę",
+    "nameTooLong": "Nazwa może mieć najwyżej 50 znaków",
+    "emailInvalid": "Podaj poprawny adres e-mail",
+    "passwordRequired": "Podaj hasło",
+    "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków",
+    "passwordTooLong": "Hasło może mieć najwyżej 128 znaków"
+  }
+}
