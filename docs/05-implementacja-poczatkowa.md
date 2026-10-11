@@ -1023,8 +1023,8 @@ function setAccent(accent: AccentColor) {
 
 **Kroki:**
 
-- [ ] **1. Eksport typów z API.** W `apps/api/package.json` dodaj `"exports": { ".": "./src/app.ts" }`.
-- [ ] **2. Zależności rozszerzenia.**
+- [x] **1. Eksport typów z API.** W `apps/api/package.json` dodaj `"exports": { ".": "./src/app.ts" }`.
+- [x] **2. Zależności rozszerzenia.**
 
   ```bash
   pnpm --filter @one-place/extension add hono@^4
@@ -1033,16 +1033,16 @@ function setAccent(accent: AccentColor) {
 
   API jest zależnością deweloperską, bo importujesz z niego **tylko typ** (`import type`), który znika po kompilacji.
 
-- [ ] **3. Adres API.** `apps/extension/.env` i `.env.example` z `WXT_API_URL=http://localhost:3000`. Typ zmiennej zadeklaruj w `src/env.d.ts`.
-- [ ] **4. Klient i composable.** `src/api/client.ts` tworzy `apiClient = hc<AppType>(import.meta.env.WXT_API_URL)`. `src/api/use-api-health.ts` po zamontowaniu woła `apiClient.api.health.$get()` i ustawia stan: `ok`, `db-down` (odpowiedź inna niż 2xx) albo `unreachable` (wyjątek sieciowy).
-- [ ] **5. Plakietka.** W `App.vue` pokaż ``<UBadge :label="`API: ${health}`">`` w kolorze `success` dla `ok`, a w pozostałych przypadkach `error`.
-- [ ] **6. Eksperyment.** Uruchom API i rozszerzenie (`pnpm dev` w katalogu głównym uruchomi oba). **Oczekiwany wynik: plakietka `API: unreachable`, a w konsoli DevTools błąd CORS** („blocked by CORS policy: No 'Access-Control-Allow-Origin' header”).
-- [ ] **7. Czerwony test.** W `health.test.ts` dodaj przypadek: żądanie z nagłówkiem `Origin: TEST_ORIGIN` dostaje `Access-Control-Allow-Origin: TEST_ORIGIN`, a żądanie z `Origin: https://evil.example` nie dostaje tego nagłówka wcale (punkt 3 z [Na co uważać](#na-co-uważać)). W `create-test-app.ts` wyeksportuj `TEST_ORIGIN = 'chrome-extension://test-extension-id'` i przekaż go do `createApp`. Oczekiwany wynik: **FAIL** (typecheck lub brak nagłówka).
-- [ ] **8. Implementacja.** `createApp` przyjmuje `allowedOrigins` i dodaje `.use(cors({ origin: allowedOrigins }))` z `hono/cors`. `index.ts` przekazuje `env.ALLOWED_ORIGINS`.
-- [ ] **9. Zielone testy.** Oczekiwany wynik: **PASS (6 testów w pakiecie API)**.
-- [ ] **10. Konfiguracja.** W `apps/api/.env` ustaw `ALLOWED_ORIGINS=chrome-extension://<ID z zadania 4>`. Zaktualizuj `.env.example` (z przykładowym, nie prawdziwym ID). Zrestartuj API i przeładuj kartę. **Oczekiwany wynik: `API: ok`.**
-- [ ] **11. Odporność (punkt 4 z [Na co uważać](#na-co-uważać)).** Zatrzymaj API i przeładuj kartę: plakietka `API: unreachable`, w konsoli tylko informacja o nieudanym żądaniu, bez „Uncaught”. Zatrzymaj tylko Dockera: plakietka `API: db-down`.
-- [ ] **12.** `pnpm format && pnpm check`, potem commit: `feat: połączenie nowej karty z API (CORS, Hono RPC)`.
+- [x] **3. Adres API.** `apps/extension/.env` i `.env.example` z `WXT_API_URL=http://localhost:3000`. Typ zmiennej zadeklaruj w `src/env.d.ts`.
+- [x] **4. Klient i composable.** `src/api/client.ts` tworzy `apiClient = hc<AppType>(import.meta.env.WXT_API_URL)`. `src/api/use-api-health.ts` po zamontowaniu woła `apiClient.api.health.$get()` i ustawia stan: `ok`, `db-down` (odpowiedź inna niż 2xx) albo `unreachable` (wyjątek sieciowy).
+- [x] **5. Plakietka.** W `App.vue` pokaż ``<UBadge :label="`API: ${health}`">`` w kolorze `success` dla `ok`, a w pozostałych przypadkach `error`.
+- [x] **6. Eksperyment.** Uruchom API i rozszerzenie (`pnpm dev` w katalogu głównym uruchomi oba). **Oczekiwany wynik: plakietka `API: unreachable`, a w konsoli DevTools błąd CORS** („blocked by CORS policy: No 'Access-Control-Allow-Origin' header”).
+- [x] **7. Czerwony test.** W `health.test.ts` dodaj przypadek: żądanie z nagłówkiem `Origin: TEST_ORIGIN` dostaje `Access-Control-Allow-Origin: TEST_ORIGIN`, a żądanie z `Origin: https://evil.example` nie dostaje tego nagłówka wcale (punkt 3 z [Na co uważać](#na-co-uważać)). W `create-test-app.ts` wyeksportuj `TEST_ORIGIN = 'chrome-extension://test-extension-id'` i przekaż go do `createApp`. Oczekiwany wynik: **FAIL** (typecheck lub brak nagłówka).
+- [x] **8. Implementacja.** `createApp` przyjmuje `allowedOrigins` i dodaje `.use(cors({ origin: allowedOrigins }))` z `hono/cors`. `index.ts` przekazuje `env.ALLOWED_ORIGINS`.
+- [x] **9. Zielone testy.** Oczekiwany wynik: **PASS (6 testów w pakiecie API)**.
+- [x] **10. Konfiguracja.** W `apps/api/.env` ustaw `ALLOWED_ORIGINS=chrome-extension://<ID z zadania 4>`. Zaktualizuj `.env.example` (z przykładowym, nie prawdziwym ID). Zrestartuj API i przeładuj kartę. **Oczekiwany wynik: `API: ok`.**
+- [x] **11. Odporność (punkt 4 z [Na co uważać](#na-co-uważać)).** Zatrzymaj API i przeładuj kartę: plakietka `API: unreachable`, w konsoli tylko informacja o nieudanym żądaniu, bez „Uncaught”. Zatrzymaj tylko Dockera: plakietka `API: db-down`.
+- [x] **12.** `pnpm format && pnpm check`, potem commit: `feat: połączenie nowej karty z API (CORS, Hono RPC)`.
 
 <details>
 <summary>Podpowiedź</summary>

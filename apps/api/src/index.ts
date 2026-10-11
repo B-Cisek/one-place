@@ -4,7 +4,10 @@ import { createDb } from './db/client'
 import { parseEnv } from './env'
 
 const env = parseEnv(process.env)
-const app = createApp({ db: createDb(env.DATABASE_URL) })
+const app = createApp({
+  db: createDb(env.DATABASE_URL),
+  allowedOrigins: env.ALLOWED_ORIGINS,
+})
 
 serve({ fetch: app.fetch, port: env.PORT }, (info) => {
   console.log(`API works at http://localhost:${info.port}`)

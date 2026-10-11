@@ -2,6 +2,11 @@ import { defineConfig } from 'wxt'
 import ui from '@nuxt/ui/vite'
 
 export default defineConfig({
+  dev: {
+    server: {
+      port: 3001,
+    },
+  },
   srcDir: 'src',
   modules: ['@wxt-dev/module-vue'],
   vite: () => ({

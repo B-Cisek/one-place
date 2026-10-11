@@ -7,6 +7,9 @@
     "test": "vitest run",
     "dev": "tsx watch --env-file=.env src/index.ts"
   },
+  "exports": {
+    ".": "./src/app.ts"
+  },
   "dependencies": {
     "@hono/node-server": "^2.1.4",
     "drizzle-orm": "^0.45.4",

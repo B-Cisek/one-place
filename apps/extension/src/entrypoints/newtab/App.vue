@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ACCENT_COLORS, accentCssVariables, type AccentColor } from '@one-place/shared'
+import { useApiHealth } from '@/api/use-api-health'
 
+const { health } = useApiHealth()
 const isDark = ref(false)
 
 function toggleDark() {
@@ -35,6 +37,11 @@ function setAccent(accent: AccentColor) {
           :icon="isDark ? 'i-lucide-sun' : 'i-lucide-moon'"
           variant="outline"
           @click="toggleDark"
+        />
+        <UBadge
+          :label="`API: ${health}`"
+          :color="health === 'ok' ? 'success' : 'error'"
+          variant="subtle"
         />
       </div>
     </main>
