@@ -1,0 +1,44 @@
+{
+  "app": {
+    "title": "New tab"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "submit": "Sign in",
+      "switch": "Don't have an account?",
+      "switchAction": "Sign up"
+    },
+    "signUp": {
+      "title": "Create an account",
+      "submit": "Sign up",
+      "switch": "Already have an account?",
+      "switchAction": "Sign in"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password"
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailTaken": "An account with this email already exists",
+      "tooManyAttempts": "Too many attempts. Try again in a moment.",
+      "network": "Cannot connect to the server",
+      "unknown": "Something went wrong. Please try again."
+    },
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "signOut": "Sign out"
+  },
+  "home": {
+    "greeting": "Hi, {name}!"
+  },
+  "validation": {
+    "nameRequired": "Enter your name",
+    "nameTooLong": "Name can be at most 50 characters long",
+    "emailInvalid": "Enter a valid email address",
+    "passwordRequired": "Enter your password",
+    "passwordTooShort": "Password must be at least 8 characters long",
+    "passwordTooLong": "Password can be at most 128 characters long"
+  }
+}

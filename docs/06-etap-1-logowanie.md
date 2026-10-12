@@ -893,10 +893,10 @@ apps/api/src/db/migrations
 
 **Kroki:**
 
-- [ ] **1. Zmienne środowiskowe.** W `env.test.ts` wprowadź obiekt `validEnv` z poprawnymi `DATABASE_URL`, `BETTER_AUTH_SECRET` (`'a'.repeat(32)`) i `BETTER_AUTH_URL`, przepisz na niego istniejące testy i dodaj test: sekret krótszy niż 32 znaki daje błąd z nazwą `BETTER_AUTH_SECRET`. Zobacz czerwony test, potem dodaj do schematu `BETTER_AUTH_SECRET: z.string().min(32)` i `BETTER_AUTH_URL: z.url()`.
+- [x] **1. Zmienne środowiskowe.** W `env.test.ts` wprowadź obiekt `validEnv` z poprawnymi `DATABASE_URL`, `BETTER_AUTH_SECRET` (`'a'.repeat(32)`) i `BETTER_AUTH_URL`, przepisz na niego istniejące testy i dodaj test: sekret krótszy niż 32 znaki daje błąd z nazwą `BETTER_AUTH_SECRET`. Zobacz czerwony test, potem dodaj do schematu `BETTER_AUTH_SECRET: z.string().min(32)` i `BETTER_AUTH_URL: z.url()`.
 - [ ] **2. Sekret.** Wygeneruj sekret poleceniem `openssl rand -base64 32` i dopisz do `apps/api/.env` razem z `BETTER_AUTH_URL=http://localhost:3000`. Zaktualizuj `.env.example` (pusty sekret i komentarz, jak go wygenerować).
-- [ ] **3. Pomocniki testowe** w `test/auth-helpers.ts`: `TEST_USER`, `postJson` (POST z JSON, nagłówkiem `Origin: TEST_ORIGIN` i **unikalnym** `X-Forwarded-For`) oraz `signUp`, który zwraca token z nagłówka `set-auth-token`. Po co unikalne IP, wyjaśnia sekcja „Pułapki”.
-- [ ] **4. Czerwone testy** w `test/auth.test.ts`:
+- [x] **3. Pomocniki testowe** w `test/auth-helpers.ts`: `TEST_USER`, `postJson` (POST z JSON, nagłówkiem `Origin: TEST_ORIGIN` i **unikalnym** `X-Forwarded-For`) oraz `signUp`, który zwraca token z nagłówka `set-auth-token`. Po co unikalne IP, wyjaśnia sekcja „Pułapki”.
+- [x] **4. Czerwone testy** w `test/auth.test.ts`:
   - rejestracja zwraca 200, nagłówek `set-auth-token`, a nazwa `'  Ala  '` jest zapisana jako `'Ala'`;
   - sesja jest ważna 30 dni: `extract(epoch from expires_at - created_at) / 86400` z tabeli `session` wynosi 30 (F-AUTH-03);
   - nazwa z 51 znaków daje 400, a tabela `user` jest pusta;
@@ -908,19 +908,19 @@ apps/api/src/db/migrations
 
   Oczekiwany wynik: **FAIL**, wszystkie 404, bo trasy jeszcze nie ma.
 
-- [ ] **5. Trasy i podłączenie.**
+- [x] **5. Trasy i podłączenie.**
   - `createApp` przyjmuje `auth` i po `cors` rejestruje `.on(['GET', 'POST'], '/auth/*', (c) => auth.handler(c.req.raw))`.
   - `cors` dostaje `allowHeaders: ['Authorization', 'Content-Type']` i `exposeHeaders: ['set-auth-token']`.
   - `createTestApp` tworzy `auth` przez `createAuth` z `trustedOrigins: [TEST_ORIGIN]`.
   - `index.ts` tworzy `auth` z `env.BETTER_AUTH_SECRET`, `env.BETTER_AUTH_URL` i `trustedOrigins: env.ALLOWED_ORIGINS`.
-- [ ] **6. Uruchom testy.** Oczekiwany wynik: **3 przechodzą, 5 pada**. Każdy czerwony test wskazuje jedną brakującą opcję. Dodawaj je po kolei i obserwuj, jak testy zmieniają kolor:
+- [x] **6. Uruchom testy.** Oczekiwany wynik: **3 przechodzą, 5 pada**. Każdy czerwony test wskazuje jedną brakującą opcję. Dodawaj je po kolei i obserwuj, jak testy zmieniają kolor:
   - nazwa nie jest obcinana, a 51 znaków przechodzi → `databaseHooks.user.create.before`: waliduj nazwę `NameSchema`, przy błędzie rzuć `APIError('BAD_REQUEST', …)`, przy sukcesie zwróć `{ data: { ...user, name } }`;
   - sesja ma 7 dni, czyli domyślną wartość → `session: { expiresIn: 30 dni, updateAge: 1 dzień }` (w sekundach);
   - brak 429 → `rateLimit: { enabled: true }`;
   - obcy origin dostaje 200 → `advanced: { disableOriginCheck: false }`.
-- [ ] **7. Zielone testy.** Oczekiwany wynik: **PASS (23 testy w pakiecie API)**.
-- [ ] **8. Eksperyment R5.** W `create-test-app.ts` ustaw tymczasowo `trustedOrigins: []` i uruchom testy. Oczekiwany wynik: prawie wszystkie testy auth padają z 403, choć CORS dalej przepuszcza `TEST_ORIGIN`. Przywróć `[TEST_ORIGIN]`.
-- [ ] **9. Sprawdzenie ręczne.** Uruchom API i wyślij rejestrację z originem rozszerzenia (ID z `ALLOWED_ORIGINS`):
+- [x] **7. Zielone testy.** Oczekiwany wynik: **PASS (23 testy w pakiecie API)**.
+- [x] **8. Eksperyment R5.** W `create-test-app.ts` ustaw tymczasowo `trustedOrigins: []` i uruchom testy. Oczekiwany wynik: prawie wszystkie testy auth padają z 403, choć CORS dalej przepuszcza `TEST_ORIGIN`. Przywróć `[TEST_ORIGIN]`.
+- [x] **9. Sprawdzenie ręczne.** Uruchom API i wyślij rejestrację z originem rozszerzenia (ID z `ALLOWED_ORIGINS`):
 
   ```bash
   curl -i -X POST localhost:3000/api/auth/sign-up/email \
@@ -931,7 +931,7 @@ apps/api/src/db/migrations
 
   Odpowiedź ma status 200 i nagłówek `set-auth-token`. Porównaj go z polem `token` w treści odpowiedzi: nagłówek ma dodatkowo kropkę i podpis. Ta różnica przyda się w zadaniu 6.
 
-- [ ] **10.** `pnpm format && pnpm check`, potem commit: `feat(api): add Better Auth with email and password`.
+- [x] **10.** `pnpm format && pnpm check`, potem commit: `feat(api): add Better Auth with email and password`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1379,7 +1379,7 @@ describe('auth', () => {
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `test/me.test.ts`:
+- [x] **1. Czerwone testy** w `test/me.test.ts`:
   - bez nagłówka `Authorization`: 401 i `{ error: { code: 'UNAUTHORIZED', message: 'Authentication required' } }`;
   - z tokenem z **treści** odpowiedzi rejestracji (pole `token`, bez podpisu): 401 i ten sam błąd;
   - z tokenem z nagłówka `set-auth-token`: 200 i `{ id, name, email }`;
@@ -1387,12 +1387,12 @@ describe('auth', () => {
 
   Oczekiwany wynik: **FAIL** (404).
 
-- [ ] **2. Implementacja** `requireAuth` i trasy `.get('/me', requireAuth(auth), handler)` przed `.onError`.
-- [ ] **3. Uruchom.** Oczekiwany wynik: 3 testy przechodzą, a test z tokenem bez podpisu dostaje 200 zamiast 401. Domyślnie wtyczka `bearer` przyjmuje też surowy token i sama go podpisuje.
-- [ ] **4. Podpis wymagany.** W `src/auth.ts` zmień `bearer()` na `bearer({ requireSignature: true })`.
-- [ ] **5. Zielone testy.** Oczekiwany wynik: **PASS (27 testów w pakiecie API)**.
-- [ ] **6. Sprawdzenie ręczne.** `curl -i localhost:3000/api/me` daje 401 w naszym formacie. Z `-H 'Authorization: Bearer <token z set-auth-token>'` z zadania 5 daje 200.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add requireAuth and GET /api/me`.
+- [x] **2. Implementacja** `requireAuth` i trasy `.get('/me', requireAuth(auth), handler)` przed `.onError`.
+- [x] **3. Uruchom.** Oczekiwany wynik: 3 testy przechodzą, a test z tokenem bez podpisu dostaje 200 zamiast 401. Domyślnie wtyczka `bearer` przyjmuje też surowy token i sama go podpisuje.
+- [x] **4. Podpis wymagany.** W `src/auth.ts` zmień `bearer()` na `bearer({ requireSignature: true })`.
+- [x] **5. Zielone testy.** Oczekiwany wynik: **PASS (27 testów w pakiecie API)**.
+- [x] **6. Sprawdzenie ręczne.** `curl -i localhost:3000/api/me` daje 401 w naszym formacie. Z `-H 'Authorization: Bearer <token z set-auth-token>'` z zadania 5 daje 200.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add requireAuth and GET /api/me`.
 
 <details>
 <summary>Podpowiedź</summary>
@@ -1523,14 +1523,14 @@ describe('GET /api/me', () => {
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/extension add vue-i18n@^11`
-- [ ] **2. Czerwony test** w `src/i18n/locale.test.ts`: `'pl'` i `'pl-PL'` dają `'pl'`, a `'en-US'`, `'de'` i pusty tekst dają `'en'`. Oczekiwany wynik: **FAIL**.
-- [ ] **3. Implementacja** `locale.ts`. Oczekiwany wynik: **PASS (2 testy w rozszerzeniu)**.
-- [ ] **4. Komunikaty.** Utwórz `pl.json` i `en.json` z rozwiązania. Zawierają już teksty ekranów z zadań 9 i 10.
-- [ ] **5. Instancja.** `src/i18n/index.ts`: `createI18n` z `legacy: false`, `locale: detectLocale(navigator.language)`, `fallbackLocale: 'en'` i oboma plikami. W `main.ts` dodaj `.use(i18n)`.
-- [ ] **6. Nuxt UI i dokument.** W `App.vue` przekaż `<UApp :locale="uiLocale">`, gdzie `uiLocale` to `pl` lub `en` z `@nuxt/ui/locale`. W `watchEffect` ustawiaj `document.documentElement.lang` i `document.title = t('app.title')`.
-- [ ] **7. Sprawdzenie ręczne.** `pnpm dev`: karta ma tytuł „Nowa karta”, a `<html lang="pl">` (DevTools → Elements). Żeby zobaczyć wersję angielską, zmień na chwilę w `i18n/index.ts` `detectLocale(navigator.language)` na `detectLocale('en')`: tytuł zmienia się na „New tab”. Cofnij zmianę.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add vue-i18n with Polish and English`.
+- [x] **1. Zależność.** `pnpm --filter @one-place/extension add vue-i18n@^11`
+- [x] **2. Czerwony test** w `src/i18n/locale.test.ts`: `'pl'` i `'pl-PL'` dają `'pl'`, a `'en-US'`, `'de'` i pusty tekst dają `'en'`. Oczekiwany wynik: **FAIL**.
+- [x] **3. Implementacja** `locale.ts`. Oczekiwany wynik: **PASS (2 testy w rozszerzeniu)**.
+- [x] **4. Komunikaty.** Utwórz `pl.json` i `en.json` z rozwiązania. Zawierają już teksty ekranów z zadań 9 i 10.
+- [x] **5. Instancja.** `src/i18n/index.ts`: `createI18n` z `legacy: false`, `locale: detectLocale(navigator.language)`, `fallbackLocale: 'en'` i oboma plikami. W `main.ts` dodaj `.use(i18n)`.
+- [x] **6. Nuxt UI i dokument.** W `App.vue` przekaż `<UApp :locale="uiLocale">`, gdzie `uiLocale` to `pl` lub `en` z `@nuxt/ui/locale`. W `watchEffect` ustawiaj `document.documentElement.lang` i `document.title = t('app.title')`.
+- [x] **7. Sprawdzenie ręczne.** `pnpm dev`: karta ma tytuł „Nowa karta”, a `<html lang="pl">` (DevTools → Elements). Żeby zobaczyć wersję angielską, zmień na chwilę w `i18n/index.ts` `detectLocale(navigator.language)` na `detectLocale('en')`: tytuł zmienia się na „New tab”. Cofnij zmianę.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add vue-i18n with Polish and English`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1764,8 +1764,8 @@ a w szablonie zamień `<UApp>` na `<UApp :locale="uiLocale">`. Reszta demo z Eta
 
 **Kroki:**
 
-- [ ] **1. Zależność i konfiguracja testów.** `pnpm --filter @one-place/extension add better-auth@^1.7`. Utwórz `vitest.config.ts` z wtyczką `WxtVitest()`: podmienia API przeglądarki na `fakeBrowser` z pamięcią zamiast prawdziwego `chrome.storage`.
-- [ ] **2. Czerwone testy sesji** w `src/api/session.test.ts`. W `beforeEach` wywołaj `fakeBrowser.reset()` i `await loadSession()`.
+- [x] **1. Zależność i konfiguracja testów.** `pnpm --filter @one-place/extension add better-auth@^1.7`. Utwórz `vitest.config.ts` z wtyczką `WxtVitest()`: podmienia API przeglądarki na `fakeBrowser` z pamięcią zamiast prawdziwego `chrome.storage`.
+- [x] **2. Czerwone testy sesji** w `src/api/session.test.ts`. W `beforeEach` wywołaj `fakeBrowser.reset()` i `await loadSession()`.
   - token zapisany w `storage.local` pod kluczem `authToken` jest dostępny po `loadSession()`;
   - `startSession('new-token')` zapisuje token i czyści wcześniejszy `notice`;
   - `endSession('session-expired')` usuwa token z pamięci i storage, a `notice` to `'session-expired'`;
@@ -1773,16 +1773,16 @@ a w szablonie zamień `<UApp>` na `<UApp :locale="uiLocale">`. Reszta demo z Eta
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **3. Implementacja** `session.ts`. Oczekiwany wynik: **PASS (6 testów w rozszerzeniu)**.
-- [ ] **4. Czerwone testy `createAuthFetch`** w `src/api/auth-fetch.test.ts`. Zamiast prawdziwego `fetch` podaj `vi.fn<typeof globalThis.fetch>`:
+- [x] **3. Implementacja** `session.ts`. Oczekiwany wynik: **PASS (6 testów w rozszerzeniu)**.
+- [x] **4. Czerwone testy `createAuthFetch`** w `src/api/auth-fetch.test.ts`. Zamiast prawdziwego `fetch` podaj `vi.fn<typeof globalThis.fetch>`:
   - z tokenem wysyła `Authorization: Bearer token` i zachowuje inne nagłówki;
   - bez tokenu nie wysyła `Authorization`;
   - odpowiedź 401 wywołuje `onUnauthorized` dokładnie raz;
   - odpowiedź 503 go nie wywołuje.
-- [ ] **5. Implementacja** `auth-fetch.ts`. Oczekiwany wynik: **PASS (10 testów w rozszerzeniu)**.
-- [ ] **6. Klienci.** `api/client.ts`: `hc<AppType>(url, { fetch: createAuthFetch({ getToken, onUnauthorized }) })`, gdzie `onUnauthorized` wywołuje `endSession('session-expired')`. `api/auth-client.ts`: `createAuthClient` z `better-auth/vue` z `baseURL: import.meta.env.WXT_API_URL` i `fetchOptions.auth` typu `Bearer`, który bierze token z `getToken()`.
-- [ ] **7. Start.** W `main.ts` zamontuj aplikację dopiero po `loadSession()`.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add session storage and API clients with token`.
+- [x] **5. Implementacja** `auth-fetch.ts`. Oczekiwany wynik: **PASS (10 testów w rozszerzeniu)**.
+- [x] **6. Klienci.** `api/client.ts`: `hc<AppType>(url, { fetch: createAuthFetch({ getToken, onUnauthorized }) })`, gdzie `onUnauthorized` wywołuje `endSession('session-expired')`. `api/auth-client.ts`: `createAuthClient` z `better-auth/vue` z `baseURL: import.meta.env.WXT_API_URL` i `fetchOptions.auth` typu `Bearer`, który bierze token z `getToken()`.
+- [x] **7. Start.** W `main.ts` zamontuj aplikację dopiero po `loadSession()`.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add session storage and API clients with token`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2050,27 +2050,27 @@ loadSession().then(() => {
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/extension add zod@^4` (rozszerzenie importuje z niego typ).
-- [ ] **2. Czerwone testy `formErrors`** w `src/i18n/form-errors.test.ts`, z udawaną funkcją `t = (key) => 'translated:' + key`:
+- [x] **1. Zależność.** `pnpm --filter @one-place/extension add zod@^4` (rozszerzenie importuje z niego typ).
+- [x] **2. Czerwone testy `formErrors`** w `src/i18n/form-errors.test.ts`, z udawaną funkcją `t = (key) => 'translated:' + key`:
   - poprawne dane `SignUpSchema` dają `[]`;
   - pusta nazwa i hasło `'short'` dają `[{ name: 'name', message: 'translated:validation.nameRequired' }, { name: 'password', message: 'translated:validation.passwordTooShort' }]`.
-- [ ] **3. Implementacja** `form-errors.ts`. Oczekiwany wynik: **PASS (12 testów w rozszerzeniu)**.
-- [ ] **4. Czerwone testy `authErrorKey`** w `src/features/auth/auth-error.test.ts`: 401 → `auth.errors.invalidCredentials`, 422 z kodem `USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL` → `auth.errors.emailTaken`, 429 → `auth.errors.tooManyAttempts`, 500 → `auth.errors.unknown`.
-- [ ] **5. Implementacja** `auth-error.ts`. Oczekiwany wynik: **PASS (16 testów w rozszerzeniu)**.
-- [ ] **6. Wspólna logika formularzy** w `use-auth-request.ts`: `run(request)` ustawia `loading`, przekazuje do żądania `onSuccess`, który zapisuje token z nagłówka `set-auth-token` przez `startSession`, zamienia `error` na klucz przez `authErrorKey`, a wyjątek (brak sieci) na `auth.errors.network`.
-- [ ] **7. Formularze.** `SignInForm.vue` i `SignUpForm.vue`: `UForm` z `:validate="formErrors(schema, t)"` i `:state`, pola w `UFormField`, `UAlert` z błędem, przycisk z `:loading` i link przełączający na drugi formularz (zdarzenie `switch`). `AuthScreen.vue` to karta (`UCard`) z tytułem i jednym z formularzy.
-- [ ] **8. Ekran po zalogowaniu.** `HomeScreen.vue` zastępuje demo z Etapu 0: po zamontowaniu pobiera `apiClient.api.me.$get()` i pokazuje „Cześć, {name}!”, plakietkę stanu API oraz przycisk „Wyloguj”. Wylogowanie wywołuje `authClient.signOut()` w `try`/`catch`, a potem zawsze `endSession()`.
-- [ ] **9. Przełączanie.** `App.vue` renderuje `HomeScreen`, gdy `session.token.value` istnieje, a w przeciwnym razie `AuthScreen`.
-- [ ] **10. Eksperyment.** Uruchom `pnpm dev` i załóż konto. **Oczekiwany wynik: komunikat „Brak połączenia z serwerem”, a w konsoli DevTools:** „blocked by CORS policy: … The value of the 'Access-Control-Allow-Credentials' header in the response is '' which must be 'true' when the request's credentials mode is 'include'”. Zastanów się nad przyczyną, zanim otworzysz wyjaśnienie poniżej.
-- [ ] **11. Poprawka.** W `auth-client.ts` dodaj `credentials: 'omit'` do `fetchOptions`. Załóż konto jeszcze raz: pojawia się „Cześć, {name}!” i `API: ok`.
-- [ ] **12. Sprawdzenie ręczne.**
+- [x] **3. Implementacja** `form-errors.ts`. Oczekiwany wynik: **PASS (12 testów w rozszerzeniu)**.
+- [x] **4. Czerwone testy `authErrorKey`** w `src/features/auth/auth-error.test.ts`: 401 → `auth.errors.invalidCredentials`, 422 z kodem `USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL` → `auth.errors.emailTaken`, 429 → `auth.errors.tooManyAttempts`, 500 → `auth.errors.unknown`.
+- [x] **5. Implementacja** `auth-error.ts`. Oczekiwany wynik: **PASS (16 testów w rozszerzeniu)**.
+- [x] **6. Wspólna logika formularzy** w `use-auth-request.ts`: `run(request)` ustawia `loading`, przekazuje do żądania `onSuccess`, który zapisuje token z nagłówka `set-auth-token` przez `startSession`, zamienia `error` na klucz przez `authErrorKey`, a wyjątek (brak sieci) na `auth.errors.network`.
+- [x] **7. Formularze.** `SignInForm.vue` i `SignUpForm.vue`: `UForm` z `:validate="formErrors(schema, t)"` i `:state`, pola w `UFormField`, `UAlert` z błędem, przycisk z `:loading` i link przełączający na drugi formularz (zdarzenie `switch`). `AuthScreen.vue` to karta (`UCard`) z tytułem i jednym z formularzy.
+- [x] **8. Ekran po zalogowaniu.** `HomeScreen.vue` zastępuje demo z Etapu 0: po zamontowaniu pobiera `apiClient.api.me.$get()` i pokazuje „Cześć, {name}!”, plakietkę stanu API oraz przycisk „Wyloguj”. Wylogowanie wywołuje `authClient.signOut()` w `try`/`catch`, a potem zawsze `endSession()`.
+- [x] **9. Przełączanie.** `App.vue` renderuje `HomeScreen`, gdy `session.token.value` istnieje, a w przeciwnym razie `AuthScreen`.
+- [x] **10. Eksperyment.** Uruchom `pnpm dev` i załóż konto. **Oczekiwany wynik: komunikat „Brak połączenia z serwerem”, a w konsoli DevTools:** „blocked by CORS policy: … The value of the 'Access-Control-Allow-Credentials' header in the response is '' which must be 'true' when the request's credentials mode is 'include'”. Zastanów się nad przyczyną, zanim otworzysz wyjaśnienie poniżej.
+- [x] **11. Poprawka.** W `auth-client.ts` dodaj `credentials: 'omit'` do `fetchOptions`. Załóż konto jeszcze raz: pojawia się „Cześć, {name}!” i `API: ok`.
+- [x] **12. Sprawdzenie ręczne.**
   - Przeładuj kartę i otwórz nową: nadal jesteś zalogowany (DoD).
   - Wyloguj się, a potem zaloguj z błędnym hasłem: „Nieprawidłowy e-mail lub hasło”, bez komunikatu o wygasłej sesji (punkt 1 z [Na co uważać](#na-co-uważać)).
   - Spróbuj założyć drugie konto na ten sam e-mail: „Konto z tym adresem e-mail już istnieje”.
   - Wyślij pusty formularz rejestracji: trzy przetłumaczone komunikaty pod polami.
   - Cztery razy szybko wpisz złe hasło: „Zbyt wiele prób. Spróbuj ponownie za chwilę.” (punkt 4).
   - Zaloguj się poprawnie: w tabeli `session` przybywa wiersz, a po wylogowaniu znika (`docker compose exec db psql -U one one_place -c 'select count(*) from session'`).
-- [ ] **13.** `pnpm format && pnpm check`, potem commit: `feat(extension): add sign-in, sign-up and sign-out`.
+- [x] **13.** `pnpm format && pnpm check`, potem commit: `feat(extension): add sign-in, sign-up and sign-out`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2493,11 +2493,11 @@ Demo akcentów i trybu ciemnego z Etapu 0 znika z nowej karty. Mechanizm wróci 
 
 **Kroki:**
 
-- [ ] **1. Komunikat.** W `AuthScreen.vue`, nad formularzem, pokaż `UAlert` w kolorze `warning` z tekstem `t('auth.sessionExpired')`, gdy `session.notice.value === 'session-expired'`.
-- [ ] **2. Wygasła sesja.** Zaloguj się, potem usuń sesje w bazie: `docker compose exec db psql -U one one_place -c 'delete from session'`. Przeładuj kartę. **Oczekiwany wynik:** ekran logowania z „Sesja wygasła. Zaloguj się ponownie.”, a token zniknął ze storage (DevTools → Application → Extension storage → Local). Ścieżka: `/api/me` dostaje 401, `createAuthFetch` wywołuje `onUnauthorized`, a ono `endSession('session-expired')`.
-- [ ] **3. Kilka kart (punkt 5 z [Na co uważać](#na-co-uważać)).** Otwórz dwie nowe karty. Wyloguj się w jednej: druga od razu pokazuje ekran logowania. Zaloguj się w drugiej: pierwsza przełącza się na „Cześć, …!”.
-- [ ] **4. Brak API (punkt 2).** Uruchom API i rozszerzenie w osobnych terminalach (`pnpm --filter @one-place/api dev` i `pnpm --filter @one-place/extension dev`), bo Ctrl+C w `pnpm dev` zatrzymałoby oba. Zalogowany zatrzymaj samo API i przeładuj kartę: zostajesz zalogowany, plakietka pokazuje `API: unreachable`, a powitanie się nie pojawia. Kliknij „Wyloguj”: ekran logowania, a w konsoli tylko `net::ERR_CONNECTION_REFUSED`, bez `Uncaught` ani `Unhandled error`. Spróbuj się zalogować: „Brak połączenia z serwerem”. Uruchom API z powrotem.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): show expired session notice`.
+- [x] **1. Komunikat.** W `AuthScreen.vue`, nad formularzem, pokaż `UAlert` w kolorze `warning` z tekstem `t('auth.sessionExpired')`, gdy `session.notice.value === 'session-expired'`.
+- [x] **2. Wygasła sesja.** Zaloguj się, potem usuń sesje w bazie: `docker compose exec db psql -U one one_place -c 'delete from session'`. Przeładuj kartę. **Oczekiwany wynik:** ekran logowania z „Sesja wygasła. Zaloguj się ponownie.”, a token zniknął ze storage (DevTools → Application → Extension storage → Local). Ścieżka: `/api/me` dostaje 401, `createAuthFetch` wywołuje `onUnauthorized`, a ono `endSession('session-expired')`.
+- [x] **3. Kilka kart (punkt 5 z [Na co uważać](#na-co-uważać)).** Otwórz dwie nowe karty. Wyloguj się w jednej: druga od razu pokazuje ekran logowania. Zaloguj się w drugiej: pierwsza przełącza się na „Cześć, …!”.
+- [x] **4. Brak API (punkt 2).** Uruchom API i rozszerzenie w osobnych terminalach (`pnpm --filter @one-place/api dev` i `pnpm --filter @one-place/extension dev`), bo Ctrl+C w `pnpm dev` zatrzymałoby oba. Zalogowany zatrzymaj samo API i przeładuj kartę: zostajesz zalogowany, plakietka pokazuje `API: unreachable`, a powitanie się nie pojawia. Kliknij „Wyloguj”: ekran logowania, a w konsoli tylko `net::ERR_CONNECTION_REFUSED`, bez `Uncaught` ani `Unhandled error`. Spróbuj się zalogować: „Brak połączenia z serwerem”. Uruchom API z powrotem.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): show expired session notice`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2569,18 +2569,18 @@ const mode = ref<'sign-in' | 'sign-up'>('sign-in')
 
 **Kroki:**
 
-- [ ] **1. Pomiar.** `pnpm --filter @one-place/extension build`. **Oczekiwany wynik: jeden chunk `newtab-*.js` o rozmiarze około 483 kB**, czyli o 148 kB ponad budżet (w Etapie 0 było 268 kB).
-- [ ] **2. Analiza.** Dodaj tymczasowo `pnpm --filter @one-place/extension add -D rollup-plugin-visualizer`, a w `wxt.config.ts` na początku listy `plugins` wpisz `visualizer({ filename: 'stats.html', template: 'treemap' })`. Zbuduj i otwórz `apps/extension/stats.html`. Znajdź największe nowe bloki. W prototypie były to: `zod` (około 78 kB), `vue-i18n` z kompilatorem komunikatów (około 58 kB, w tym `@intlify/message-compiler` 17 kB), klient Better Auth z `@better-fetch/fetch` (około 25 kB) i komponenty formularzy Nuxt UI.
-- [ ] **3. Pytanie.** Które z tych bloków są potrzebne zalogowanemu użytkownikowi, który otwiera nową kartę? Odpowiedz, zanim przejdziesz dalej.
-- [ ] **4. Leniwy ekran logowania.** W `App.vue` zamień statyczny import `AuthScreen` na `defineAsyncComponent(() => import('@/features/auth/AuthScreen.vue'))`. W `HomeScreen.vue` usuń import `authClient` z góry pliku i pobieraj go w `signOut` przez `await import('@/api/auth-client')`, wewnątrz `try`.
-- [ ] **5. Pomiar.** **Oczekiwany wynik: `newtab-*.js` około 347 kB, a obok nowe chunki `AuthScreen-*.js` (około 111 kB) i `auth-client-*.js` (około 30 kB).** Nadal ponad budżet.
-- [ ] **6. Kompilacja komunikatów.** `pnpm --filter @one-place/extension add -D @intlify/unplugin-vue-i18n@^11`. W `wxt.config.ts` dodaj `VueI18nPlugin({ include: [ścieżka do src/i18n/*.json], dropMessageCompiler: true })` przed `ui()`.
-- [ ] **7. Pomiar.** **Oczekiwany wynik: `newtab-*.js` około 326 kB, poniżej budżetu 335 kB.** Zanotuj swoje liczby, przydadzą się w zadaniu 12.
-- [ ] **8. Eksperyment: pułapka na kolejne etapy.** W `HomeScreen.vue` zaimportuj tymczasowo `ACCENT_COLORS` z `@one-place/shared` i wypisz je przez `console.log`. Zbuduj. **Oczekiwany wynik: `newtab-*.js` około 405 kB.** Zod wrócił do głównego chunka, choć `ACCENT_COLORS` z nim nie ma nic wspólnego. Zastanów się dlaczego, zanim otworzysz wyjaśnienie poniżej.
-- [ ] **9. Poprawka.** W `packages/shared/package.json` dodaj `"sideEffects": false`. Zbuduj: z tym samym importem znowu około 326 kB. Usuń tymczasowy import z `HomeScreen.vue`.
-- [ ] **10. Sprzątanie.** Usuń `visualizer` z konfiguracji, odinstaluj `rollup-plugin-visualizer` i skasuj `stats.html`.
-- [ ] **11. Sprawdzenie ręczne.** W `pnpm dev` i w zbudowanej paczce (załaduj `.output/chrome-mv3` jako rozpakowane rozszerzenie) teksty są przetłumaczone, a nie widać kluczy. Po wylogowaniu ekran logowania pojawia się bez widocznego opóźnienia.
-- [ ] **12.** `pnpm format && pnpm check`, potem commit: `perf(extension): lazy-load auth screens and precompile messages`.
+- [x] **1. Pomiar.** `pnpm --filter @one-place/extension build`. **Oczekiwany wynik: jeden chunk `newtab-*.js` o rozmiarze około 483 kB**, czyli o 148 kB ponad budżet (w Etapie 0 było 268 kB).
+- [x] **2. Analiza.** Dodaj tymczasowo `pnpm --filter @one-place/extension add -D rollup-plugin-visualizer`, a w `wxt.config.ts` na początku listy `plugins` wpisz `visualizer({ filename: 'stats.html', template: 'treemap' })`. Zbuduj i otwórz `apps/extension/stats.html`. Znajdź największe nowe bloki. W prototypie były to: `zod` (około 78 kB), `vue-i18n` z kompilatorem komunikatów (około 58 kB, w tym `@intlify/message-compiler` 17 kB), klient Better Auth z `@better-fetch/fetch` (około 25 kB) i komponenty formularzy Nuxt UI.
+- [x] **3. Pytanie.** Które z tych bloków są potrzebne zalogowanemu użytkownikowi, który otwiera nową kartę? Odpowiedz, zanim przejdziesz dalej.
+- [x] **4. Leniwy ekran logowania.** W `App.vue` zamień statyczny import `AuthScreen` na `defineAsyncComponent(() => import('@/features/auth/AuthScreen.vue'))`. W `HomeScreen.vue` usuń import `authClient` z góry pliku i pobieraj go w `signOut` przez `await import('@/api/auth-client')`, wewnątrz `try`.
+- [x] **5. Pomiar.** **Oczekiwany wynik: `newtab-*.js` około 347 kB, a obok nowe chunki `AuthScreen-*.js` (około 111 kB) i `auth-client-*.js` (około 30 kB).** Nadal ponad budżet.
+- [x] **6. Kompilacja komunikatów.** `pnpm --filter @one-place/extension add -D @intlify/unplugin-vue-i18n@^11`. W `wxt.config.ts` dodaj `VueI18nPlugin({ include: [ścieżka do src/i18n/*.json], dropMessageCompiler: true })` przed `ui()`.
+- [x] **7. Pomiar.** **Oczekiwany wynik: `newtab-*.js` około 326 kB, poniżej budżetu 335 kB.** Zanotuj swoje liczby, przydadzą się w zadaniu 12.
+- [x] **8. Eksperyment: pułapka na kolejne etapy.** W `HomeScreen.vue` zaimportuj tymczasowo `ACCENT_COLORS` z `@one-place/shared` i wypisz je przez `console.log`. Zbuduj. **Oczekiwany wynik: `newtab-*.js` około 405 kB.** Zod wrócił do głównego chunka, choć `ACCENT_COLORS` z nim nie ma nic wspólnego. Zastanów się dlaczego, zanim otworzysz wyjaśnienie poniżej.
+- [x] **9. Poprawka.** W `packages/shared/package.json` dodaj `"sideEffects": false`. Zbuduj: z tym samym importem znowu około 326 kB. Usuń tymczasowy import z `HomeScreen.vue`.
+- [x] **10. Sprzątanie.** Usuń `visualizer` z konfiguracji, odinstaluj `rollup-plugin-visualizer` i skasuj `stats.html`.
+- [x] **11. Sprawdzenie ręczne.** W `pnpm dev` i w zbudowanej paczce (załaduj `.output/chrome-mv3` jako rozpakowane rozszerzenie) teksty są przetłumaczone, a nie widać kluczy. Po wylogowaniu ekran logowania pojawia się bez widocznego opóźnienia.
+- [x] **12.** `pnpm format && pnpm check`, potem commit: `perf(extension): lazy-load auth screens and precompile messages`.
 
 <details>
 <summary>Wyjaśnienie eksperymentu (otwórz po kroku 8)</summary>
@@ -2729,22 +2729,22 @@ export default defineConfig({
 
 **Kroki:**
 
-- [ ] **1. Wynik R5.** W [03-architektura.md](03-architektura.md), w tabeli ryzyk, oznacz R5 jako zamknięte w Etapie 1 i krótko opisz rozwiązanie: origin rozszerzenia w `trustedOrigins` (rejestracja i logowanie zawsze sprawdzają `Origin`), CORS z `allowHeaders` i `exposeHeaders: ['set-auth-token']`, klient z `credentials: 'omit'`, `bearer({ requireSignature: true })`.
-- [ ] **2. Architektura.** W [03-architektura.md](03-architektura.md):
+- [x] **1. Wynik R5.** W [03-architektura.md](03-architektura.md), w tabeli ryzyk, oznacz R5 jako zamknięte w Etapie 1 i krótko opisz rozwiązanie: origin rozszerzenia w `trustedOrigins` (rejestracja i logowanie zawsze sprawdzają `Origin`), CORS z `allowHeaders` i `exposeHeaders: ['set-auth-token']`, klient z `credentials: 'omit'`, `bearer({ requireSignature: true })`.
+- [x] **2. Architektura.** W [03-architektura.md](03-architektura.md):
   - w tabeli API dopisz `GET /me` → `{ id, name, email }` (chroniony);
   - w sekcji „Better Auth” dopisz `rateLimit: { enabled: true }`, `advanced: { disableOriginCheck: false }`, `telemetry: { enabled: false }`, `requireSignature` i to, że schemat generuje CLI `auth` (`pnpm db:auth-schema`);
   - w sekcji „Middleware” zaznacz, że `requireAuth` jest dołączany do tras i routerów modułów, a nie globalnie;
   - w „Start nowej karty” dopisz, że ekran logowania jest ładowany leniwie, i podaj zmierzony rozmiar startowego JS z zadania 11.
-- [ ] **3. README.** W „Uruchomienie lokalne” dopisz wygenerowanie sekretu (`openssl rand -base64 32` do `BETTER_AUTH_SECRET` w `apps/api/.env`) oraz `pnpm --filter @one-place/api db:migrate` po `docker compose up -d`.
-- [ ] **4. Roadmapa.** Przy Etapie 1 w [04-roadmapa.md](04-roadmapa.md) jest już odnośnik do tego planu. Sprawdź, czy zakres się zgadza z tym, co powstało.
-- [ ] **5. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-1-logowanie):
-  - [ ] da się założyć konto;
-  - [ ] da się zalogować;
-  - [ ] przeładowanie karty nie wylogowuje;
-  - [ ] da się wylogować;
-  - [ ] testy API pokrywają 401 dla chronionego endpointu (`me.test.ts`);
-  - [ ] R5 ma zapisany wynik.
-- [ ] **6.** `pnpm check` (oczekiwany wynik: 8 + 27 + 16 = **51 testów**), potem commit: `docs: add stage 1 results and R5 outcome`.
+- [x] **3. README.** W „Uruchomienie lokalne” dopisz wygenerowanie sekretu (`openssl rand -base64 32` do `BETTER_AUTH_SECRET` w `apps/api/.env`) oraz `pnpm --filter @one-place/api db:migrate` po `docker compose up -d`.
+- [x] **4. Roadmapa.** Przy Etapie 1 w [04-roadmapa.md](04-roadmapa.md) jest już odnośnik do tego planu. Sprawdź, czy zakres się zgadza z tym, co powstało.
+- [x] **5. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-1-logowanie):
+  - [x] da się założyć konto;
+  - [x] da się zalogować;
+  - [x] przeładowanie karty nie wylogowuje;
+  - [x] da się wylogować;
+  - [x] testy API pokrywają 401 dla chronionego endpointu (`me.test.ts`);
+  - [x] R5 ma zapisany wynik.
+- [x] **6.** `pnpm check` (oczekiwany wynik: 8 + 27 + 16 = **51 testów**), potem commit: `docs: add stage 1 results and R5 outcome`.
 
 ---
 

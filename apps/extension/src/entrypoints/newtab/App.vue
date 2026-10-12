@@ -1,49 +1,26 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { ACCENT_COLORS, accentCssVariables, type AccentColor } from '@one-place/shared'
-import { useApiHealth } from '@/api/use-api-health'
+import { computed, defineAsyncComponent, watchEffect } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { en, pl } from '@nuxt/ui/locale'
+import { session } from '@/api/session'
+import HomeScreen from '@/features/home/HomeScreen.vue'
 
-const { health } = useApiHealth()
-const isDark = ref(false)
+// Sign-in screens (forms, Zod, auth client) are loaded only when needed,
+// so a signed-in user's new tab does not download them
+const AuthScreen = defineAsyncComponent(() => import('@/features/auth/AuthScreen.vue'))
 
-function toggleDark() {
-  isDark.value = !isDark.value
-  document.documentElement.classList.toggle('dark', isDark.value)
-}
+const { locale, t } = useI18n()
+const uiLocale = computed(() => (locale.value === 'pl' ? pl : en))
 
-function setAccent(accent: AccentColor) {
-  for (const [name, value] of Object.entries(accentCssVariables(accent))) {
-    document.documentElement.style.setProperty(name, value)
-  }
-}
+watchEffect(() => {
+  document.documentElement.lang = locale.value
+  document.title = t('app.title')
+})
 </script>
 
 <template>
-  <UApp>
-    <main class="grid min-h-screen place-items-center bg-default text-default">
-      <div class="flex flex-col items-center gap-6">
-        <UButton icon="i-lucide-rocket" label="Nuxt UI działa" />
-        <div class="flex flex-wrap justify-center gap-2">
-          <UButton
-            v-for="accent in ACCENT_COLORS"
-            :key="accent"
-            :label="accent"
-            size="xs"
-            variant="soft"
-            @click="setAccent(accent)"
-          />
-        </div>
-        <UButton
-          :icon="isDark ? 'i-lucide-sun' : 'i-lucide-moon'"
-          variant="outline"
-          @click="toggleDark"
-        />
-        <UBadge
-          :label="`API: ${health}`"
-          :color="health === 'ok' ? 'success' : 'error'"
-          variant="subtle"
-        />
-      </div>
-    </main>
+  <UApp :locale="uiLocale">
+    <HomeScreen v-if="session.token.value" />
+    <AuthScreen v-else />
   </UApp>
 </template>

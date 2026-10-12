@@ -54,7 +54,19 @@ Każda funkcjonalność jest osobnym widgetem. Widgety można dodawać, usuwać 
 
    ID wynika z klucza publicznego w `manifest.key` w `apps/extension/wxt.config.ts`, więc jest takie samo na każdym komputerze. Własną parę kluczy, na przykład w forku, wygenerujesz poleceniem `node scripts/generate-extension-key.mjs`. Wypisany `KEY` wklej do `manifest.key`, a `ID` do `ALLOWED_ORIGINS`.
 
-5. Uruchom API i rozszerzenie:
+5. Wygeneruj sekret Better Auth i wpisz go do `BETTER_AUTH_SECRET` w `apps/api/.env`:
+
+   ```bash
+   openssl rand -base64 32
+   ```
+
+6. Utwórz tabele w bazie (migracje drizzle-kit):
+
+   ```bash
+   pnpm --filter @one-place/api db:migrate
+   ```
+
+7. Uruchom API i rozszerzenie:
 
    ```bash
    pnpm dev
