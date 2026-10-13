@@ -401,7 +401,7 @@ import pl from './pl.json'
 
 **Kroki:**
 
-- [ ] **1. Eksperyment: kolacja w Postgresie.** Uruchom w bazie z Dockera dwa zapytania:
+- [x] **1. Eksperyment: kolacja w Postgresie.** Uruchom w bazie z Dockera dwa zapytania:
 
   ```bash
   docker compose exec db psql -U one one_place -c "select p from unnest(array['a0','Zz','a1','a0V']) p order by p"
@@ -410,18 +410,18 @@ import pl from './pl.json'
 
   **Oczekiwany wynik:** pierwsze daje `a0, a0V, a1, Zz`, a drugie `Zz, a0, a0V, a1`. `fractional-indexing` dla „przed `a0`” zwraca `Zz`, więc bez kolacji `C` kontekst przeciągnięty na początek trafiłby na koniec. PGlite ma domyślnie kolację `C`, więc test sortowania na PGlite przeszedłby mimo błędu. Dlatego test w kroku 2 sprawdza kolację kolumny, a nie wynik sortowania.
 
-- [ ] **2. Czerwone testy** w `test/migrations.test.ts`:
+- [x] **2. Czerwone testy** w `test/migrations.test.ts`:
   - lista tabel to `['account', 'contexts', 'session', 'user', 'user_settings', 'verification']` (zmień istniejący test);
   - `collation_name` kolumny `contexts.position` w `information_schema.columns` to `'C'`.
 
   Oczekiwany wynik: **FAIL** obu testów.
 
-- [ ] **3. Schemat.** `columns.ts`: `timestamps` (`created_at`, `updated_at` jako `timestamptz` z `defaultNow()`, `version` z domyślną wartością 1) oraz `fractionalIndex`. `contexts.ts` i `settings.ts` według tabel z architektury, bez kolumn motywu (decyzja 3). W `schema/index.ts` dopisz eksporty.
-- [ ] **4. Migracja.** `pnpm --filter @one-place/api db:generate --name contexts_and_settings`. Przeczytaj `0001_contexts_and_settings.sql` i znajdź `"position" text COLLATE "C" NOT NULL`. Uruchom `db:generate` drugi raz: ma odpowiedzieć „No schema changes, nothing to migrate”.
-- [ ] **5. Zielone testy.** Oczekiwany wynik: **PASS (28 testów w pakiecie API)**.
-- [ ] **6. Sprawdź, czy test pilnuje kolacji.** Usuń na chwilę `COLLATE "C"` z pliku SQL i uruchom testy: `expected [ { collation_name: null } ] to deeply equal [ { collation_name: 'C' } ]`. Przywróć plik.
-- [ ] **7. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c '\d contexts'`. W kolumnie „Collation” przy `position` jest `C`.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add contexts and user settings tables`.
+- [x] **3. Schemat.** `columns.ts`: `timestamps` (`created_at`, `updated_at` jako `timestamptz` z `defaultNow()`, `version` z domyślną wartością 1) oraz `fractionalIndex`. `contexts.ts` i `settings.ts` według tabel z architektury, bez kolumn motywu (decyzja 3). W `schema/index.ts` dopisz eksporty.
+- [x] **4. Migracja.** `pnpm --filter @one-place/api db:generate --name contexts_and_settings`. Przeczytaj `0001_contexts_and_settings.sql` i znajdź `"position" text COLLATE "C" NOT NULL`. Uruchom `db:generate` drugi raz: ma odpowiedzieć „No schema changes, nothing to migrate”.
+- [x] **5. Zielone testy.** Oczekiwany wynik: **PASS (28 testów w pakiecie API)**.
+- [x] **6. Sprawdź, czy test pilnuje kolacji.** Usuń na chwilę `COLLATE "C"` z pliku SQL i uruchom testy: `expected [ { collation_name: null } ] to deeply equal [ { collation_name: 'C' } ]`. Przywróć plik.
+- [x] **7. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c '\d contexts'`. W kolumnie „Collation” przy `position` jest `C`.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add contexts and user settings tables`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -606,14 +606,14 @@ CREATE INDEX "contexts_user_id_position_idx" ON "contexts" USING btree ("user_id
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/api add @hono/zod-validator@^0.9`
-- [ ] **2. Eksperyment: domyślna odpowiedź walidatora.** W `test/validate.test.ts` zbuduj małą aplikację: `new Hono().post('/items/:id', zValidator('json', z.object({ name: z.string().trim().min(1) })), handler).onError(handleError)`. Dopisz test: `{ name: '' }` daje 400 i `body.error.code === 'VALIDATION_ERROR'`. **Oczekiwany wynik: FAIL**, a treść odpowiedzi wygląda tak: `{"success":false,"error":{"name":"ZodError","message":"[\n {\n \"origin\": \"string\", …"}}`. Zastanów się, skąd ten kształt, zanim otworzysz wyjaśnienie.
-- [ ] **3. Implementacja** `src/lib/validate.ts`: `validate()` woła `zValidator` z trzecim argumentem (hook), który przy błędzie rzuca `result.error`. W teście zamień `zValidator` na `validate`. Dodaj test, że poprawne dane docierają do handlera już przycięte (`'  Praca  '` → `'Praca'`). Oczekiwany wynik: **PASS**.
-- [ ] **4. Eksperyment: zepsuty JSON.** Dopisz test, który wysyła treść `'{"name":'` z nagłówkiem `Content-Type: application/json`. **Oczekiwany wynik: FAIL, `expected 500 to be 400`.** Zastanów się, kto rzucił błąd, skoro Zod nie dostał żadnych danych.
-- [ ] **5. Poprawka** w `handleError`: `HTTPException` ze statusem 400 zamień na `VALIDATION_ERROR` z komunikatem wyjątku.
-- [ ] **6. ID w ścieżce.** Dodaj `IdParamSchema` i walidację parametru (`validate('param', …)` przed walidacją JSON). Test: `/items/42` daje 400 z `VALIDATION_ERROR`.
-- [ ] **7. Zielone testy.** Oczekiwany wynik: **PASS (32 testy w pakiecie API)**.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add request validation in the standard error format`.
+- [x] **1. Zależność.** `pnpm --filter @one-place/api add @hono/zod-validator@^0.9`
+- [x] **2. Eksperyment: domyślna odpowiedź walidatora.** W `test/validate.test.ts` zbuduj małą aplikację: `new Hono().post('/items/:id', zValidator('json', z.object({ name: z.string().trim().min(1) })), handler).onError(handleError)`. Dopisz test: `{ name: '' }` daje 400 i `body.error.code === 'VALIDATION_ERROR'`. **Oczekiwany wynik: FAIL**, a treść odpowiedzi wygląda tak: `{"success":false,"error":{"name":"ZodError","message":"[\n {\n \"origin\": \"string\", …"}}`. Zastanów się, skąd ten kształt, zanim otworzysz wyjaśnienie.
+- [x] **3. Implementacja** `src/lib/validate.ts`: `validate()` woła `zValidator` z trzecim argumentem (hook), który przy błędzie rzuca `result.error`. W teście zamień `zValidator` na `validate`. Dodaj test, że poprawne dane docierają do handlera już przycięte (`'  Praca  '` → `'Praca'`). Oczekiwany wynik: **PASS**.
+- [x] **4. Eksperyment: zepsuty JSON.** Dopisz test, który wysyła treść `'{"name":'` z nagłówkiem `Content-Type: application/json`. **Oczekiwany wynik: FAIL, `expected 500 to be 400`.** Zastanów się, kto rzucił błąd, skoro Zod nie dostał żadnych danych.
+- [x] **5. Poprawka** w `handleError`: `HTTPException` ze statusem 400 zamień na `VALIDATION_ERROR` z komunikatem wyjątku.
+- [x] **6. ID w ścieżce.** Dodaj `IdParamSchema` i walidację parametru (`validate('param', …)` przed walidacją JSON). Test: `/items/42` daje 400 z `VALIDATION_ERROR`.
+- [x] **7. Zielone testy.** Oczekiwany wynik: **PASS (32 testy w pakiecie API)**.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add request validation in the standard error format`.
 
 <details>
 <summary>Wyjaśnienie eksperymentów (otwórz po kroku 4)</summary>
