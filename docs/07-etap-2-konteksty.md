@@ -1746,7 +1746,7 @@ const { data: me } = useMe()
 - [x] **4. Eksperyment: `gcTime`.** Dokumentacja TanStack Query zaleca `gcTime` co najmniej tak długi jak `maxAge` persistera. Ustaw w `createQueryClient()` `gcTime: CACHE_MAX_AGE` i uruchom testy. **Oczekiwany wynik:** `TimeoutOverflowWarning: 2592000000 does not fit into a 32-bit signed integer` i nieudane testy odtwarzania. Zastanów się, co się stało z odtworzonymi zapytaniami, zanim otworzysz wyjaśnienie. Potem ustaw `gcTime: Infinity`.
 - [x] **5. Eksperyment: API nie działa.** Dopisz test: karta z zapisanymi kontekstami odświeża je nieudanie (`fetchQuery` z `queryFn`, który rzuca `TypeError`, i `retry: false`), potem zapisuje coś jeszcze (`setQueryData(['me'], …)`), a nowa karta nadal odtwarza konteksty. **Oczekiwany wynik: FAIL.** Zastanów się dlaczego, potem dodaj w `dehydrateOptions` `shouldDehydrateQuery: (query) => query.state.data !== undefined`. Oczekiwany wynik: **PASS (26 testów w rozszerzeniu)**.
 - [x] **6. Start aplikacji.** W `main.ts`: `await Promise.all([loadSession(), restoreCache(queryClient)])`, potem `persistCache(queryClient)`, `watch(session.token, …)`, który przy braku tokenu woła `clearCache`, i dopiero na końcu `mount`.
-- [ ] **7. Sprawdzenie ręczne** (`pnpm dev`, zalogowany):
+- [x] **7. Sprawdzenie ręczne** (`pnpm dev`, zalogowany):
   - DevTools karty → Application → Extension storage → Local: klucz `one-place:query-cache` zawiera zapytanie `["me"]`;
   - zatrzymaj API i przeładuj kartę: powitanie jest od razu, a plakietka pokazuje `unreachable`;
   - odczekaj 10 sekund (ponowienia się skończą) i otwórz nową kartę: powitanie nadal jest;
@@ -2567,7 +2567,7 @@ void start()
 - [x] **9. Podłączenie.** W `App.vue` zamień `HomeScreen` na `DashboardScreen`. Usuń `HomeScreen.vue` i `use-api-health.ts`.
 - [x] **10. Eksperyment: ikony z danych.** Zbuduj rozszerzenie (`pnpm --filter @one-place/extension build`), załaduj `.output/chrome-mv3` jako rozpakowane rozszerzenie i załóż nowe konto. Na ekranie pierwszego kontekstu otwórz DevTools → Network. **Oczekiwany wynik:** żądania do `api.iconify.design/lucide.json?icons=book-open,briefcase,…` i `api.simplesvg.com/…`, mimo że w Etapie 0 ikony były w paczce. Zastanów się dlaczego, zanim otworzysz wyjaśnienie.
 - [x] **11. Poprawka.** W `wxt.config.ts` zaimportuj `CONTEXT_ICONS` z `@one-place/shared` i dodaj `icons: [...CONTEXT_ICONS]` do `icon.clientBundle`. Zbuduj i powtórz krok 10: żadnych żądań poza API.
-- [ ] **12. Sprawdzenie ręczne** (`pnpm dev`):
+- [x] **12. Sprawdzenie ręczne** (`pnpm dev`):
   - nowe konto: na chwilę szkielety, potem „Utwórz swój pierwszy kontekst”;
   - pusty formularz: „Podaj nazwę kontekstu”;
   - nazwa `  Praca  `: zakładka „Praca” z ikoną i pusty pulpit „Tu pojawią się widgety.”;
@@ -3079,7 +3079,7 @@ import { CONTEXT_ICONS } from '@one-place/shared'
 - [x] **6. Lista.** `ManageContexts.vue`: `VueDraggable` z `handle=".drag-handle"` na lokalnej kopii listy, `@update` liczy pozycję przez `positionAt` i woła `update`. Pod listą `ContextForm` z `useAddContext`. Usunięcie otwiera drugi `UModal` z pytaniem „Usunąć kontekst „{name}”?” i przyciskami „Anuluj” i „Usuń”.
 - [x] **7. Okno.** `ManageContextsModal.vue` to `UModal` z `ManageContexts` w treści. `DashboardScreen` ładuje go leniwie i montuje przy pierwszym otwarciu. `ContextSwitcher` dostaje przycisk `i-lucide-pencil` („Zarządzaj kontekstami”), który emituje `manage`, a `AppHeader` przekazuje zdarzenie dalej jako `manageContexts`.
 - [x] **8. Teksty:** `contexts.manage.*`, `contexts.delete.*` i grupa `errors`.
-- [ ] **9. Sprawdzenie ręczne** (`pnpm dev`):
+- [x] **9. Sprawdzenie ręczne** (`pnpm dev`):
   - dodaj „Dom” i „Hobby”: każdy nowy kontekst od razu staje się aktywny;
   - wyczyść nazwę „Dom” i naciśnij Enter: pole wraca do „Dom”; wpisz „Dom i ogród”: zakładka zmienia się od razu;
   - zmień ikonę „Hobby” na nutę;
@@ -3560,7 +3560,7 @@ function openManage() {
 - [x] **4. Język konta.** `use-account-locale.ts`: `watchEffect` ustawia globalny `locale` na `resolveLocale(settings?.locale, navigator.language)`, a `onScopeDispose` przywraca język przeglądarki. Wywołaj go w `DashboardScreen`.
 - [x] **5. Panel ustawień.** `SettingsSlideover.vue`: `UUser` z nazwą i e-mailem z `useMe`, `URadioGroup` z trzema opcjami i przycisk wylogowania w stopce. Załaduj go leniwie w `DashboardScreen`, tak jak okno kontekstów. W `AppHeader` zamień przycisk wylogowania na przycisk ustawień (`i-lucide-settings`), który emituje `openSettings`.
 - [x] **6. Teksty:** grupa `settings` (`title`, `language.label`, `language.browser`).
-- [ ] **7. Sprawdzenie ręczne** (`pnpm dev`):
+- [x] **7. Sprawdzenie ręczne** (`pnpm dev`):
   - Ustawienia → „English”: interfejs zmienia się od razu, a `<html lang>` to `en`;
   - odczekaj sekundę i przeładuj kartę: pulpit jest po angielsku od pierwszej klatki, bez mignięcia polskiego;
   - zaloguj się na to samo konto w drugim profilu przeglądarki: interfejs po angielsku (F-I18N-03); wybierz „Browser language”: wraca polski;
@@ -4166,22 +4166,22 @@ const items = computed<DropdownMenuItem[][]>(() => [
 
 **Kroki:**
 
-- [ ] **1. Specyfikacja.** W [02-specyfikacja.md](02-specyfikacja.md), w wymaganiu „Wydajność”, zmień budżet: 550 kB bez kompresji (pomiar z Etapu 2: 473 kB + ok. 15%), liczony jako suma skryptu wejściowego i chunków z `modulepreload` (`pnpm size`).
-- [ ] **2. Architektura.** W [03-architektura.md](03-architektura.md):
+- [x] **1. Specyfikacja.** W [02-specyfikacja.md](02-specyfikacja.md), w wymaganiu „Wydajność”, zmień budżet: 550 kB bez kompresji (pomiar z Etapu 2: 473 kB + ok. 15%), liczony jako suma skryptu wejściowego i chunków z `modulepreload` (`pnpm size`).
+- [x] **2. Architektura.** W [03-architektura.md](03-architektura.md):
   - w „Model danych”: `user_settings` ma w Etapie 2 tylko `locale`, a `theme` i `contexts.theme_override` dochodzą w Etapie 5; kolumna `position` powstaje przez `customType` z `text COLLATE "C"`; listy sortujemy po `(position, id)`;
   - w „API”: `GET /settings` zwraca `{ locale, updatedAt, version }` (domyślnie `null`, `null`, `0`); `POST /contexts` odpowiada 201 albo 200 przy ponowieniu; walidacja przez `validate()` (hook rzuca `ZodError`), a zepsuty JSON daje 400;
   - w „Warstwa danych”: cache odtwarzany przed `mount` (bez `clientPersister`), `shouldDehydrateQuery` zapisuje zapytania z danymi także w stanie `error`, `gcTime: Infinity`, `onlineManager.setOnline(navigator.onLine)` na starcie, toasty przez subskrypcję `MutationCache`, 404 przy `DELETE` traktowane jak sukces;
   - w „Start nowej karty”: startowy JS po Etapie 2 (Twój pomiar, na prototypie 473 kB) i czas pierwszego renderu z cache;
   - w rejestrze decyzji: przełącznik kontekstów jako zakładki (odrzucone: `UDropdownMenu`, +104 kB startowego JS).
-- [ ] **3. Roadmapa.** Przy Etapie 2 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza, i czy w Etapie 3 jest licznik widgetów w modalu usuwania kontekstu, a w Etapie 5 kolumny motywu z migracją i zmianą `CACHE_SCHEMA_VERSION`.
-- [ ] **4. README.** W „Uruchomienie lokalne” dopisz, że rozmiar startowego JS sprawdzisz po buildzie: `pnpm --filter @one-place/extension build && pnpm size`.
-- [ ] **5. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-2-konteksty-i-warstwa-danych):
-  - [ ] konteksty działają zgodnie ze specyfikacją: pusty stan, tworzenie, przełączanie, pamiętanie aktywnego, zmiana nazwy i ikony, kolejność, usuwanie z potwierdzeniem, limit 20 (bez licznika widgetów, decyzja 4);
-  - [ ] po przeładowaniu karty pulpit pojawia się z cache bez szkieletów;
-  - [ ] odrzucona przez API zmiana jest cofana z toastem (zadanie 14, krok 5);
-  - [ ] testy API sprawdzają 401 bez sesji, 404 dla cudzego kontekstu, 400 dla niepoprawnych danych i niezależność ustawień dwóch użytkowników (`settings.test.ts`, `contexts.test.ts`);
-  - [ ] startowy JS mieści się w nowym budżecie, a pierwszy render z cache trwa poniżej 200 ms.
-- [ ] **6.** `pnpm check` (oczekiwany wynik: 16 + 53 + 47 = **116 testów**), potem commit: `docs: add stage 2 results and new JS budget`.
+- [x] **3. Roadmapa.** Przy Etapie 2 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza, i czy w Etapie 3 jest licznik widgetów w modalu usuwania kontekstu, a w Etapie 5 kolumny motywu z migracją i zmianą `CACHE_SCHEMA_VERSION`.
+- [x] **4. README.** W „Uruchomienie lokalne” dopisz, że rozmiar startowego JS sprawdzisz po buildzie: `pnpm --filter @one-place/extension build && pnpm size`.
+- [x] **5. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-2-konteksty-i-warstwa-danych):
+  - [x] konteksty działają zgodnie ze specyfikacją: pusty stan, tworzenie, przełączanie, pamiętanie aktywnego, zmiana nazwy i ikony, kolejność, usuwanie z potwierdzeniem, limit 20 (bez licznika widgetów, decyzja 4);
+  - [x] po przeładowaniu karty pulpit pojawia się z cache bez szkieletów;
+  - [x] odrzucona przez API zmiana jest cofana z toastem (zadanie 14, krok 5);
+  - [x] testy API sprawdzają 401 bez sesji, 404 dla cudzego kontekstu, 400 dla niepoprawnych danych i niezależność ustawień dwóch użytkowników (`settings.test.ts`, `contexts.test.ts`);
+  - [x] startowy JS mieści się w nowym budżecie, a pierwszy render z cache trwa poniżej 200 ms.
+- [x] **6.** `pnpm check` (oczekiwany wynik: 16 + 53 + 47 = **116 testów**), potem commit: `docs: add stage 2 results and new JS budget`.
 
 ---
 

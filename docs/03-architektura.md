@@ -173,7 +173,8 @@ Tabele Better Auth (`user`, `session`, `account`, `verification`) mają standard
 - **ID: UUIDv7 generowany przez klienta.** Mutacja optymistyczna zna docelowe ID od razu, więc nie trzeba podmieniać tymczasowych identyfikatorów. Ponowienie `POST` z tym samym ID jest idempotentne (patrz [API](#api)).
 - **`user_id` w każdej tabeli** z kluczem obcym do `user.id` i `ON DELETE CASCADE`. Każde zapytanie w serwisach filtruje po `user_id`.
 - **`created_at`, `updated_at` (`timestamptz`) i `version` (`int`, start 1)** w każdej tabeli danych. Każdy zapis ustawia `updated_at = now()` i `version = version + 1`.
-- **`position` jako indeks ułamkowy** (`text COLLATE "C"`). Kolacja `"C"` jest obowiązkowa, bo klucze `fractional-indexing` są porównywane bajtowo, a domyślna kolacja Postgresa może je sortować inaczej.
+- **`position` jako indeks ułamkowy** (`text COLLATE "C"`). Kolacja `"C"` jest obowiązkowa, bo klucze `fractional-indexing` są porównywane bajtowo, a domyślna kolacja Postgresa może je sortować inaczej (np. `en_US.utf8` stawia `Zz` za `a0`). Drizzle nie ma opcji kolacji kolumny, więc kolumnę tworzy `customType` z `dataType: () => 'text COLLATE "C"'` (`db/schema/columns.ts`). Test migracji sprawdza `collation_name` kolumny, bo PGlite zawsze sortuje bajtowo.
+- **Listy sortowane po `(position, id)`.** Dwa urządzenia mogą nadać tę samą pozycję. `id` daje wtedy stabilną kolejność, a rozszerzenie sortuje w cache tak samo (porównanie bajtowe, nie `localeCompare`).
 
 ### Tabele
 
@@ -182,11 +183,13 @@ Tabele Better Auth (`user`, `session`, `account`, `verification`) mają standard
 | Kolumna                 | Typ                     | Uwagi                             |
 | ----------------------- | ----------------------- | --------------------------------- |
 | `user_id`               | `text` PK, FK `user.id` |                                   |
-| `theme`                 | `jsonb`                 | `ThemeSettings`                   |
+| `theme`                 | `jsonb`                 | `ThemeSettings`, od Etapu 5       |
 | `locale`                | `varchar(8)` null       | `null` oznacza język przeglądarki |
 | `updated_at`, `version` |                         |                                   |
 
-Wiersz powstaje leniwie. `GET /settings` zwraca wartości domyślne, gdy go nie ma, a `PATCH /settings` robi upsert. Rejestracja nie zależy więc od dodatkowego hooka.
+Wiersz powstaje leniwie. `GET /settings` zwraca wartości domyślne, gdy go nie ma, a `PATCH /settings` robi upsert (`onConflictDoUpdate`, `version` zwiększane w SQL). Rejestracja nie zależy więc od dodatkowego hooka.
+
+W Etapie 2 tabela ma tylko `locale`. Kolumny `user_settings.theme` i `contexts.theme_override` dochodzą w Etapie 5 razem z nową migracją i zmianą `CACHE_SCHEMA_VERSION`.
 
 **`contexts`**
 
@@ -197,7 +200,7 @@ Wiersz powstaje leniwie. `GET /settings` zwraca wartości domyślne, gdy go nie 
 | `name`                                | `varchar(40)`      |                              |
 | `icon`                                | `varchar(64)`      | z `CONTEXT_ICONS`            |
 | `position`                            | `text COLLATE "C"` |                              |
-| `theme_override`                      | `jsonb` null       | `ThemeOverride`              |
+| `theme_override`                      | `jsonb` null       | `ThemeOverride`, od Etapu 5  |
 | `created_at`, `updated_at`, `version` |                    |                              |
 
 **`widgets`**
@@ -254,7 +257,9 @@ Prefiks `/api`, JSON. Wszystkie endpointy poza `/api/auth/*` i `/api/health` wym
 ### Zasady
 
 - **`POST` i `PATCH` zwracają pełny rekord** z aktualnymi `updatedAt` i `version`. Klient podmienia nim wpis w cache.
-- **Idempotentne tworzenie.** `POST` z ID, które już istnieje u tego samego użytkownika, zwraca istniejący rekord ze statusem `200`. To samo ID u innego użytkownika daje `409 ID_CONFLICT`.
+- **`SettingsDto` to `{ locale, updatedAt, version }`.** Przed pierwszym zapisem `GET /settings` zwraca `{ locale: null, updatedAt: null, version: 0 }`. `version: 0` odróżnia „nigdy nie zapisano” od zapisanego wiersza.
+- **Walidacja wejścia przez `validate(target, schema)`** (`lib/validate.ts`): `zValidator` z hookiem, który rzuca `ZodError`, więc błędne dane dają `400 VALIDATION_ERROR` w standardowym formacie z `handleError`. ID w ścieżce sprawdza `IdParamSchema` (UUID), zanim trafi do Postgresa. Treść, która nie jest poprawnym JSON-em (`HTTPException(400)` z walidatora Hono), też daje `400 VALIDATION_ERROR`, a nie 500.
+- **Idempotentne tworzenie.** `POST` tworzący rekord odpowiada `201`. `POST` z ID, które już istnieje u tego samego użytkownika, zwraca istniejący rekord ze statusem `200`. To samo ID u innego użytkownika daje `409 ID_CONFLICT`. Istniejące ID jest sprawdzane przed limitem, więc ponowienie dwudziestego kontekstu przy limicie 20 dostaje `200`, a nie `422`.
 - **Układ zapisywany hurtowo.** `PUT /contexts/:id/layout` aktualizuje w jednej transakcji pozycje i rozmiary podanych widgetów. Każde ID musi należeć do tego kontekstu i użytkownika, w przeciwnym razie całe żądanie jest odrzucane (`400 LAYOUT_INVALID`). Widgety spoza listy pozostają bez zmian.
 - **Walidacja typu widgetu.** `POST /contexts/:id/widgets` sprawdza, czy `type` należy do `WIDGET_TYPES`, oraz waliduje `config` schematem z `widgetConfigSchemas`. `POST /widgets/:id/todos` sprawdza, czy widget jest typu `todo`.
 - **Konflikty: ostatni zapis wygrywa** (F-SYNC-06). Klient może wysyłać `version`, ale w MVP serwer go nie porównuje. Przejście na `409 VERSION_CONFLICT` jest w roadmapie.
@@ -337,13 +342,15 @@ Serwisy nie znają Hono, a trasy nie znają Drizzle. `createApp({ db })` przyjmu
 2. **Odtworzenie cache.** Persister TanStack Query wczytuje cache z `chrome.storage.local`, a Pinia wczytuje `activeContextId`.
 3. **Montaż aplikacji.** Aplikacja montuje się dopiero po wczytaniu tokenu z `chrome.storage.local`. Bez tokenu pokazuje się ekran logowania, ładowany leniwie (`defineAsyncComponent`) razem z formularzami, Zod i klientem Better Auth. Z tokenem renderuje się pulpit z cache, a zapytania nieświeże są odświeżane w tle.
 
-Startowy JS nowej karty po Etapie 1: **325,6 kB** (budżet 335 kB). Pomogły leniwy ekran logowania, kompilacja komunikatów i18n podczas builda (`@intlify/unplugin-vue-i18n` z `dropMessageCompiler`) i `"sideEffects": false` w `@one-place/shared`.
+Kroki 2 i 3 dzieją się przed `mount`: `main.ts` czeka na `Promise.all([loadSession(), restoreCache(queryClient), uiStore.load()])`. Opcja `clientPersister` z `VueQueryPlugin` odtwarzałaby cache dopiero po zainstalowaniu pluginu, więc pierwszy render pokazałby szkielety.
 
-`performance.mark('dashboard-rendered')` pozwala mierzyć wymaganie wydajnościowe.
+Startowy JS nowej karty liczymy jako sumę skryptu wejściowego i chunków z `modulepreload` (`pnpm size` po buildzie). Po Etapie 1: **325,6 kB**. Po Etapie 2: **473 kB** (budżet 550 kB). Sam `newtab-*.js` ma około 200 kB, bo Vite wydziela kod wspólny z leniwymi komponentami (Vue, Nuxt UI) do osobnych chunków, które strona i tak pobiera przy starcie. Leniwie ładują się ekran logowania, formularz pierwszego kontekstu, okno zarządzania kontekstami (około 126 kB z `UModal`, `UPopover` i `vue-draggable-plus`) i panel ustawień.
+
+`performance.mark('dashboard-rendered')` w `DashboardScreen` (tylko gdy lista kontekstów jest w cache) mierzy wymaganie wydajnościowe. Po Etapie 2 pierwszy render z cache: mediana 22–26 ms na prototypie (około 80 ms przy `CPU 4x slowdown`) i 68 ms w Chromium headless w maszynie wirtualnej. Pełny pomiar we wszystkich scenariuszach dojdzie w Etapie 6.
 
 ### Warstwa danych
 
-**Klient API (`src/api/`).** `hc<AppType>(WXT_API_URL)` z nagłówkiem `Authorization: Bearer <token>`. Token jest trzymany w `chrome.storage.local` i w pamięci (kopia wczytana przy starcie). Odpowiedź 401 z dowolnego żądania wywołuje `handleUnauthorized()`: czyści token, cache zapytań i zapisany cache, a potem przełącza na ekran logowania z komunikatem (F-AUTH-05). Logowanie i rejestracja idą przez `createAuthClient` z `better-auth/vue`, a token z nagłówka `set-auth-token` trafia do storage.
+**Klient API (`src/api/`).** `hc<AppType>(WXT_API_URL)` z nagłówkiem `Authorization: Bearer <token>`. Token jest trzymany w `chrome.storage.local` i w pamięci (kopia wczytana przy starcie). Odpowiedź 401 z dowolnego żądania kończy sesję i przełącza na ekran logowania z komunikatem (F-AUTH-05). `main.ts` obserwuje `session.token`: brak tokenu (wylogowanie w tej karcie, w innej karcie albo 401) woła `clearCache(queryClient)` i `uiStore.reset()`. Zapytania czytają odpowiedź przez `parseResponse` z `hono/client`, który rzuca `DetailedError` dla statusu spoza 2xx, a `apiErrorInfo()` zamienia go na `{ status, code }`. Logowanie i rejestracja idą przez `createAuthClient` z `better-auth/vue`, a token z nagłówka `set-auth-token` trafia do storage.
 
 **Klucze zapytań:**
 
@@ -360,8 +367,10 @@ Mutacje są udostępniane przez composables w `src/queries/` (`useCreateContext(
 
 1. `onMutate`: `cancelQueries(klucz)`, zapamiętanie poprzedniego stanu, `setQueryData` z optymistyczną zmianą (rekord z ID wygenerowanym przez klienta).
 2. `mutationFn`: wywołanie API.
-3. `onError`: przywrócenie poprzedniego stanu i toast z komunikatem błędu.
+3. `onError`: przywrócenie poprzedniego stanu (funkcja cofająca z `changeOptimistically()` w `queries/optimistic.ts`).
 4. `onSuccess`: podmiana rekordu na wersję z serwera.
+
+Toast „Zmiana została cofnięta” pokazuje jeden słuchacz `MutationCache` (`useMutationErrorToasts()`), a nie `onError` każdej mutacji. Przy 401 milczy, bo ekran logowania sam wyjaśnia, co się stało. `404` przy `DELETE` mutacja traktuje jak sukces: kontekst usunięty np. na innym urządzeniu nie wraca na listę.
 
 **Persister (F-SYNC-01, F-SYNC-07):**
 
@@ -369,13 +378,19 @@ Mutacje są udostępniane przez composables w `src/queries/` (`useCreateContext(
 - `buster`: stała `CACHE_SCHEMA_VERSION`, zwiększana przy każdej zmianie kształtu DTO, co powoduje odrzucenie starego cache;
 - `maxAge`: 30 dni;
 - zapis ograniczony do jednego na sekundę (throttle);
-- zapisywane są tylko zapytania zakończone sukcesem.
+- `shouldDehydrateQuery: (query) => query.state.data !== undefined`: zapisywane są wszystkie zapytania z danymi, także w stanie `error` po nieudanym odświeżeniu (API nie działa). Domyślny warunek (tylko `success`) usunąłby je z cache przy następnym zapisie;
+- mutacje nie są zapisywane (`shouldDehydrateMutation: () => false`): zmiana zrobiona offline czeka tylko w otwartej karcie (R7);
+- `gcTime: Infinity` w `QueryClient`, bo 30 dni nie mieści się w `setTimeout` (max około 24,8 dnia) i zamieniłoby się na 1 ms;
+- uszkodzony cache jest usuwany, a start idzie dalej bez niego;
+- `clearCache()` woła `queryClient.clear()` przy aktywnej subskrypcji persistera i od razu `persister.removeClient()`.
 
 **Zachowanie sieciowe:**
 
 - `refetchOnWindowFocus: true` (F-SYNC-03); inne otwarte karty odświeżają dane przy powrocie do nich;
 - `retry: 3` z rosnącym odstępem dla zapytań i bez ponowień dla błędów 4xx;
-- `networkMode: 'online'`: offline mutacje są wstrzymywane i wznawiane po powrocie sieci (F-SYNC-05). Baner offline korzysta z `onlineManager`.
+- `networkMode: 'online'`: offline mutacje są wstrzymywane i wznawiane po powrocie sieci (F-SYNC-05). Baner offline korzysta z `onlineManager`;
+- `onlineManager.setOnline(navigator.onLine)` na starcie, przed utworzeniem klienta. TanStack Query v5 zakłada stan „online”, dopóki nie przyjdzie zdarzenie `offline`, więc karta otwarta bez sieci nie pokazałaby banera, a zmiana od razu by się cofnęła;
+- baner oznacza brak sieci w przeglądarce, a nie niedziałające API. Gdy nie odpowiada samo API, pulpit zostaje z danymi z cache, a nieudane zmiany cofają się z toastem.
 
 **Stan UI (Pinia, `stores/ui.ts`):**
 
@@ -505,6 +520,7 @@ pnpm dev                      # API (watch) + WXT dev, który uruchamia przeglą
 | D11 | Jeden widget Zadania z wymiennym źródłem danych                              | osobny widget per integracja                                 | jeden UI listy, zmiana źródła w ustawieniach                                                                 |
 | D12 | Bez `host_permissions`, CORS z allowlistą originów                           | `host_permissions` do API                                    | mniej uprawnień, łatwiejsze review w sklepie                                                                 |
 | D13 | Integracje zewnętrzne przez backend                                          | wywołania z rozszerzenia                                     | tokeny poza przeglądarką, konfiguracja raz na koncie                                                         |
+| D14 | Przełącznik kontekstów jako zakładki (`UTabs`) w nagłówku                    | menu rozwijane (`UDropdownMenu`)                             | menu dokłada ponad 100 kB startowego JS (pomiar z Etapu 2: +104 kB); zakładki przełączają jednym kliknięciem |
 
 ## Ryzyka
 
