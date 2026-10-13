@@ -2330,20 +2330,20 @@ describe('useDeleteContext', () => {
 
 **Kroki:**
 
-- [ ] **1. Zależności.** `pnpm --filter @one-place/extension add pinia@^4`. Przeczytaj ostrzeżenie pnpm: `✕ unmet peer @vue/devtools-api@^8.1.5: found 6.6.4`. Potem `pnpm --filter @one-place/extension add -D @vue/devtools-api@^8`.
-- [ ] **2. Czerwone testy store'u** w `src/stores/ui.test.ts` („nowa karta” to nowa instancja Pinia przez `setActivePinia(createPinia())`):
+- [x] **1. Zależności.** `pnpm --filter @one-place/extension add pinia@^4`. Przeczytaj ostrzeżenie pnpm: `✕ unmet peer @vue/devtools-api@^8.1.5: found 6.6.4`. Potem `pnpm --filter @one-place/extension add -D @vue/devtools-api@^8`.
+- [x] **2. Czerwone testy store'u** w `src/stores/ui.test.ts` („nowa karta” to nowa instancja Pinia przez `setActivePinia(createPinia())`):
   - kontekst wybrany w jednej karcie nowa karta wczytuje przez `load()`;
   - po `reset()` wartość to `null`, także w nowej karcie.
-- [ ] **3. Czerwone testy** `pickActiveContext` w `src/features/contexts/active-context.test.ts`:
+- [x] **3. Czerwone testy** `pickActiveContext` w `src/features/contexts/active-context.test.ts`:
   - zwraca zapamiętany kontekst;
   - gdy zapamiętanego nie ma na liście albo wartość to `null`, zwraca pierwszy;
   - dla pustej listy zwraca `null`.
 
   Oczekiwany wynik: **FAIL** obu plików.
 
-- [ ] **4. Implementacja.** Store trzyma wartość w `ref` i w storage WXT (`local:activeContextId`). `active-context.ts` zawiera `pickActiveContext` i composable `useActiveContext()`, który łączy store z `useContexts()`. Oczekiwany wynik: **PASS (36 testów w rozszerzeniu)**.
-- [ ] **5. Start aplikacji.** W `main.ts` utwórz `pinia` i `uiStore = useUiStore(pinia)`, dodaj `uiStore.load()` do `Promise.all`, w `watch` na token wołaj też `uiStore.reset()`, a w łańcuchu `createApp` dodaj `.use(pinia)`.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add ui store with the active context`.
+- [x] **4. Implementacja.** Store trzyma wartość w `ref` i w storage WXT (`local:activeContextId`). `active-context.ts` zawiera `pickActiveContext` i composable `useActiveContext()`, który łączy store z `useContexts()`. Oczekiwany wynik: **PASS (36 testów w rozszerzeniu)**.
+- [x] **5. Start aplikacji.** W `main.ts` utwórz `pinia` i `uiStore = useUiStore(pinia)`, dodaj `uiStore.load()` do `Promise.all`, w `watch` na token wołaj też `uiStore.reset()`, a w łańcuchu `createApp` dodaj `.use(pinia)`.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add ui store with the active context`.
 
 **Pułapki (sprawdzone na prototypie):**
 
