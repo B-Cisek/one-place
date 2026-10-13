@@ -1013,7 +1013,7 @@ import { settingsRoutes } from './modules/settings/routes'
 - [x] **1. Fabryka testowa** `test/fixtures.ts`: `contextInput(overrides)` zwraca poprawne `CreateContextInput` z nowym `randomUUID()` i nazwą `'Praca'`.
 - [x] **2. Czerwone testy** w `test/contexts.test.ts` (`setup()` zakłada dwóch użytkowników, Alicję i Boba):
   - `GET` bez tokenu daje 401;
-  - `GET` zwraca tylko konteksty Alicji w kolejności pozycji: po utworzeniu `a1`, `Zz` i `a0V` (oraz kontekstu Boba) nazwy idą w kolejności `Zz`, `a0V`, `a1`;
+  - `GET` zwraca tylko konteksty Alicji w kolejności pozycji: po utworzeniu `a1`, `Zz` i `a0V` (oraz kontekstu Boba) nazwy idą w kolejności `Zz`, xa0V`, `a1`;
   - `POST` daje 201 i pełny rekord (`createdAt`, `updatedAt`, `version: 1`), a nazwa jest przycięta;
   - ponowiony identyczny `POST` daje 200, ten sam rekord i nadal jeden kontekst na liście;
   - `POST` z ID kontekstu Alicji wysłany przez Boba daje 409 `ID_CONFLICT`;
@@ -1272,21 +1272,21 @@ import { contextsRoutes } from './modules/contexts/routes'
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** (nowe bloki `describe` w `test/contexts.test.ts`):
+- [x] **1. Czerwone testy** (nowe bloki `describe` w `test/contexts.test.ts`):
   - `PATCH` i `DELETE` bez tokenu dają 401;
   - `PATCH { name: 'Dom', position: 'a5' }` daje 200 z nowymi polami, starą ikoną i `version: 2`;
   - `PATCH` cudzego kontekstu daje 404 z kodem `NOT_FOUND`, a kontekst Alicji się nie zmienia;
   - `PATCH /api/contexts/42` i `PATCH { name: '' }` dają 400;
   - `DELETE` daje 204, lista jest pusta, a drugi `DELETE` daje 404;
   - `DELETE` cudzego kontekstu daje 404, a kontekst Alicji zostaje;
-  - usunięcie użytkownika w bazie (`delete from "user"`) usuwa jego konteksty.
-- [ ] **2. Uruchom.** Oczekiwany wynik: **FAIL tylko trzech testów**, choć tras jeszcze nie ma. Zastanów się, dlaczego pozostałe przechodzą, zanim otworzysz wyjaśnienie poniżej.
-- [ ] **3. Popraw testy 404.** Oba testy cudzego kontekstu porównują całą treść odpowiedzi z `{ error: { code: 'NOT_FOUND', message: 'Context not found' } }`. Oczekiwany wynik: **FAIL pięciu testów**.
-- [ ] **4. Serwis:** `updateContext(db, userId, id, input)` i `deleteContext(db, userId, id)`. Warunek `id = :id AND user_id = :userId` jest w jednym zapytaniu, a brak wiersza w `returning()` oznacza 404 z komunikatem `Context not found`.
-- [ ] **5. Trasy:** `.patch('/:id', validate('param', IdParamSchema), validate('json', UpdateContextSchema), …)` i `.delete('/:id', validate('param', IdParamSchema), …)` z `c.body(null, 204)`.
-- [ ] **6. Zielone testy.** Oczekiwany wynik: **PASS (53 testy w pakiecie API)**.
-- [ ] **7. Sprawdź walidację ID.** Usuń na chwilę `validate('param', IdParamSchema)` z `PATCH` i weź ID przez `c.req.param('id')`. Oczekiwany wynik: `expected 500 to be 400`. To błąd Postgresa „invalid input syntax for type uuid”. Przywróć walidację.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add context update and delete`.
+  - usunięcie użytkownika w bazie (`delete from "usex"`) usuwa jego konteksty.
+- [x] **2. Uruchom.** Oczekiwany wynik: **FAIL tylko trzech testów**, choć tras jeszcze nie ma. Zastanów się, dlaczego pozostałe przechodzą, zanim otworzysz wyjaśnienie poniżej.
+- [x] **3. Popraw testy 404.** Oba testy cudzego kontekstu porównują całą treść odpowiedzi z `{ error: { code: 'NOT_FOUND', message: 'Context not found' } }`. Oczekiwany wynik: **FAIL pięciu testów**.
+- [x] **4. Serwis:** `updateContext(db, userId, id, input)` i `deleteContext(db, userId, id)`. Warunek `id = :id AND user_id = :userId` jest w jednym zapytaniu, a brak wiersza w `returning()` oznacza 404 z komunikatem `Context not found`.
+- [x] **5. Trasy:** `.patch('/:id', validate('param', IdParamSchema), validate('json', UpdateContextSchema), …)` i `.delete('/:id', validate('param', IdParamSchema), …)` z `c.body(null, 204)`.
+- [x] **6. Zielone testy.** Oczekiwany wynik: **PASS (53 testy w pakiecie API)**.
+- [x] **7. Sprawdź walidację ID.** Usuń na chwilę `validate('param', IdParamSchema)` z `PATCH` i weź ID przez `c.req.param('id')`. Oczekiwany wynik: `expected 500 to be 400`. To błąd Postgresa „invalid input syntax for type uuid”. Przywróć walidację.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add context update and delete`.
 
 <details>
 <summary>Wyjaśnienie (otwórz po kroku 2)</summary>
@@ -1508,8 +1508,8 @@ export function contextsRoutes({ db, auth }: ModuleDeps) {
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/extension add @tanstack/vue-query@^5`
-- [ ] **2. Czerwone testy** w `src/api/api-error.test.ts`. Błędy buduj prawdziwym `parseResponse` z `hono/client` na obiekcie `Response`, tak jak powstaną w aplikacji:
+- [x] **1. Zależność.** `pnpm --filter @one-place/extension add @tanstack/vue-query@^5`
+- [x] **2. Czerwone testy** w `src/api/api-error.test.ts`. Błędy buduj prawdziwym `parseResponse` z `hono/client` na obiekcie `Response`, tak jak powstaną w aplikacji:
   - odpowiedź 422 z `{ error: { code: 'LIMIT_EXCEEDED', … } }` daje `{ status: 422, code: 'LIMIT_EXCEEDED' }`;
   - odpowiedź 502 z HTML-em (np. z reverse proxy) daje `{ status: 502, code: 'UNKNOWN' }`;
   - `new TypeError('Failed to fetch')` daje `null`;
@@ -1518,14 +1518,14 @@ export function contextsRoutes({ db, auth }: ModuleDeps) {
 
   Oczekiwany wynik: **FAIL**, bo moduł `./api-error` nie istnieje.
 
-- [ ] **3. Implementacja** `src/api/api-error.ts`. Oczekiwany wynik: **PASS (21 testów w rozszerzeniu)**.
-- [ ] **4. Klient zapytań.** `src/queries/query-client.ts`: `createQueryClient()` z `defaultOptions.queries.retry = shouldRetry`. W `main.ts` utwórz klienta i dodaj `.use(VueQueryPlugin, { queryClient })`.
-- [ ] **5. Pierwsze zapytanie.** `src/queries/me.ts`: `useMe()` z `queryFn: () => parseResponse(apiClient.api.me.$get())`. W `HomeScreen.vue` zamień `onMounted` z ręcznym `fetch` na `const { data: me } = useMe()`, a w szablonie użyj `me.name`.
-- [ ] **6. Sprawdzenie ręczne.** Uruchom API i rozszerzenie w osobnych terminalach (jak w [zadaniu 10 Etapu 1](06-etap-1-logowanie.md#zadanie-10-wygasła-sesja-kilka-kart-i-brak-api)).
+- [x] **3. Implementacja** `src/api/api-error.ts`. Oczekiwany wynik: **PASS (21 testów w rozszerzeniu)**.
+- [x] **4. Klient zapytań.** `src/queries/query-client.ts`: `createQueryClient()` z `defaultOptions.queries.retry = shouldRetry`. W `main.ts` utwórz klienta i dodaj `.use(VueQueryPlugin, { queryClient })`.
+- [x] **5. Pierwsze zapytanie.** `src/queries/me.ts`: `useMe()` z `queryFn: () => parseResponse(apiClient.api.me.$get())`. W `HomeScreen.vue` zamień `onMounted` z ręcznym `fetch` na `const { data: me } = useMe()`, a w szablonie użyj `me.name`.
+- [x] **6. Sprawdzenie ręczne.** Uruchom API i rozszerzenie w osobnych terminalach (jak w [zadaniu 10 Etapu 1](06-etap-1-logowanie.md#zadanie-10-wygasła-sesja-kilka-kart-i-brak-api)).
   - Zalogowany widzisz powitanie, tak jak wcześniej.
   - Zatrzymaj API i przeładuj kartę. W DevTools → Network żądanie `/api/me` pojawia się 4 razy: pierwsze i 3 ponowienia, w odstępach około 1, 2 i 4 sekund.
   - Uruchom API, usuń sesje w bazie (`docker compose exec db psql -U one one_place -c 'delete from session'`) i przeładuj kartę: jedno żądanie z 401, bez ponowień, i ekran logowania z „Sesja wygasła”.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add TanStack Query with API error handling`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add TanStack Query with API error handling`.
 
 **Pułapki (sprawdzone na prototypie):**
 

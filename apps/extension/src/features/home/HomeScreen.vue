@@ -1,22 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { apiClient } from '@/api/client'
 import { endSession } from '@/api/session'
 import { useApiHealth } from '@/api/use-api-health'
+import { useMe } from '@/queries/me'
 
 const { t } = useI18n()
 const { health } = useApiHealth()
-const name = ref<string | null>(null)
-
-onMounted(async () => {
-  try {
-    const res = await apiClient.api.me.$get()
-    if (res.ok) name.value = (await res.json()).name
-  } catch {
-    // Offline: keep the session, the greeting simply stays hidden
-  }
-})
+const { data: me } = useMe()
 
 async function signOut() {
   try {
@@ -33,8 +23,8 @@ async function signOut() {
 <template>
   <main class="grid min-h-screen place-items-center bg-default text-default">
     <div class="flex flex-col items-center gap-6">
-      <h1 v-if="name" class="text-2xl font-semibold text-highlighted">
-        {{ t('home.greeting', { name }) }}
+      <h1 v-if="me" class="text-2xl font-semibold text-highlighted">
+        {{ t('home.greeting', { name: me.name }) }}
       </h1>
       <UBadge
         :label="`API: ${health}`"
