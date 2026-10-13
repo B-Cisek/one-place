@@ -77,7 +77,8 @@
   "dashboard": {
     "empty": "Tu pojawią się widgety.",
     "loadError": "Nie udało się wczytać danych.",
-    "retry": "Spróbuj ponownie"
+    "retry": "Spróbuj ponownie",
+    "offline": "Offline, pokazuję zapisane dane"
   },
   "settings": {
     "title": "Ustawienia",

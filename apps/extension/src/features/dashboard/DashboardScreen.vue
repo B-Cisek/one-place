@@ -5,6 +5,7 @@ import { useActiveContext } from '@/features/contexts/active-context'
 import { useMutationErrorToasts } from '@/features/errors/use-mutation-error-toasts'
 import { useAccountLocale } from '@/features/settings/use-account-locale'
 import { useContexts } from '@/queries/contexts'
+import { useOnline } from '@/queries/use-online'
 import AppHeader from './AppHeader.vue'
 
 // Not needed for the first render, so its form (and Zod) stays out of the start-up bundle
@@ -19,6 +20,7 @@ const SettingsSlideover = defineAsyncComponent(
 const { t } = useI18n()
 const { data: contexts, isError, refetch } = useContexts()
 const active = useActiveContext()
+const online = useOnline()
 const manageOpen = ref(false)
 // Mounted on the first open and kept, so the modal can animate when it closes
 const manageUsed = ref(false)
@@ -47,6 +49,14 @@ function openSettings() {
       @open-settings="openSettings"
     />
     <main class="flex-1 space-y-4 p-4">
+      <!-- F-SYNC-05 -->
+      <UAlert
+        v-if="!online"
+        color="warning"
+        variant="subtle"
+        icon="i-lucide-wifi-off"
+        :title="t('dashboard.offline')"
+      />
       <!-- F-SYNC-02: no cache yet, so skeletons until the first answer -->
       <template v-if="!contexts">
         <UAlert

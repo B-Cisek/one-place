@@ -77,7 +77,8 @@
   "dashboard": {
     "empty": "Your widgets will appear here.",
     "loadError": "Could not load your data.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "offline": "Offline, showing saved data"
   },
   "settings": {
     "title": "Settings",
