@@ -30,8 +30,40 @@
     "sessionExpired": "Sesja wygasła. Zaloguj się ponownie.",
     "signOut": "Wyloguj"
   },
-  "home": {
-    "greeting": "Cześć, {name}!"
+  "contexts": {
+    "first": {
+      "title": "Utwórz swój pierwszy kontekst",
+      "description": "Kontekst to osobny pulpit, np. „Praca” albo „Prywatne”.",
+      "submit": "Utwórz kontekst"
+    },
+    "fields": {
+      "name": "Nazwa",
+      "namePlaceholder": "np. Praca",
+      "icon": "Ikona"
+    },
+    "icons": {
+      "briefcase": "Teczka",
+      "house": "Dom",
+      "user": "Osoba",
+      "heart": "Serce",
+      "code": "Kod",
+      "book-open": "Książka",
+      "graduation-cap": "Nauka",
+      "dumbbell": "Sport",
+      "plane": "Podróże",
+      "coffee": "Kawa",
+      "music": "Muzyka",
+      "gamepad-2": "Gry",
+      "palette": "Sztuka",
+      "wallet": "Finanse",
+      "shopping-cart": "Zakupy",
+      "star": "Gwiazdka"
+    }
+  },
+  "dashboard": {
+    "empty": "Tu pojawią się widgety.",
+    "loadError": "Nie udało się wczytać danych.",
+    "retry": "Spróbuj ponownie"
   },
   "validation": {
     "nameRequired": "Podaj nazwę",
@@ -39,6 +71,8 @@
     "emailInvalid": "Podaj poprawny adres e-mail",
     "passwordRequired": "Podaj hasło",
     "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków",
-    "passwordTooLong": "Hasło może mieć najwyżej 128 znaków"
+    "passwordTooLong": "Hasło może mieć najwyżej 128 znaków",
+    "contextNameRequired": "Podaj nazwę kontekstu",
+    "contextNameTooLong": "Nazwa może mieć najwyżej 40 znaków"
   }
 }
