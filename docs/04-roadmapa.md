@@ -48,6 +48,8 @@
 
 **Wymagania:** F-CTX-01 … F-CTX-08, F-SYNC-01 … F-SYNC-07, F-I18N-01 … F-I18N-03.
 
+**Plan nauki krok po kroku:** [07-etap-2-konteksty.md](07-etap-2-konteksty.md).
+
 **Zakres:**
 
 - API: moduły `settings` (z leniwym tworzeniem wiersza) i `contexts`, idempotentne `POST`, limity, testy 401/404/400;
@@ -68,6 +70,7 @@
 - API: moduł `widgets` (`GET`, `POST`, `PATCH`, `DELETE`, `PUT layout` w transakcji), walidacja typu i konfiguracji, limity;
 - rozszerzenie: kontrakt `WidgetDefinition`, `registry.ts`, `WidgetFrame` (menu, błędy, nieznany typ, walidacja konfiguracji), `DashboardGrid` z `grid-layout-plus`, tryb edycji, katalog widgetów, zapis układu z debounce, widok jednokolumnowy;
 - typ `todo` istnieje w rejestrze z komponentem-zaślepką (sam tytuł), żeby siatkę można było testować przed Etapem 4;
+- liczba widgetów w modalu usuwania kontekstu (F-CTX-07); w Etapie 2 modal jej nie pokazuje, bo widgetów jeszcze nie ma;
 - **R4:** ocena `grid-layout-plus`.
 
 **DoD:** w trybie edycji można dodać, przesunąć, przeskalować i usunąć widget, a układ zostaje zachowany po przeładowaniu. Błąd rzucony w zaślepce nie wywraca pulpitu.
@@ -91,6 +94,7 @@
 **Zakres:**
 
 - `shared`: `ThemeSettingsSchema`, `ThemeOverrideSchema`, `resolveTheme` z testami;
+- API: kolumny `user_settings.theme` i `contexts.theme_override` z nową migracją, `theme` w `PATCH /settings` i `themeOverride` w `PATCH /contexts/:id`, zmiana `CACHE_SCHEMA_VERSION` (w Etapie 2 tych kolumn jeszcze nie ma);
 - rozszerzenie: `applyTheme`, `public/theme-boot.js`, ustawienia globalne (tryb, próbki akcentów), sekcja „Wygląd” w ustawieniach kontekstu z opcją „Używaj motywu globalnego”;
 - obsługa zmiany motywu systemu na żywo.
 
