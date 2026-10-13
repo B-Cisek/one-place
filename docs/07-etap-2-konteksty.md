@@ -3858,11 +3858,11 @@ Teksty: `"settings": { "title": "Ustawienia", "language": { "label": "Język", "
 
 **Kroki:**
 
-- [ ] **1. Baner.** `use-online.ts`: `ref(onlineManager.isOnline())` aktualizowany przez `onlineManager.subscribe`, a subskrypcja zamykana w `onScopeDispose`. W `DashboardScreen` nad treścią pokaż `UAlert` w kolorze `warning` z ikoną `i-lucide-wifi-off` i tekstem `dashboard.offline`, gdy `!online`.
-- [ ] **2. Eksperyment: karta otwarta bez sieci.** Zbuduj rozszerzenie i załaduj `.output/chrome-mv3` (w `pnpm dev` skrypty strony ładuje serwer Vite z `localhost:3001`, a tryb Offline blokuje również jego). Zaloguj się, odczekaj sekundę, w DevTools → Network wybierz „Offline” i przeładuj kartę. **Oczekiwany wynik:** pulpit z cache, ale **bez banera**. Zmień nazwę kontekstu w oknie „Konteksty”: nazwa zmienia się i od razu wraca, a toast mówi „Brak połączenia z serwerem.”. Zastanów się, dlaczego zmiana nie czekała na sieć, zanim otworzysz wyjaśnienie.
-- [ ] **3. Poprawka.** W `main.ts`, przed utworzeniem klienta zapytań, dodaj `onlineManager.setOnline(navigator.onLine)`. Zbuduj i powtórz krok 2: baner jest, a zmiana nazwy zostaje bez toastu. Wyłącz tryb Offline: baner znika, a zmiana trafia do bazy (sprawdź w drugiej karcie albo w `psql`).
-- [ ] **4. Teksty:** `dashboard.offline` („Offline, pokazuję zapisane dane” i „Offline, showing saved data”).
-- [ ] **5. Odrzucona zmiana (DoD).** Uzupełnij swoje konto do 20 kontekstów:
+- [x] **1. Baner.** `use-online.ts`: `ref(onlineManager.isOnline())` aktualizowany przez `onlineManager.subscribe`, a subskrypcja zamykana w `onScopeDispose`. W `DashboardScreen` nad treścią pokaż `UAlert` w kolorze `warning` z ikoną `i-lucide-wifi-off` i tekstem `dashboard.offline`, gdy `!online`.
+- [x] **2. Eksperyment: karta otwarta bez sieci.** Zbuduj rozszerzenie i załaduj `.output/chrome-mv3` (w `pnpm dev` skrypty strony ładuje serwer Vite z `localhost:3001`, a tryb Offline blokuje również jego). Zaloguj się, odczekaj sekundę, w DevTools → Network wybierz „Offline” i przeładuj kartę. **Oczekiwany wynik:** pulpit z cache, ale **bez banera**. Zmień nazwę kontekstu w oknie „Konteksty”: nazwa zmienia się i od razu wraca, a toast mówi „Brak połączenia z serwerem.”. Zastanów się, dlaczego zmiana nie czekała na sieć, zanim otworzysz wyjaśnienie.
+- [x] **3. Poprawka.** W `main.ts`, przed utworzeniem klienta zapytań, dodaj `onlineManager.setOnline(navigator.onLine)`. Zbuduj i powtórz krok 2: baner jest, a zmiana nazwy zostaje bez toastu. Wyłącz tryb Offline: baner znika, a zmiana trafia do bazy (sprawdź w drugiej karcie albo w `psql`).
+- [x] **4. Teksty:** `dashboard.offline` („Offline, pokazuję zapisane dane” i „Offline, showing saved data”).
+- [x] **5. Odrzucona zmiana (DoD).** Uzupełnij swoje konto do 20 kontekstów:
 
   ```bash
   docker compose exec db psql -U one one_place -c "insert into contexts (id, user_id, name, icon, position) select gen_random_uuid(), u.id, 'Test ' || n, 'i-lucide-star', 'b' || lpad(n::text, 2, '0') from \"user\" u cross join lateral generate_series(1, 20 - (select count(*)::int from contexts c where c.user_id = u.id)) n where u.email = 'twoj@email.pl'"
@@ -3870,9 +3870,9 @@ Teksty: `"settings": { "title": "Ustawienia", "language": { "label": "Język", "
 
   Przełącz się na inną kartę przeglądarki i wróć: zakładek jest 20. Dodaj dwudziesty pierwszy kontekst w oknie „Konteksty”. **Oczekiwany wynik:** zakładka pojawia się i po chwili znika, a toast mówi „Zmiana została cofnięta. Osiągnięto limit. Usuń coś, zanim dodasz kolejny element.”.
 
-- [ ] **6. Zmiana na innym urządzeniu.** Usuń w `psql` aktywny kontekst (`delete from contexts where name = '…'`), przejdź na inną kartę i wróć. Zakładka znika, a aktywny staje się pierwszy kontekst (F-CTX-04). Na koniec usuń konteksty testowe: `delete from contexts where name like 'Test %'`.
-- [ ] **7. Wyłączone API, działająca sieć (punkt 5 z [Na co uważać](#na-co-uważać)).** Uruchom API i rozszerzenie w osobnych terminalach i zatrzymaj samo API. Przeładuj kartę: pulpit z cache, bez banera, bo sieć działa. Odczekaj 10 sekund, aż skończą się ponowienia, i otwórz nową kartę: pulpit nadal z danymi. Zmień nazwę kontekstu: wraca, a toast mówi „Brak połączenia z serwerem.”. Uruchom API.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add offline banner`.
+- [x] **6. Zmiana na innym urządzeniu.** Usuń w `psql` aktywny kontekst (`delete from contexts where name = '…'`), przejdź na inną kartę i wróć. Zakładka znika, a aktywny staje się pierwszy kontekst (F-CTX-04). Na koniec usuń konteksty testowe: `delete from contexts where name like 'Test %'`.
+- [x] **7. Wyłączone API, działająca sieć (punkt 5 z [Na co uważać](#na-co-uważać)).** Uruchom API i rozszerzenie w osobnych terminalach i zatrzymaj samo API. Przeładuj kartę: pulpit z cache, bez banera, bo sieć działa. Odczekaj 10 sekund, aż skończą się ponowienia, i otwórz nową kartę: pulpit nadal z danymi. Zmień nazwę kontekstu: wraca, a toast mówi „Brak połączenia z serwerem.”. Uruchom API.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add offline banner`.
 
 **Pułapki (sprawdzone na prototypie):**
 
