@@ -7,6 +7,7 @@ export default defineConfig({
   dev: {
     server: {
       port: 3001,
+      strictPort: true,
     },
   },
   srcDir: 'src',
