@@ -2012,24 +2012,24 @@ void start()
 
 **Kroki:**
 
-- [ ] **1. Pomocniki testowe** `src/queries/testing.ts`:
+- [x] **1. Pomocniki testowe** `src/queries/testing.ts`:
   - `withQueryClient(queryClient, composable)` uruchamia composable tak, jakby był w `setup()`: `createApp({}).use(VueQueryPlugin, { queryClient })`, a potem `effectScope().run(() => app.runWithContext(composable))`;
   - `jsonResponse(status, body)`;
   - `deferred()` daje obietnicę, którą test rozwiązuje, kiedy chce, np. po sprawdzeniu stanu pośredniego.
-- [ ] **2. Czerwone testy tworzenia** w `src/queries/contexts.test.ts`. `vi.mock('@/api/client', …)` podmienia `apiClient.api.contexts.$post` (oraz `[':id'].$patch` i `$delete`) na `vi.fn()`. W cache są `Praca` (`a0`) i `Dom` (`a1`):
+- [x] **2. Czerwone testy tworzenia** w `src/queries/contexts.test.ts`. `vi.mock('@/api/client', …)` podmienia `apiClient.api.contexts.$post` (oraz `[':id'].$patch` i `$delete`) na `vi.fn()`. W cache są `Praca` (`a0`) i `Dom` (`a1`):
   - po `mutateAsync` nowy kontekst jest w cache, **zanim** API odpowie, a po odpowiedzi 201 zostaje podmieniony na rekord z serwera;
   - gdy API odpowie 422, mutacja się nie udaje, a cache wraca do `['Praca', 'Dom']`.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **3. Implementacja:** `changeOptimistically` w `optimistic.ts`, a w `contexts.ts` `useContexts` i `useCreateContext`. Lista w cache jest zawsze posortowana tak samo jak w API. Oczekiwany wynik: **PASS (28 testów w rozszerzeniu)**.
-- [ ] **4. Czerwone testy zmiany i usuwania:**
+- [x] **3. Implementacja:** `changeOptimistically` w `optimistic.ts`, a w `contexts.ts` `useContexts` i `useCreateContext`. Lista w cache jest zawsze posortowana tak samo jak w API. Oczekiwany wynik: **PASS (28 testów w rozszerzeniu)**.
+- [x] **4. Czerwone testy zmiany i usuwania:**
   - przesunięcie `Dom` na pozycję `Zz` ustawia go od razu przed `Praca` i tak zostaje po odpowiedzi;
   - nieudana zmiana nazwy (`TypeError: Failed to fetch`) przywraca `['Praca', 'Dom']`;
   - `DELETE` z odpowiedzią 404 usuwa kontekst z cache i kończy mutację sukcesem.
-- [ ] **5. Implementacja** `useUpdateContext` i `useDeleteContext`. Oczekiwany wynik: **PASS (31 testów w rozszerzeniu)**.
-- [ ] **6. Sprawdź sortowanie.** Zamień na chwilę porównanie pozycji na `a.position.localeCompare(b.position)`. Oczekiwany wynik: test przesunięcia **FAIL**. Przywróć porównanie bajtowe.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add context queries with optimistic mutations`.
+- [x] **5. Implementacja** `useUpdateContext` i `useDeleteContext`. Oczekiwany wynik: **PASS (31 testów w rozszerzeniu)**.
+- [x] **6. Sprawdź sortowanie.** Zamień na chwilę porównanie pozycji na `a.position.localeCompare(b.position)`. Oczekiwany wynik: test przesunięcia **FAIL**. Przywróć porównanie bajtowe.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add context queries with optimistic mutations`.
 
 **Pułapki (sprawdzone na prototypie):**
 
