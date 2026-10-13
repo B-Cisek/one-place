@@ -9,6 +9,7 @@ import { requestLogger } from './middleware/logger'
 import { requireAuth } from './middleware/require-auth'
 import type { Logger } from 'pino'
 import { settingsRoutes } from './modules/settings/routes'
+import { contextsRoutes } from './modules/contexts/routes'
 
 interface AppDeps {
   db: Database
@@ -43,6 +44,7 @@ export function createApp({ db, auth, allowedOrigins, logger }: AppDeps) {
       return c.json({ id, name, email })
     })
     .route('/settings', settingsRoutes({ db, auth }))
+    .route('/contexts', contextsRoutes({ db, auth }))
     .onError(handleError)
     .notFound(handleNotFound)
 }

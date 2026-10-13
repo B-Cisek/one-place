@@ -1,4 +1,4 @@
-# 07. Etap 2: Konteksty i warstwa danych (plan nauki)
+x# 07. Etap 2: Konteksty i warstwa danych (plan nauki)
 
 Ten plik prowadzi przez [Etap 2 z roadmapy](04-roadmapa.md#etap-2-konteksty-i-warstwa-danych). Format jest taki sam jak w [planie Etapu 1](06-etap-1-logowanie.md): każde zadanie mówi, **co** zrobić, **dlaczego** i **jak sprawdzić**, że działa. Gotowy kod jest schowany w zwijanych blokach „Rozwiązanie”.
 
@@ -777,8 +777,8 @@ describe('validate', () => {
 
 **Kroki:**
 
-- [ ] **1. Pomocnik testowy.** W `test/auth-helpers.ts` dodaj `asUser(app, token)`, który wysyła żądania z nagłówkami `Authorization: Bearer …` i `Content-Type: application/json`. Testy czytają się wtedy jak opis: `await alice.patch('/api/settings', { locale: 'en' })`.
-- [ ] **2. Czerwone testy** w `test/settings.test.ts`:
+- [x] **1. Pomocnik testowy.** W `test/auth-helpers.ts` dodaj `asUser(app, token)`, który wysyła żądania z nagłówkami `Authorization: Bearer …` i `Content-Type: application/json`. Testy czytają się wtedy jak opis: `await alice.patch('/api/settings', { locale: 'en' })`.
+- [x] **2. Czerwone testy** w `test/settings.test.ts`:
   - `GET` bez tokenu daje 401;
   - `GET` przed pierwszym zapisem daje `{ locale: null, updatedAt: null, version: 0 }`;
   - pierwszy `PATCH { locale: 'en' }` daje 200 i `{ locale: 'en', updatedAt: <tekst>, version: 1 }`, a kolejny `GET` zwraca `locale: 'en'`;
@@ -788,11 +788,11 @@ describe('validate', () => {
 
   Oczekiwany wynik: **FAIL** wszystkich sześciu (trasa nie istnieje, więc wszędzie 404).
 
-- [ ] **3. Serwis** `modules/settings/service.ts`: `getSettings(db, userId)` i `updateSettings(db, userId, input)`. Rekord z bazy zamieniaj na DTO w jednym miejscu (`toSettingsDto`), daty przez `toISOString()`.
-- [ ] **4. Trasy** `modules/settings/routes.ts`: `settingsRoutes({ db, auth })` zwraca `new Hono().use(requireAuth(auth)).get(…).patch(…)`. Typ `ModuleDeps` trzymaj w `modules/deps.ts`.
-- [ ] **5. Podłączenie.** W `app.ts` dopisz `.route('/settings', settingsRoutes({ db, auth }))` w łańcuchu, zaraz po `/me`.
-- [ ] **6. Zielone testy.** Oczekiwany wynik: **PASS (38 testów w pakiecie API)**.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add settings module`.
+- [x] **3. Serwis** `modules/settings/service.ts`: `getSettings(db, userId)` i `updateSettings(db, userId, input)`. Rekord z bazy zamieniaj na DTO w jednym miejscu (`toSettingsDto`), daty przez `toISOString()`.
+- [x] **4. Trasy** `modules/settings/routes.ts`: `settingsRoutes({ db, auth })` zwraca `new Hono().use(requireAuth(auth)).get(…).patch(…)`. Typ `ModuleDeps` trzymaj w `modules/deps.ts`.
+- [x] **5. Podłączenie.** W `app.ts` dopisz `.route('/settings', settingsRoutes({ db, auth }))` w łańcuchu, zaraz po `/me`.
+- [x] **6. Zielone testy.** Oczekiwany wynik: **PASS (38 testów w pakiecie API)**.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add settings module`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1010,8 +1010,8 @@ import { settingsRoutes } from './modules/settings/routes'
 
 **Kroki:**
 
-- [ ] **1. Fabryka testowa** `test/fixtures.ts`: `contextInput(overrides)` zwraca poprawne `CreateContextInput` z nowym `randomUUID()` i nazwą `'Praca'`.
-- [ ] **2. Czerwone testy** w `test/contexts.test.ts` (`setup()` zakłada dwóch użytkowników, Alicję i Boba):
+- [x] **1. Fabryka testowa** `test/fixtures.ts`: `contextInput(overrides)` zwraca poprawne `CreateContextInput` z nowym `randomUUID()` i nazwą `'Praca'`.
+- [x] **2. Czerwone testy** w `test/contexts.test.ts` (`setup()` zakłada dwóch użytkowników, Alicję i Boba):
   - `GET` bez tokenu daje 401;
   - `GET` zwraca tylko konteksty Alicji w kolejności pozycji: po utworzeniu `a1`, `Zz` i `a0V` (oraz kontekstu Boba) nazwy idą w kolejności `Zz`, `a0V`, `a1`;
   - `POST` daje 201 i pełny rekord (`createdAt`, `updatedAt`, `version: 1`), a nazwa jest przycięta;
@@ -1022,11 +1022,11 @@ import { settingsRoutes } from './modules/settings/routes'
 
   Oczekiwany wynik: **FAIL** wszystkich siedmiu.
 
-- [ ] **3. Serwis:** `listContexts(db, userId)` i `createContext(db, userId, input)`, który zwraca `{ context, created }`. Kolejność w `createContext`: najpierw szukanie istniejącego ID, potem limit, na końcu `insert`.
-- [ ] **4. Trasy i podłączenie.** `contextsRoutes` jak `settingsRoutes`. `POST` odpowiada `c.json(context, created ? 201 : 200)`. W `app.ts` dodaj `.route('/contexts', contextsRoutes({ db, auth }))`.
-- [ ] **5. Zielone testy.** Oczekiwany wynik: **PASS (45 testów w pakiecie API)**.
-- [ ] **6. Sprawdź kolejność sprawdzeń.** Przenieś na chwilę sprawdzenie limitu przed szukanie istniejącego ID. Oczekiwany wynik: test limitu **FAIL** (`expected 422 to be 200`). Przywróć kolejność.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add contexts list and idempotent create`.
+- [x] **3. Serwis:** `listContexts(db, userId)` i `createContext(db, userId, input)`, który zwraca `{ context, created }`. Kolejność w `createContext`: najpierw szukanie istniejącego ID, potem limit, na końcu `insert`.
+- [x] **4. Trasy i podłączenie.** `contextsRoutes` jak `settingsRoutes`. `POST` odpowiada `c.json(context, created ? 201 : 200)`. W `app.ts` dodaj `.route('/contexts', contextsRoutes({ db, auth }))`.
+- [x] **5. Zielone testy.** Oczekiwany wynik: **PASS (45 testów w pakiecie API)**.
+- [x] **6. Sprawdź kolejność sprawdzeń.** Przenieś na chwilę sprawdzenie limitu przed szukanie istniejącego ID. Oczekiwany wynik: test limitu **FAIL** (`expected 422 to be 200`). Przywróć kolejność.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add contexts list and idempotent create`.
 
 **Pułapki (sprawdzone na prototypie):**
 
