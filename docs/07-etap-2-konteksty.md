@@ -134,19 +134,19 @@ Usunięte: `features/home/HomeScreen.vue` i `api/use-api-health.ts`. Pulpit zast
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy kontekstów** w `src/contexts.test.ts` (dla `CreateContextSchema`, chyba że napisano inaczej):
+- [x] **1. Czerwone testy kontekstów** w `src/contexts.test.ts` (dla `CreateContextSchema`, chyba że napisano inaczej):
   - poprawne dane przechodzą, a nazwa `'  Praca  '` po parsowaniu to `'Praca'`;
   - nazwa z samych spacji daje `validation.contextNameRequired`, 40 znaków przechodzi, a 41 daje `validation.contextNameTooLong`;
   - ikona spoza `CONTEXT_ICONS` (np. `'i-lucide-skull'`) nie przechodzi;
   - `id` równe `'42'` nie przechodzi;
   - pozycje `'a0'`, `'Zz'` i `'a0V'` przechodzą, a `''`, `'a 0'` i `'a-0'` nie;
   - `UpdateContextSchema.parse({ name: ' Dom ' })` daje `{ name: 'Dom' }`, a sama ikona `'i-lucide-skull'` nie przechodzi.
-- [ ] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./contexts` nie istnieje.
-- [ ] **3. Implementacja** `src/contexts.ts`. Listę ikon skopiuj z [03-architektura.md](03-architektura.md#pakiet-shared). `ContextDto` to zwykły interfejs TypeScript, a nie schemat.
-- [ ] **4. Czerwony test ustawień** w `src/settings.test.ts`: `{ locale: 'pl' }` i `{ locale: null }` przechodzą bez zmian, a `{ locale: 'de' }` nie.
-- [ ] **5. Implementacja** `src/settings.ts`. Przenieś tu `LOCALES` i `Locale` z `apps/extension/src/i18n/locale.ts`, bo od teraz język sprawdza też API. W rozszerzeniu importuj je z `@one-place/shared`. W `src/index.ts` dopisz eksporty obu nowych modułów.
-- [ ] **6. Zielone testy.** Oczekiwany wynik: **PASS (16 testów w `shared`)**.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(shared): add context and settings schemas`.
+- [x] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./contexts` nie istnieje.
+- [x] **3. Implementacja** `src/contexts.ts`. Listę ikon skopiuj z [03-architektura.md](03-architektura.md#pakiet-shared). `ContextDto` to zwykły interfejs TypeScript, a nie schemat.
+- [x] **4. Czerwony test ustawień** w `src/settings.test.ts`: `{ locale: 'pl' }` i `{ locale: null }` przechodzą bez zmian, a `{ locale: 'de' }` nie.
+- [x] **5. Implementacja** `src/settings.ts`. Przenieś tu `LOCALES` i `Locale` z `apps/extension/src/i18n/locale.ts`, bo od teraz język sprawdza też API. W rozszerzeniu importuj je z `@one-place/shared`. W `src/index.ts` dopisz eksporty obu nowych modułów.
+- [x] **6. Zielone testy.** Oczekiwany wynik: **PASS (16 testów w `shared`)**.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(shared): add context and settings schemas`.
 
 <details>
 <summary>Podpowiedź</summary>

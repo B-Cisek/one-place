@@ -1,6 +1,7 @@
 import { createI18n } from 'vue-i18n'
 import en from './en.json'
-import { detectLocale, type Locale } from './locale'
+import type { Locale } from '@one-place/shared'
+import { detectLocale } from './locale'
 import pl from './pl.json'
 
 export type MessageSchema = typeof pl
