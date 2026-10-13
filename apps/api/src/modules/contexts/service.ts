@@ -1,5 +1,10 @@
-import { type ContextDto, type CreateContextInput, MAX_CONTEXTS } from '@one-place/shared'
-import { asc, eq } from 'drizzle-orm'
+import {
+  type ContextDto,
+  type CreateContextInput,
+  MAX_CONTEXTS,
+  type UpdateContextInput,
+} from '@one-place/shared'
+import { and, asc, eq, sql } from 'drizzle-orm'
 import type { Database } from '../../db/client'
 import { contexts } from '../../db/schema'
 import { AppError } from '../../lib/errors'
@@ -49,4 +54,35 @@ export async function createContext(
     .values({ ...input, userId })
     .returning()
   return { context: toContextDto(row!), created: true }
+}
+
+function contextNotFound() {
+  return new AppError(404, 'NOT_FOUND', 'Context not found')
+}
+
+function ownContext(userId: string, id: string) {
+  return and(eq(contexts.id, id), eq(contexts.userId, userId))
+}
+
+export async function updateContext(
+  db: Database,
+  userId: string,
+  id: string,
+  input: UpdateContextInput,
+): Promise<ContextDto> {
+  const [row] = await db
+    .update(contexts)
+    .set({ ...input, updatedAt: sql`now()`, version: sql`${contexts.version} + 1` })
+    .where(ownContext(userId, id))
+    .returning()
+  if (!row) throw contextNotFound()
+  return toContextDto(row)
+}
+
+export async function deleteContext(db: Database, userId: string, id: string): Promise<void> {
+  const deleted = await db
+    .delete(contexts)
+    .where(ownContext(userId, id))
+    .returning({ id: contexts.id })
+  if (deleted.length === 0) throw contextNotFound()
 }

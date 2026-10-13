@@ -4,6 +4,8 @@ import { asUser, signUp, TEST_USER } from './auth-helpers'
 import { createTestApp } from './create-test-app'
 import { contextInput } from './fixtures'
 
+const notFound = { error: { code: 'NOT_FOUND', message: 'Context not found' } }
+
 async function setup() {
   const { app, client } = await createTestApp()
   const alice = asUser(app, await signUp(app))
@@ -81,5 +83,82 @@ describe('POST /api/contexts', () => {
     expect(res.status).toBe(422)
     expect((await res.json()).error.code).toBe('LIMIT_EXCEEDED')
     expect((await alice.post('/api/contexts', inputs[0])).status).toBe(200)
+  })
+})
+
+describe('PATCH /api/contexts/:id', () => {
+  it('returns 401 without a token', async () => {
+    const { app } = await createTestApp()
+    const res = await app.request(`/api/contexts/${contextInput().id}`, { method: 'PATCH' })
+    expect(res.status).toBe(401)
+  })
+
+  it('updates the given fields and increments the version', async () => {
+    const { alice } = await setup()
+    const input = contextInput()
+    await alice.post('/api/contexts', input)
+    const res = await alice.patch(`/api/contexts/${input.id}`, { name: 'Dom', position: 'a5' })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({
+      id: input.id,
+      name: 'Dom',
+      icon: input.icon,
+      position: 'a5',
+      version: 2,
+    })
+  })
+
+  it("returns 404 for another user's context and leaves it unchanged", async () => {
+    const { alice, bob } = await setup()
+    const input = contextInput()
+    await alice.post('/api/contexts', input)
+    const res = await bob.patch(`/api/contexts/${input.id}`, { name: 'Hacked' })
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual(notFound)
+    expect(await (await alice.get('/api/contexts')).json()).toMatchObject([{ name: 'Praca' }])
+  })
+
+  it('rejects an id that is not a UUID and invalid fields', async () => {
+    const { alice } = await setup()
+    const input = contextInput()
+    await alice.post('/api/contexts', input)
+    expect((await alice.patch('/api/contexts/42', { name: 'Dom' })).status).toBe(400)
+    expect((await alice.patch(`/api/contexts/${input.id}`, { name: '' })).status).toBe(400)
+  })
+})
+
+describe('DELETE /api/contexts/:id', () => {
+  it('returns 401 without a token', async () => {
+    const { app } = await createTestApp()
+    const res = await app.request(`/api/contexts/${contextInput().id}`, { method: 'DELETE' })
+    expect(res.status).toBe(401)
+  })
+
+  it('deletes the context', async () => {
+    const { alice } = await setup()
+    const input = contextInput()
+    await alice.post('/api/contexts', input)
+    const res = await alice.delete(`/api/contexts/${input.id}`)
+    expect(res.status).toBe(204)
+    expect(await (await alice.get('/api/contexts')).json()).toEqual([])
+    expect((await alice.delete(`/api/contexts/${input.id}`)).status).toBe(404)
+  })
+
+  it("returns 404 for another user's context and keeps it", async () => {
+    const { alice, bob } = await setup()
+    const input = contextInput()
+    await alice.post('/api/contexts', input)
+    const res = await bob.delete(`/api/contexts/${input.id}`)
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual(notFound)
+    expect(await (await alice.get('/api/contexts')).json()).toHaveLength(1)
+  })
+
+  it('happens automatically when the user is deleted', async () => {
+    const { client, alice } = await setup()
+    await alice.post('/api/contexts', contextInput())
+    await client.query(`delete from "user" where email = $1`, [TEST_USER.email])
+    const { rows } = await client.query('select id from contexts')
+    expect(rows).toEqual([])
   })
 })
