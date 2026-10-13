@@ -40,3 +40,18 @@ export async function signUp(app: AppType, user = TEST_USER) {
   if (!res.ok || !token) throw new Error(`Sign-up failed with status ${res.status}`)
   return token
 }
+
+export function asUser(app: AppType, token: string) {
+  const send = (method: string, path: string, body?: unknown) =>
+    app.request(path, {
+      method,
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
+  return {
+    get: (path: string) => send('GET', path),
+    post: (path: string, body: unknown) => send('POST', path, body),
+    patch: (path: string, body: unknown) => send('PATCH', path, body),
+    delete: (path: string) => send('DELETE', path),
+  }
+}

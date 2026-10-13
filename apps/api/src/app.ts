@@ -8,6 +8,7 @@ import { requestId } from 'hono/request-id'
 import { requestLogger } from './middleware/logger'
 import { requireAuth } from './middleware/require-auth'
 import type { Logger } from 'pino'
+import { settingsRoutes } from './modules/settings/routes'
 
 interface AppDeps {
   db: Database
@@ -41,6 +42,7 @@ export function createApp({ db, auth, allowedOrigins, logger }: AppDeps) {
       const { id, name, email } = c.var.user
       return c.json({ id, name, email })
     })
+    .route('/settings', settingsRoutes({ db, auth }))
     .onError(handleError)
     .notFound(handleNotFound)
 }
