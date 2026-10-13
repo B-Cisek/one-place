@@ -3,6 +3,7 @@ import { defineAsyncComponent, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useActiveContext } from '@/features/contexts/active-context'
 import { useMutationErrorToasts } from '@/features/errors/use-mutation-error-toasts'
+import { useAccountLocale } from '@/features/settings/use-account-locale'
 import { useContexts } from '@/queries/contexts'
 import AppHeader from './AppHeader.vue'
 
@@ -11,6 +12,9 @@ const FirstContext = defineAsyncComponent(() => import('@/features/contexts/Firs
 const ManageContextsModal = defineAsyncComponent(
   () => import('@/features/contexts/ManageContextsModal.vue'),
 )
+const SettingsSlideover = defineAsyncComponent(
+  () => import('@/features/settings/SettingsSlideover.vue'),
+)
 
 const { t } = useI18n()
 const { data: contexts, isError, refetch } = useContexts()
@@ -18,17 +22,30 @@ const active = useActiveContext()
 const manageOpen = ref(false)
 // Mounted on the first open and kept, so the modal can animate when it closes
 const manageUsed = ref(false)
+const settingsOpen = ref(false)
+const settingsUsed = ref(false)
 useMutationErrorToasts()
+useAccountLocale()
 
 function openManage() {
   manageUsed.value = true
   manageOpen.value = true
 }
+
+function openSettings() {
+  settingsUsed.value = true
+  settingsOpen.value = true
+}
 </script>
 
 <template>
   <div class="flex min-h-screen flex-col bg-default text-default">
-    <AppHeader :contexts="contexts" :active="active" @manage-contexts="openManage" />
+    <AppHeader
+      :contexts="contexts"
+      :active="active"
+      @manage-contexts="openManage"
+      @open-settings="openSettings"
+    />
     <main class="flex-1 space-y-4 p-4">
       <!-- F-SYNC-02: no cache yet, so skeletons until the first answer -->
       <template v-if="!contexts">
@@ -54,5 +71,6 @@ function openManage() {
       />
     </main>
     <ManageContextsModal v-if="manageUsed" v-model:open="manageOpen" />
+    <SettingsSlideover v-if="settingsUsed" v-model:open="settingsOpen" />
   </div>
 </template>

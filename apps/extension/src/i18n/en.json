@@ -79,6 +79,13 @@
     "loadError": "Could not load your data.",
     "retry": "Try again"
   },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "label": "Language",
+      "browser": "Browser language"
+    }
+  },
   "errors": {
     "changeReverted": "Your change was reverted",
     "network": "Cannot connect to the server.",

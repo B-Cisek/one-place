@@ -79,6 +79,13 @@
     "loadError": "Nie udało się wczytać danych.",
     "retry": "Spróbuj ponownie"
   },
+  "settings": {
+    "title": "Ustawienia",
+    "language": {
+      "label": "Język",
+      "browser": "Język przeglądarki"
+    }
+  },
   "errors": {
     "changeReverted": "Zmiana została cofnięta",
     "network": "Brak połączenia z serwerem.",
