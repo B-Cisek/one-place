@@ -2,6 +2,7 @@ import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'wxt'
 import ui from '@nuxt/ui/vite'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import { CONTEXT_ICONS } from '@one-place/shared'
 
 export default defineConfig({
   dev: {
@@ -23,7 +24,9 @@ export default defineConfig({
         router: false,
         colorMode: false,
         ui: { colors: { primary: 'blue', neutral: 'zinc' } },
-        icon: { clientBundle: { scan: true } },
+        // The scanner finds icons written in .vue files. Context icons come from data,
+        // so they are listed here, otherwise they would be fetched from the Iconify API.
+        icon: { clientBundle: { scan: true, icons: [...CONTEXT_ICONS] } },
       }),
     ],
   }),

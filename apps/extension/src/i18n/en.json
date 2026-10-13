@@ -30,8 +30,40 @@
     "sessionExpired": "Your session has expired. Please sign in again.",
     "signOut": "Sign out"
   },
-  "home": {
-    "greeting": "Hi, {name}!"
+  "contexts": {
+    "first": {
+      "title": "Create your first context",
+      "description": "A context is a separate dashboard, e.g. “Work” or “Personal”.",
+      "submit": "Create context"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Work",
+      "icon": "Icon"
+    },
+    "icons": {
+      "briefcase": "Briefcase",
+      "house": "House",
+      "user": "Person",
+      "heart": "Heart",
+      "code": "Code",
+      "book-open": "Book",
+      "graduation-cap": "Learning",
+      "dumbbell": "Sport",
+      "plane": "Travel",
+      "coffee": "Coffee",
+      "music": "Music",
+      "gamepad-2": "Games",
+      "palette": "Art",
+      "wallet": "Finance",
+      "shopping-cart": "Shopping",
+      "star": "Star"
+    }
+  },
+  "dashboard": {
+    "empty": "Your widgets will appear here.",
+    "loadError": "Could not load your data.",
+    "retry": "Try again"
   },
   "validation": {
     "nameRequired": "Enter your name",
@@ -39,6 +71,8 @@
     "emailInvalid": "Enter a valid email address",
     "passwordRequired": "Enter your password",
     "passwordTooShort": "Password must be at least 8 characters long",
-    "passwordTooLong": "Password can be at most 128 characters long"
+    "passwordTooLong": "Password can be at most 128 characters long",
+    "contextNameRequired": "Enter a context name",
+    "contextNameTooLong": "Name can be at most 40 characters long"
   }
 }

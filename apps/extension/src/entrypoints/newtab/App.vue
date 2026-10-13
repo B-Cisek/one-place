@@ -3,7 +3,7 @@ import { computed, defineAsyncComponent, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { en, pl } from '@nuxt/ui/locale'
 import { session } from '@/api/session'
-import HomeScreen from '@/features/home/HomeScreen.vue'
+import DashboardScreen from '@/features/dashboard/DashboardScreen.vue'
 
 // Sign-in screens (forms, Zod, auth client) are loaded only when needed,
 // so a signed-in user's new tab does not download them
@@ -20,7 +20,7 @@ watchEffect(() => {
 
 <template>
   <UApp :locale="uiLocale">
-    <HomeScreen v-if="session.token.value" />
+    <DashboardScreen v-if="session.token.value" />
     <AuthScreen v-else />
   </UApp>
 </template>

@@ -2550,30 +2550,30 @@ void start()
 
 **Kroki:**
 
-- [ ] **1. Zależności.** `pnpm --filter @one-place/extension add uuid@^14 fractional-indexing@^4`
-- [ ] **2. Czerwone testy** w `src/features/contexts/positions.test.ts`:
+- [x] **1. Zależności.** `pnpm --filter @one-place/extension add uuid@^14 fractional-indexing@^4`
+- [x] **2. Czerwone testy** w `src/features/contexts/positions.test.ts`:
   - `positionAfterLast([])` to `'a0'`, a po `a0` i `a1` wynik jest większy od `'a1'`;
   - `positionAt` dostaje listę **już w nowej kolejności** i indeks przesuniętego elementu: na początku daje klucz mniejszy od `'a0'`, w środku klucz między sąsiadami, a na końcu klucz większy od ostatniego;
   - sąsiedzi z tą samą pozycją (`['a1', 'a0', 'a1']`, indeks 1) nie powodują wyjątku.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **3. Implementacja** `positions.ts`. Oczekiwany wynik: **PASS (41 testów w rozszerzeniu)**.
-- [ ] **4. Teksty.** W `pl.json` i `en.json` dodaj grupy `contexts` (`first`, `fields`, `icons`) i `dashboard` oraz klucze `validation.contextNameRequired` i `validation.contextNameTooLong`. Usuń grupę `home`.
-- [ ] **5. Wylogowanie jako funkcja.** Przenieś `signOut` z `HomeScreen.vue` do `features/auth/sign-out.ts`. Przyda się w nagłówku, a potem w ustawieniach.
-- [ ] **6. Formularz kontekstu.** `IconPicker.vue`: siatka 16 przycisków z `role="radio"`, `aria-checked` i `aria-label` z `contexts.icons.*`. `ContextForm.vue`: `UForm` z `:validate="formErrors(ContextFormSchema, t)"`, nazwa i ikona, a przy wysyłce `emit('submit', ContextFormSchema.parse(state))` i czyszczenie nazwy.
-- [ ] **7. Pierwszy kontekst.** `use-add-context.ts`: nowe `id` z `v7()`, pozycja z `positionAfterLast`, `mutate` z `useCreateContext` i od razu `ui.selectContext(id)` (F-CTX-02). `FirstContext.vue` to karta z tytułem, opisem i `ContextForm`.
-- [ ] **8. Pulpit.** `ContextSwitcher.vue`: `UTabs` z `:content="false"`, wartością `active.id` i `selectContext` przy zmianie. `AppHeader.vue`: przełącznik (szkielet, gdy nie ma danych) i przycisk wylogowania. `DashboardScreen.vue`: nagłówek, a pod nim szkielety, błąd z przyciskiem „Spróbuj ponownie” (brak danych i błąd zapytania), `FirstContext` (ładowany leniwie) albo `UEmpty` z nazwą i ikoną aktywnego kontekstu.
-- [ ] **9. Podłączenie.** W `App.vue` zamień `HomeScreen` na `DashboardScreen`. Usuń `HomeScreen.vue` i `use-api-health.ts`.
-- [ ] **10. Eksperyment: ikony z danych.** Zbuduj rozszerzenie (`pnpm --filter @one-place/extension build`), załaduj `.output/chrome-mv3` jako rozpakowane rozszerzenie i załóż nowe konto. Na ekranie pierwszego kontekstu otwórz DevTools → Network. **Oczekiwany wynik:** żądania do `api.iconify.design/lucide.json?icons=book-open,briefcase,…` i `api.simplesvg.com/…`, mimo że w Etapie 0 ikony były w paczce. Zastanów się dlaczego, zanim otworzysz wyjaśnienie.
-- [ ] **11. Poprawka.** W `wxt.config.ts` zaimportuj `CONTEXT_ICONS` z `@one-place/shared` i dodaj `icons: [...CONTEXT_ICONS]` do `icon.clientBundle`. Zbuduj i powtórz krok 10: żadnych żądań poza API.
+- [x] **3. Implementacja** `positions.ts`. Oczekiwany wynik: **PASS (41 testów w rozszerzeniu)**.
+- [x] **4. Teksty.** W `pl.json` i `en.json` dodaj grupy `contexts` (`first`, `fields`, `icons`) i `dashboard` oraz klucze `validation.contextNameRequired` i `validation.contextNameTooLong`. Usuń grupę `home`.
+- [x] **5. Wylogowanie jako funkcja.** Przenieś `signOut` z `HomeScreen.vue` do `features/auth/sign-out.ts`. Przyda się w nagłówku, a potem w ustawieniach.
+- [x] **6. Formularz kontekstu.** `IconPicker.vue`: siatka 16 przycisków z `role="radio"`, `aria-checked` i `aria-label` z `contexts.icons.*`. `ContextForm.vue`: `UForm` z `:validate="formErrors(ContextFormSchema, t)"`, nazwa i ikona, a przy wysyłce `emit('submit', ContextFormSchema.parse(state))` i czyszczenie nazwy.
+- [x] **7. Pierwszy kontekst.** `use-add-context.ts`: nowe `id` z `v7()`, pozycja z `positionAfterLast`, `mutate` z `useCreateContext` i od razu `ui.selectContext(id)` (F-CTX-02). `FirstContext.vue` to karta z tytułem, opisem i `ContextForm`.
+- [x] **8. Pulpit.** `ContextSwitcher.vue`: `UTabs` z `:content="false"`, wartością `active.id` i `selectContext` przy zmianie. `AppHeader.vue`: przełącznik (szkielet, gdy nie ma danych) i przycisk wylogowania. `DashboardScreen.vue`: nagłówek, a pod nim szkielety, błąd z przyciskiem „Spróbuj ponownie” (brak danych i błąd zapytania), `FirstContext` (ładowany leniwie) albo `UEmpty` z nazwą i ikoną aktywnego kontekstu.
+- [x] **9. Podłączenie.** W `App.vue` zamień `HomeScreen` na `DashboardScreen`. Usuń `HomeScreen.vue` i `use-api-health.ts`.
+- [x] **10. Eksperyment: ikony z danych.** Zbuduj rozszerzenie (`pnpm --filter @one-place/extension build`), załaduj `.output/chrome-mv3` jako rozpakowane rozszerzenie i załóż nowe konto. Na ekranie pierwszego kontekstu otwórz DevTools → Network. **Oczekiwany wynik:** żądania do `api.iconify.design/lucide.json?icons=book-open,briefcase,…` i `api.simplesvg.com/…`, mimo że w Etapie 0 ikony były w paczce. Zastanów się dlaczego, zanim otworzysz wyjaśnienie.
+- [x] **11. Poprawka.** W `wxt.config.ts` zaimportuj `CONTEXT_ICONS` z `@one-place/shared` i dodaj `icons: [...CONTEXT_ICONS]` do `icon.clientBundle`. Zbuduj i powtórz krok 10: żadnych żądań poza API.
 - [ ] **12. Sprawdzenie ręczne** (`pnpm dev`):
   - nowe konto: na chwilę szkielety, potem „Utwórz swój pierwszy kontekst”;
   - pusty formularz: „Podaj nazwę kontekstu”;
   - nazwa `  Praca  `: zakładka „Praca” z ikoną i pusty pulpit „Tu pojawią się widgety.”;
   - odczekaj sekundę i przeładuj kartę: pulpit bez szkieletów; nowa karta tak samo;
   - wyloguj się i zaloguj ponownie: znowu pulpit z „Praca”.
-- [ ] **13.** `pnpm format && pnpm check`, potem commit: `feat(extension): add dashboard with first context and switcher`.
+- [x] **13.** `pnpm format && pnpm check`, potem commit: `feat(extension): add dashboard with first context and switcher`.
 
 **Pułapki (sprawdzone na prototypie):**
 
