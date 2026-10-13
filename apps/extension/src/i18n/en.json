@@ -58,12 +58,33 @@
       "wallet": "Finance",
       "shopping-cart": "Shopping",
       "star": "Star"
+    },
+    "manage": {
+      "open": "Manage contexts",
+      "title": "Contexts",
+      "add": "Add context",
+      "changeIcon": "Change icon",
+      "delete": "Delete context",
+      "drag": "Drag to reorder"
+    },
+    "delete": {
+      "title": "Delete the context “{name}”?",
+      "description": "The context will disappear on all devices. This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
     }
   },
   "dashboard": {
     "empty": "Your widgets will appear here.",
     "loadError": "Could not load your data.",
     "retry": "Try again"
+  },
+  "errors": {
+    "changeReverted": "Your change was reverted",
+    "network": "Cannot connect to the server.",
+    "limitExceeded": "Limit reached. Remove something before adding more.",
+    "notFound": "This item was already deleted, e.g. on another device.",
+    "rejected": "The server rejected the change. Please try again."
   },
   "validation": {
     "nameRequired": "Enter your name",
