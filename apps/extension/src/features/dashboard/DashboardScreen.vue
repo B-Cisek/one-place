@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, ref } from 'vue'
+import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useActiveContext } from '@/features/contexts/active-context'
 import { useMutationErrorToasts } from '@/features/errors/use-mutation-error-toasts'
@@ -8,7 +8,7 @@ import { useContexts } from '@/queries/contexts'
 import { useOnline } from '@/queries/use-online'
 import AppHeader from './AppHeader.vue'
 
-// Not needed for the first render, so its form (and Zod) stays out of the start-up bundle
+// Not needed for the first render, so their forms (and Zod) stay out of the start-up bundle
 const FirstContext = defineAsyncComponent(() => import('@/features/contexts/FirstContext.vue'))
 const ManageContextsModal = defineAsyncComponent(
   () => import('@/features/contexts/ManageContextsModal.vue'),
@@ -28,6 +28,12 @@ const settingsOpen = ref(false)
 const settingsUsed = ref(false)
 useMutationErrorToasts()
 useAccountLocale()
+
+// Performance requirement: the first render from the cache within 200 ms of opening the tab.
+// The mark's startTime counts from the start of the page load.
+onMounted(() => {
+  if (contexts.value) performance.mark('dashboard-rendered')
+})
 
 function openManage() {
   manageUsed.value = true
