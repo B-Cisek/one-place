@@ -58,12 +58,33 @@
       "wallet": "Finanse",
       "shopping-cart": "Zakupy",
       "star": "Gwiazdka"
+    },
+    "manage": {
+      "open": "Zarządzaj kontekstami",
+      "title": "Konteksty",
+      "add": "Dodaj kontekst",
+      "changeIcon": "Zmień ikonę",
+      "delete": "Usuń kontekst",
+      "drag": "Przeciągnij, aby zmienić kolejność"
+    },
+    "delete": {
+      "title": "Usunąć kontekst „{name}”?",
+      "description": "Kontekst zniknie na wszystkich urządzeniach. Tej operacji nie można cofnąć.",
+      "confirm": "Usuń",
+      "cancel": "Anuluj"
     }
   },
   "dashboard": {
     "empty": "Tu pojawią się widgety.",
     "loadError": "Nie udało się wczytać danych.",
     "retry": "Spróbuj ponownie"
+  },
+  "errors": {
+    "changeReverted": "Zmiana została cofnięta",
+    "network": "Brak połączenia z serwerem.",
+    "limitExceeded": "Osiągnięto limit. Usuń coś, zanim dodasz kolejny element.",
+    "notFound": "Ten element został już usunięty, np. na innym urządzeniu.",
+    "rejected": "Serwer odrzucił zmianę. Spróbuj ponownie."
   },
   "validation": {
     "nameRequired": "Podaj nazwę",

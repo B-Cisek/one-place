@@ -3065,20 +3065,20 @@ import { CONTEXT_ICONS } from '@one-place/shared'
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/extension add vue-draggable-plus@^0.6`
-- [ ] **2. Czerwone testy** w `src/features/errors/mutation-error.test.ts` (błędy buduj przez `parseResponse` i `jsonResponse` z `queries/testing.ts`):
+- [x] **1. Zależność.** `pnpm --filter @one-place/extension add vue-draggable-plus@^0.6`
+- [x] **2. Czerwone testy** w `src/features/errors/mutation-error.test.ts` (błędy buduj przez `parseResponse` i `jsonResponse` z `queries/testing.ts`):
   - błąd sieci daje `errors.network`;
   - `LIMIT_EXCEEDED` daje `errors.limitExceeded`, `NOT_FOUND` daje `errors.notFound`, a 500 daje `errors.rejected`;
   - 401 daje `null`, bo ekran logowania sam wyjaśnia, co się stało.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **3. Implementacja** `mutation-error.ts`. Oczekiwany wynik: **PASS (44 testy w rozszerzeniu)**.
-- [ ] **4. Toasty.** `use-mutation-error-toasts.ts`: `useQueryClient().getMutationCache().subscribe(…)` i dla zdarzenia `updated` z akcją `error` toast `errors.changeReverted` z opisem z `mutationErrorKey`. Subskrypcję zamknij w `onScopeDispose`. Wywołaj composable w `DashboardScreen.vue`.
-- [ ] **5. Wiersz kontekstu.** `ContextRow.vue`: uchwyt przeciągania (`i-lucide-grip-vertical` z klasą `drag-handle`), przycisk ikony z `UPopover` i `IconPicker`, `UInput` z nazwą (zapis przy Enter i utracie fokusu, pusta nazwa wraca do zapisanej) oraz przycisk usuwania.
-- [ ] **6. Lista.** `ManageContexts.vue`: `VueDraggable` z `handle=".drag-handle"` na lokalnej kopii listy, `@update` liczy pozycję przez `positionAt` i woła `update`. Pod listą `ContextForm` z `useAddContext`. Usunięcie otwiera drugi `UModal` z pytaniem „Usunąć kontekst „{name}”?” i przyciskami „Anuluj” i „Usuń”.
-- [ ] **7. Okno.** `ManageContextsModal.vue` to `UModal` z `ManageContexts` w treści. `DashboardScreen` ładuje go leniwie i montuje przy pierwszym otwarciu. `ContextSwitcher` dostaje przycisk `i-lucide-pencil` („Zarządzaj kontekstami”), który emituje `manage`, a `AppHeader` przekazuje zdarzenie dalej jako `manageContexts`.
-- [ ] **8. Teksty:** `contexts.manage.*`, `contexts.delete.*` i grupa `errors`.
+- [x] **3. Implementacja** `mutation-error.ts`. Oczekiwany wynik: **PASS (44 testy w rozszerzeniu)**.
+- [x] **4. Toasty.** `use-mutation-error-toasts.ts`: `useQueryClient().getMutationCache().subscribe(…)` i dla zdarzenia `updated` z akcją `error` toast `errors.changeReverted` z opisem z `mutationErrorKey`. Subskrypcję zamknij w `onScopeDispose`. Wywołaj composable w `DashboardScreen.vue`.
+- [x] **5. Wiersz kontekstu.** `ContextRow.vue`: uchwyt przeciągania (`i-lucide-grip-vertical` z klasą `drag-handle`), przycisk ikony z `UPopover` i `IconPicker`, `UInput` z nazwą (zapis przy Enter i utracie fokusu, pusta nazwa wraca do zapisanej) oraz przycisk usuwania.
+- [x] **6. Lista.** `ManageContexts.vue`: `VueDraggable` z `handle=".drag-handle"` na lokalnej kopii listy, `@update` liczy pozycję przez `positionAt` i woła `update`. Pod listą `ContextForm` z `useAddContext`. Usunięcie otwiera drugi `UModal` z pytaniem „Usunąć kontekst „{name}”?” i przyciskami „Anuluj” i „Usuń”.
+- [x] **7. Okno.** `ManageContextsModal.vue` to `UModal` z `ManageContexts` w treści. `DashboardScreen` ładuje go leniwie i montuje przy pierwszym otwarciu. `ContextSwitcher` dostaje przycisk `i-lucide-pencil` („Zarządzaj kontekstami”), który emituje `manage`, a `AppHeader` przekazuje zdarzenie dalej jako `manageContexts`.
+- [x] **8. Teksty:** `contexts.manage.*`, `contexts.delete.*` i grupa `errors`.
 - [ ] **9. Sprawdzenie ręczne** (`pnpm dev`):
   - dodaj „Dom” i „Hobby”: każdy nowy kontekst od razu staje się aktywny;
   - wyczyść nazwę „Dom” i naciśnij Enter: pole wraca do „Dom”; wpisz „Dom i ogród”: zakładka zmienia się od razu;
@@ -3086,7 +3086,7 @@ import { CONTEXT_ICONS } from '@one-place/shared'
   - przeciągnij „Hobby” na górę listy, a potem sprawdź bazę: `docker compose exec db psql -U one one_place -c 'select name, position from contexts order by position'`. „Hobby” ma pozycję zaczynającą się od `Z` i jest pierwsze, mimo kolacji `en_US.utf8` w bazie;
   - usuń aktywny kontekst: po potwierdzeniu aktywny staje się pierwszy z pozostałych (F-CTX-07);
   - przeładuj kartę: kolejność i nazwy zostają.
-- [ ] **10.** `pnpm format && pnpm check`, potem commit: `feat(extension): add context management with drag and drop`.
+- [x] **10.** `pnpm format && pnpm check`, potem commit: `feat(extension): add context management with drag and drop`.
 
 **Pułapki (sprawdzone na prototypie):**
 
