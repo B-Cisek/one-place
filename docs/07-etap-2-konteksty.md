@@ -1733,8 +1733,8 @@ const { data: me } = useMe()
 
 **Kroki:**
 
-- [ ] **1. Zależności.** `pnpm --filter @one-place/extension add @tanstack/query-persist-client-core@^5 @tanstack/query-async-storage-persister@^5`
-- [ ] **2. Czerwone testy** w `src/queries/cache.test.ts` (z `fakeBrowser.reset()` przed każdym). „Nowa karta” to nowy `QueryClient`, w którym wywołujesz `restoreCache`:
+- [x] **1. Zależności.** `pnpm --filter @one-place/extension add @tanstack/query-persist-client-core@^5 @tanstack/query-async-storage-persister@^5`
+- [x] **2. Czerwone testy** w `src/queries/cache.test.ts` (z `fakeBrowser.reset()` przed każdym). „Nowa karta” to nowy `QueryClient`, w którym wywołujesz `restoreCache`:
   - dane zapisane przez jedną kartę (`persistCache` i `setQueryData(['contexts'], …)`) nowa karta odtwarza;
   - cache z innym `buster` nowa karta odrzuca, a klucz znika ze storage;
   - uszkodzony cache (`'{not json'`) nie przerywa startu i nie daje danych;
@@ -1742,16 +1742,16 @@ const { data: me } = useMe()
 
   Persister zapisuje najwyżej raz na sekundę, więc czekaj na zapis przez `vi.waitFor(…, { timeout: 3000 })`. Oczekiwany wynik: **FAIL**.
 
-- [ ] **3. Implementacja** `src/queries/cache.ts`: persister z `createAsyncStoragePersister` na storage WXT (`local:` przed kluczem), `buster: CACHE_SCHEMA_VERSION`, `maxAge` 30 dni, `throttleTime: 1000`, `shouldDehydrateMutation: () => false` (decyzja 5). `restoreCache` łapie wyjątek, a `clearCache` woła `queryClient.clear()` i `persister.removeClient()`. Oczekiwany wynik: **PASS (25 testów w rozszerzeniu)**.
-- [ ] **4. Eksperyment: `gcTime`.** Dokumentacja TanStack Query zaleca `gcTime` co najmniej tak długi jak `maxAge` persistera. Ustaw w `createQueryClient()` `gcTime: CACHE_MAX_AGE` i uruchom testy. **Oczekiwany wynik:** `TimeoutOverflowWarning: 2592000000 does not fit into a 32-bit signed integer` i nieudane testy odtwarzania. Zastanów się, co się stało z odtworzonymi zapytaniami, zanim otworzysz wyjaśnienie. Potem ustaw `gcTime: Infinity`.
-- [ ] **5. Eksperyment: API nie działa.** Dopisz test: karta z zapisanymi kontekstami odświeża je nieudanie (`fetchQuery` z `queryFn`, który rzuca `TypeError`, i `retry: false`), potem zapisuje coś jeszcze (`setQueryData(['me'], …)`), a nowa karta nadal odtwarza konteksty. **Oczekiwany wynik: FAIL.** Zastanów się dlaczego, potem dodaj w `dehydrateOptions` `shouldDehydrateQuery: (query) => query.state.data !== undefined`. Oczekiwany wynik: **PASS (26 testów w rozszerzeniu)**.
-- [ ] **6. Start aplikacji.** W `main.ts`: `await Promise.all([loadSession(), restoreCache(queryClient)])`, potem `persistCache(queryClient)`, `watch(session.token, …)`, który przy braku tokenu woła `clearCache`, i dopiero na końcu `mount`.
+- [x] **3. Implementacja** `src/queries/cache.ts`: persister z `createAsyncStoragePersister` na storage WXT (`local:` przed kluczem), `buster: CACHE_SCHEMA_VERSION`, `maxAge` 30 dni, `throttleTime: 1000`, `shouldDehydrateMutation: () => false` (decyzja 5). `restoreCache` łapie wyjątek, a `clearCache` woła `queryClient.clear()` i `persister.removeClient()`. Oczekiwany wynik: **PASS (25 testów w rozszerzeniu)**.
+- [x] **4. Eksperyment: `gcTime`.** Dokumentacja TanStack Query zaleca `gcTime` co najmniej tak długi jak `maxAge` persistera. Ustaw w `createQueryClient()` `gcTime: CACHE_MAX_AGE` i uruchom testy. **Oczekiwany wynik:** `TimeoutOverflowWarning: 2592000000 does not fit into a 32-bit signed integer` i nieudane testy odtwarzania. Zastanów się, co się stało z odtworzonymi zapytaniami, zanim otworzysz wyjaśnienie. Potem ustaw `gcTime: Infinity`.
+- [x] **5. Eksperyment: API nie działa.** Dopisz test: karta z zapisanymi kontekstami odświeża je nieudanie (`fetchQuery` z `queryFn`, który rzuca `TypeError`, i `retry: false`), potem zapisuje coś jeszcze (`setQueryData(['me'], …)`), a nowa karta nadal odtwarza konteksty. **Oczekiwany wynik: FAIL.** Zastanów się dlaczego, potem dodaj w `dehydrateOptions` `shouldDehydrateQuery: (query) => query.state.data !== undefined`. Oczekiwany wynik: **PASS (26 testów w rozszerzeniu)**.
+- [x] **6. Start aplikacji.** W `main.ts`: `await Promise.all([loadSession(), restoreCache(queryClient)])`, potem `persistCache(queryClient)`, `watch(session.token, …)`, który przy braku tokenu woła `clearCache`, i dopiero na końcu `mount`.
 - [ ] **7. Sprawdzenie ręczne** (`pnpm dev`, zalogowany):
   - DevTools karty → Application → Extension storage → Local: klucz `one-place:query-cache` zawiera zapytanie `["me"]`;
   - zatrzymaj API i przeładuj kartę: powitanie jest od razu, a plakietka pokazuje `unreachable`;
   - odczekaj 10 sekund (ponowienia się skończą) i otwórz nową kartę: powitanie nadal jest;
   - uruchom API i wyloguj się: w `one-place:query-cache` nie ma żadnych zapytań (zostaje najwyżej pusta lista `queries`).
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): persist the query cache in chrome.storage.local`.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): persist the query cache in chrome.storage.local`.
 
 **Pułapki (sprawdzone na prototypie):**
 
