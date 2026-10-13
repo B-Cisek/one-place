@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import type { ContextDto } from '@one-place/shared'
 import { useI18n } from 'vue-i18n'
-import { signOut } from '@/features/auth/sign-out'
 import ContextSwitcher from '@/features/contexts/ContextSwitcher.vue'
 
 defineProps<{ contexts: ContextDto[] | undefined; active: ContextDto | null }>()
-const emit = defineEmits<{ manageContexts: [] }>()
+const emit = defineEmits<{ manageContexts: []; openSettings: [] }>()
 const { t } = useI18n()
 </script>
 
@@ -20,11 +19,11 @@ const { t } = useI18n()
     />
     <span v-else />
     <UButton
-      icon="i-lucide-log-out"
-      :aria-label="t('auth.signOut')"
+      icon="i-lucide-settings"
+      :aria-label="t('settings.title')"
       color="neutral"
       variant="ghost"
-      @click="signOut"
+      @click="emit('openSettings')"
     />
   </header>
 </template>

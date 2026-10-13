@@ -3554,18 +3554,18 @@ function openManage() {
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** `resolveLocale` w `src/i18n/locale.test.ts`: `resolveLocale('en', 'pl-PL')` to `'en'`, `resolveLocale(null, 'pl-PL')` to `'pl'`, a `resolveLocale(undefined, 'de-DE')` to `'en'`. Oczekiwany wynik: **FAIL**. Po implementacji: **PASS (46 testów w rozszerzeniu)**.
-- [ ] **2. Czerwony test** w `src/queries/settings.test.ts`: `useUpdateSettings` zmienia `locale` w cache na `'en'`, zanim API odpowie, a gdy API odpowie 500, cache wraca do `{ locale: null, updatedAt: null, version: 0 }`. Oczekiwany wynik: **FAIL**.
-- [ ] **3. Implementacja** `queries/settings.ts` według wzoru z zadania 9. Oczekiwany wynik: **PASS (47 testów w rozszerzeniu)**.
-- [ ] **4. Język konta.** `use-account-locale.ts`: `watchEffect` ustawia globalny `locale` na `resolveLocale(settings?.locale, navigator.language)`, a `onScopeDispose` przywraca język przeglądarki. Wywołaj go w `DashboardScreen`.
-- [ ] **5. Panel ustawień.** `SettingsSlideover.vue`: `UUser` z nazwą i e-mailem z `useMe`, `URadioGroup` z trzema opcjami i przycisk wylogowania w stopce. Załaduj go leniwie w `DashboardScreen`, tak jak okno kontekstów. W `AppHeader` zamień przycisk wylogowania na przycisk ustawień (`i-lucide-settings`), który emituje `openSettings`.
-- [ ] **6. Teksty:** grupa `settings` (`title`, `language.label`, `language.browser`).
+- [x] **1. Czerwone testy** `resolveLocale` w `src/i18n/locale.test.ts`: `resolveLocale('en', 'pl-PL')` to `'en'`, `resolveLocale(null, 'pl-PL')` to `'pl'`, a `resolveLocale(undefined, 'de-DE')` to `'en'`. Oczekiwany wynik: **FAIL**. Po implementacji: **PASS (46 testów w rozszerzeniu)**.
+- [x] **2. Czerwony test** w `src/queries/settings.test.ts`: `useUpdateSettings` zmienia `locale` w cache na `'en'`, zanim API odpowie, a gdy API odpowie 500, cache wraca do `{ locale: null, updatedAt: null, version: 0 }`. Oczekiwany wynik: **FAIL**.
+- [x] **3. Implementacja** `queries/settings.ts` według wzoru z zadania 9. Oczekiwany wynik: **PASS (47 testów w rozszerzeniu)**.
+- [x] **4. Język konta.** `use-account-locale.ts`: `watchEffect` ustawia globalny `locale` na `resolveLocale(settings?.locale, navigator.language)`, a `onScopeDispose` przywraca język przeglądarki. Wywołaj go w `DashboardScreen`.
+- [x] **5. Panel ustawień.** `SettingsSlideover.vue`: `UUser` z nazwą i e-mailem z `useMe`, `URadioGroup` z trzema opcjami i przycisk wylogowania w stopce. Załaduj go leniwie w `DashboardScreen`, tak jak okno kontekstów. W `AppHeader` zamień przycisk wylogowania na przycisk ustawień (`i-lucide-settings`), który emituje `openSettings`.
+- [x] **6. Teksty:** grupa `settings` (`title`, `language.label`, `language.browser`).
 - [ ] **7. Sprawdzenie ręczne** (`pnpm dev`):
   - Ustawienia → „English”: interfejs zmienia się od razu, a `<html lang>` to `en`;
   - odczekaj sekundę i przeładuj kartę: pulpit jest po angielsku od pierwszej klatki, bez mignięcia polskiego;
   - zaloguj się na to samo konto w drugim profilu przeglądarki: interfejs po angielsku (F-I18N-03); wybierz „Browser language”: wraca polski;
   - wyloguj się: ekran logowania jest w języku przeglądarki.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add language saved on the account`.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add language saved on the account`.
 
 **Pułapki (sprawdzone na prototypie):**
 
