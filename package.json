@@ -13,7 +13,8 @@
     "format:check": "prettier --check .",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
-    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test"
+    "check": "pnpm lint && pnpm format:check && pnpm typecheck && pnpm test",
+    "size": "node scripts/startup-js-size.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

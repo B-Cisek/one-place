@@ -76,6 +76,14 @@ Każda funkcjonalność jest osobnym widgetem. Widgety można dodawać, usuwać 
 
 Przed commitem uruchom `pnpm check` (lint, formatowanie, typy i testy).
 
+Rozmiar startowego JS nowej karty sprawdzisz po buildzie:
+
+```bash
+pnpm --filter @one-place/extension build && pnpm size
+```
+
+Skrypt sumuje skrypt wejściowy i chunki z `modulepreload` i kończy się błędem, gdy suma przekracza budżet z [specyfikacji](docs/02-specyfikacja.md#wymagania-niefunkcjonalne).
+
 ## Dokumentacja
 
 Wizja, specyfikacja, architektura, roadmapa i plan implementacji są w katalogu [docs/](docs/).

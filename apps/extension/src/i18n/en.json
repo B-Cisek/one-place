@@ -30,8 +30,69 @@
     "sessionExpired": "Your session has expired. Please sign in again.",
     "signOut": "Sign out"
   },
-  "home": {
-    "greeting": "Hi, {name}!"
+  "contexts": {
+    "first": {
+      "title": "Create your first context",
+      "description": "A context is a separate dashboard, e.g. “Work” or “Personal”.",
+      "submit": "Create context"
+    },
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Work",
+      "icon": "Icon"
+    },
+    "icons": {
+      "briefcase": "Briefcase",
+      "house": "House",
+      "user": "Person",
+      "heart": "Heart",
+      "code": "Code",
+      "book-open": "Book",
+      "graduation-cap": "Learning",
+      "dumbbell": "Sport",
+      "plane": "Travel",
+      "coffee": "Coffee",
+      "music": "Music",
+      "gamepad-2": "Games",
+      "palette": "Art",
+      "wallet": "Finance",
+      "shopping-cart": "Shopping",
+      "star": "Star"
+    },
+    "manage": {
+      "open": "Manage contexts",
+      "title": "Contexts",
+      "add": "Add context",
+      "changeIcon": "Change icon",
+      "delete": "Delete context",
+      "drag": "Drag to reorder"
+    },
+    "delete": {
+      "title": "Delete the context “{name}”?",
+      "description": "The context will disappear on all devices. This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    }
+  },
+  "dashboard": {
+    "empty": "Your widgets will appear here.",
+    "loadError": "Could not load your data.",
+    "retry": "Try again",
+    "offline": "Offline, showing saved data"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "label": "Language",
+      "browser": "Browser language"
+    }
+  },
+  "errors": {
+    "changeReverted": "Your change was reverted",
+    "network": "Cannot connect to the server.",
+    "limitExceeded": "Limit reached. Remove something before adding more.",
+    "notFound": "This item was already deleted, e.g. on another device.",
+    "rejected": "The server rejected the change. Please try again."
   },
   "validation": {
     "nameRequired": "Enter your name",
@@ -39,6 +100,8 @@
     "emailInvalid": "Enter a valid email address",
     "passwordRequired": "Enter your password",
     "passwordTooShort": "Password must be at least 8 characters long",
-    "passwordTooLong": "Password can be at most 128 characters long"
+    "passwordTooLong": "Password can be at most 128 characters long",
+    "contextNameRequired": "Enter a context name",
+    "contextNameTooLong": "Name can be at most 40 characters long"
   }
 }
