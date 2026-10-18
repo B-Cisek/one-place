@@ -56,11 +56,11 @@ export async function createContext(
   return { context: toContextDto(row!), created: true }
 }
 
-function contextNotFound() {
+export function contextNotFound() {
   return new AppError(404, 'NOT_FOUND', 'Context not found')
 }
 
-function ownContext(userId: string, id: string) {
+export function ownContext(userId: string, id: string) {
   return and(eq(contexts.id, id), eq(contexts.userId, userId))
 }
 

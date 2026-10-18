@@ -4,6 +4,7 @@ import { IdParamSchema, validate } from '../../lib/validate'
 import { requireAuth } from '../../middleware/require-auth'
 import type { ModuleDeps } from '../deps'
 import { createContext, deleteContext, listContexts, updateContext } from './service'
+import { contextWidgetsRoutes } from '../widgets/routes'
 
 export function contextsRoutes({ db, auth }: ModuleDeps) {
   return new Hono()
@@ -26,4 +27,5 @@ export function contextsRoutes({ db, auth }: ModuleDeps) {
       await deleteContext(db, c.var.user.id, c.req.valid('param').id)
       return c.body(null, 204)
     })
+    .route('/', contextWidgetsRoutes({ db }))
 }
