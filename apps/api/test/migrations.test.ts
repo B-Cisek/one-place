@@ -15,6 +15,7 @@ describe('database migrations', () => {
       'user',
       'user_settings',
       'verification',
+      'widgets',
     ])
   })
 
@@ -27,5 +28,21 @@ describe('database migrations', () => {
        where table_name = 'contexts' and column_name = 'position'`,
     )
     expect(rows).toEqual([{ collation_name: 'C' }])
+  })
+
+  // Without the cascade, deleting a context with widgets would fail on the foreign key
+  it('delete widgets together with their context and user', async () => {
+    const { client } = await createTestApp()
+    const { rows } = await client.query<{ column_name: string; delete_rule: string }>(
+      `select kcu.column_name, rc.delete_rule
+       from information_schema.referential_constraints rc
+       join information_schema.key_column_usage kcu on kcu.constraint_name = rc.constraint_name
+       where kcu.table_name = 'widgets'
+       order by kcu.column_name`,
+    )
+    expect(rows).toEqual([
+      { column_name: 'context_id', delete_rule: 'CASCADE' },
+      { column_name: 'user_id', delete_rule: 'CASCADE' },
+    ])
   })
 })

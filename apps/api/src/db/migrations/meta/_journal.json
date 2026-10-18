@@ -15,6 +15,13 @@
       "when": 1791925973275,
       "tag": "0001_contexts_and_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792355120830,
+      "tag": "0002_widgets",
+      "breakpoints": true
     }
   ]
 }
