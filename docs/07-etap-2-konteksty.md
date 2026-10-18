@@ -1,4 +1,4 @@
-x# 07. Etap 2: Konteksty i warstwa danych (plan nauki)
+# 07. Etap 2: Konteksty i warstwa danych (plan nauki)
 
 Ten plik prowadzi przez [Etap 2 z roadmapy](04-roadmapa.md#etap-2-konteksty-i-warstwa-danych). Format jest taki sam jak w [planie Etapu 1](06-etap-1-logowanie.md): każde zadanie mówi, **co** zrobić, **dlaczego** i **jak sprawdzić**, że działa. Gotowy kod jest schowany w zwijanych blokach „Rozwiązanie”.
 
@@ -1013,7 +1013,7 @@ import { settingsRoutes } from './modules/settings/routes'
 - [x] **1. Fabryka testowa** `test/fixtures.ts`: `contextInput(overrides)` zwraca poprawne `CreateContextInput` z nowym `randomUUID()` i nazwą `'Praca'`.
 - [x] **2. Czerwone testy** w `test/contexts.test.ts` (`setup()` zakłada dwóch użytkowników, Alicję i Boba):
   - `GET` bez tokenu daje 401;
-  - `GET` zwraca tylko konteksty Alicji w kolejności pozycji: po utworzeniu `a1`, `Zz` i `a0V` (oraz kontekstu Boba) nazwy idą w kolejności `Zz`, xa0V`, `a1`;
+  - `GET` zwraca tylko konteksty Alicji w kolejności pozycji: po utworzeniu `a1`, `Zz` i `a0V` (oraz kontekstu Boba) nazwy idą w kolejności `Zz`, `a0V`, `a1`;
   - `POST` daje 201 i pełny rekord (`createdAt`, `updatedAt`, `version: 1`), a nazwa jest przycięta;
   - ponowiony identyczny `POST` daje 200, ten sam rekord i nadal jeden kontekst na liście;
   - `POST` z ID kontekstu Alicji wysłany przez Boba daje 409 `ID_CONFLICT`;
@@ -1279,7 +1279,7 @@ import { contextsRoutes } from './modules/contexts/routes'
   - `PATCH /api/contexts/42` i `PATCH { name: '' }` dają 400;
   - `DELETE` daje 204, lista jest pusta, a drugi `DELETE` daje 404;
   - `DELETE` cudzego kontekstu daje 404, a kontekst Alicji zostaje;
-  - usunięcie użytkownika w bazie (`delete from "usex"`) usuwa jego konteksty.
+  - usunięcie użytkownika w bazie (`delete from "user"`) usuwa jego konteksty.
 - [x] **2. Uruchom.** Oczekiwany wynik: **FAIL tylko trzech testów**, choć tras jeszcze nie ma. Zastanów się, dlaczego pozostałe przechodzą, zanim otworzysz wyjaśnienie poniżej.
 - [x] **3. Popraw testy 404.** Oba testy cudzego kontekstu porównują całą treść odpowiedzi z `{ error: { code: 'NOT_FOUND', message: 'Context not found' } }`. Oczekiwany wynik: **FAIL pięciu testów**.
 - [x] **4. Serwis:** `updateContext(db, userId, id, input)` i `deleteContext(db, userId, id)`. Warunek `id = :id AND user_id = :userId` jest w jednym zapytaniu, a brak wiersza w `returning()` oznacza 404 z komunikatem `Context not found`.

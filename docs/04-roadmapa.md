@@ -64,6 +64,8 @@
 
 **Wymagania:** F-GRID-01 … F-GRID-05, F-WGT-01 … F-WGT-07.
 
+**Plan nauki krok po kroku:** [08-etap-3-siatka-i-widgety.md](08-etap-3-siatka-i-widgety.md).
+
 **Zakres:**
 
 - `shared`: `WIDGET_TYPES`, `widgetConfigSchemas`, schematy układu;
