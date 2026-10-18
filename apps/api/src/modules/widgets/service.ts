@@ -1,5 +1,12 @@
-import { type CreateWidgetSchema, MAX_WIDGETS_PER_CONTEXT, type WidgetDto } from '@one-place/shared'
-import { and, asc, eq } from 'drizzle-orm'
+import {
+  type CreateWidgetSchema,
+  isWidgetType,
+  MAX_WIDGETS_PER_CONTEXT,
+  type UpdateWidgetInput,
+  widgetConfigSchemas,
+  type WidgetDto,
+} from '@one-place/shared'
+import { and, asc, eq, sql } from 'drizzle-orm'
 import type { z } from 'zod'
 import type { Database } from '../../db/client'
 import { contexts, widgets } from '../../db/schema'
@@ -75,4 +82,54 @@ export async function createWidget(
     .values({ ...input, userId, contextId })
     .returning()
   return { widget: toWidgetDto(row!), created: true }
+}
+
+function widgetNotFound() {
+  return new AppError(404, 'NOT_FOUND', 'Widget not found')
+}
+
+function ownWidget(userId: string, id: string) {
+  return and(eq(widgets.id, id), eq(widgets.userId, userId))
+}
+
+// The schema depends on the type saved in the database, so the route cannot check the config.
+// parse() throws a ZodError, which handleError turns into 400 VALIDATION_ERROR.
+function parseConfig(type: string, config: unknown) {
+  if (!isWidgetType(type)) {
+    throw new AppError(400, 'VALIDATION_ERROR', `Widgets of type ${type} have no config`)
+  }
+  return widgetConfigSchemas[type].parse(config)
+}
+
+export async function updateWidgetConfig(
+  db: Database,
+  userId: string,
+  id: string,
+  input: UpdateWidgetInput,
+): Promise<WidgetDto> {
+  const [existing] = await db
+    .select({ type: widgets.type })
+    .from(widgets)
+    .where(ownWidget(userId, id))
+  if (!existing) throw widgetNotFound()
+  const [row] = await db
+    .update(widgets)
+    .set({
+      config: parseConfig(existing.type, input.config),
+      updatedAt: sql`now()`,
+      version: sql`${widgets.version} + 1`,
+    })
+    .where(ownWidget(userId, id))
+    .returning()
+  // Deleted between the two queries, e.g. on another device
+  if (!row) throw widgetNotFound()
+  return toWidgetDto(row)
+}
+
+export async function deleteWidget(db: Database, userId: string, id: string): Promise<void> {
+  const deleted = await db
+    .delete(widgets)
+    .where(ownWidget(userId, id))
+    .returning({ id: widgets.id })
+  if (deleted.length === 0) throw widgetNotFound()
 }

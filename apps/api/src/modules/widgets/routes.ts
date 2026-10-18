@@ -1,9 +1,9 @@
-import { CreateWidgetSchema } from '@one-place/shared'
+import { CreateWidgetSchema, UpdateWidgetSchema } from '@one-place/shared'
 import { Hono } from 'hono'
 import { IdParamSchema, validate } from '../../lib/validate'
-import type { AuthEnv } from '../../middleware/require-auth'
+import { type AuthEnv, requireAuth } from '../../middleware/require-auth'
 import type { ModuleDeps } from '../deps'
-import { createWidget, listWidgets } from './service'
+import { createWidget, deleteWidget, listWidgets, updateWidgetConfig } from './service'
 
 // /api/contexts/:id/widgets. Mounted inside contextsRoutes, behind its requireAuth, so the
 // session is checked once per request.
@@ -27,4 +27,22 @@ export function contextWidgetsRoutes({ db }: Pick<ModuleDeps, 'db'>) {
         return c.json(widget, created ? 201 : 200)
       },
     )
+}
+
+export function widgetsRoutes({ db, auth }: ModuleDeps) {
+  return new Hono()
+    .use(requireAuth(auth))
+    .patch(
+      '/:id',
+      validate('param', IdParamSchema),
+      validate('json', UpdateWidgetSchema),
+      async (c) => {
+        const { id } = c.req.valid('param')
+        return c.json(await updateWidgetConfig(db, c.var.user.id, id, c.req.valid('json')))
+      },
+    )
+    .delete('/:id', validate('param', IdParamSchema), async (c) => {
+      await deleteWidget(db, c.var.user.id, c.req.valid('param').id)
+      return c.body(null, 204)
+    })
 }

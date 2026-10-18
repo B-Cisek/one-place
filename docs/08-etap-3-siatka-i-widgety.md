@@ -1,4 +1,4 @@
-# 08. Etap 3: Siatka i system widgetów (plan nauki)
+x# 08. Etap 3: Siatka i system widgetów (plan nauki)
 
 Ten plik prowadzi przez [Etap 3 z roadmapy](04-roadmapa.md#etap-3-siatka-i-system-widgetów). Format jest taki sam jak w [planie Etapu 2](07-etap-2-konteksty.md): każde zadanie mówi, **co** zrobić, **dlaczego** i **jak sprawdzić**, że działa. Gotowy kod jest schowany w zwijanych blokach „Rozwiązanie”.
 
@@ -123,7 +123,7 @@ one-place/
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/widgets.test.ts`:
+- [x] **1. Czerwone testy** w `src/widgets.test.ts`:
   - `TodoConfigSchema.parse({})` daje `{ title: '', hideCompleted: false, source: { type: 'local' } }`;
   - tytuł `'  Zakupy  '` jest przycinany, 60 znaków przechodzi, a 61 daje błąd `validation.widgetTitleTooLong` na ścieżce `['title']`;
   - dla każdego typu z `WIDGET_TYPES` schemat z `widgetConfigSchemas` przyjmuje `{}`;
@@ -133,11 +133,11 @@ one-place/
   - `x: 8, w: 4` przechodzi, a `x: 9, w: 4` nie;
   - `w: 2` i `h: 2` (minimum dla `todo` to 3×3), `x: 1.5` i `y: -1` nie przechodzą;
   - `LayoutSchema` przyjmuje listę `{ id, x, y, w, h }`, ale odrzuca ten sam widget dwa razy i element, który nie mieści się w siatce.
-- [ ] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./widgets` nie istnieje.
-- [ ] **3. Implementacja** `src/widgets.ts`. `WidgetDto` to zwykły interfejs, tak jak `ContextDto`. W `src/index.ts` dopisz eksport.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (26 testów w `shared`)**.
-- [ ] **5. Eksperyment: ścieżka błędu.** W `transform` przekaż błąd konfiguracji bez zmiany ścieżki: `ctx.addIssue({ ...issue })`. Oczekiwany wynik: test konfiguracji **FAIL**, bo błąd ma ścieżkę `['title']`. Rozszerzenie i API nie wiedziałyby, że chodzi o pole konfiguracji, a nie o pole widgetu. Przywróć `path: ['config', ...issue.path]`.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add widget types, config and layout schemas`.
+- [x] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./widgets` nie istnieje.
+- [x] **3. Implementacja** `src/widgets.ts`. `WidgetDto` to zwykły interfejs, tak jak `ContextDto`. W `src/index.ts` dopisz eksport.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (26 testów w `shared`)**.
+- [x] **5. Eksperyment: ścieżka błędu.** W `transform` przekaż błąd konfiguracji bez zmiany ścieżki: `ctx.addIssue({ ...issue })`. Oczekiwany wynik: test konfiguracji **FAIL**, bo błąd ma ścieżkę `['title']`. Rozszerzenie i API nie wiedziałyby, że chodzi o pole konfiguracji, a nie o pole widgetu. Przywróć `path: ['config', ...issue.path]`.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add widget types, config and layout schemas`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -163,7 +163,7 @@ one-place/
 `packages/shared/src/widgets.test.ts`
 
 ```ts
-import { describe, expect, it } from 'vitest'
+impxrt { describe, expect, it } from 'vitest'
 import {
   CreateWidgetSchema,
   LayoutSchema,
@@ -424,18 +424,18 @@ export * from './widgets'
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `test/migrations.test.ts`:
+- [x] **1. Czerwone testy** w `test/migrations.test.ts`:
   - na liście tabel jest `'widgets'` (na końcu, alfabetycznie); zmień też nazwę testu na „create the Better Auth and data tables”;
   - klucze obce tabeli `widgets` mają regułę `CASCADE`: `[{ column_name: 'context_id', delete_rule: 'CASCADE' }, { column_name: 'user_id', delete_rule: 'CASCADE' }]`.
 
   Oczekiwany wynik: **FAIL** obu testów.
 
-- [ ] **2. Schemat** `schema/widgets.ts` według tabeli z architektury: `context_id` z kaskadą do `contexts.id`, `type` jako `varchar(32)`, `config` jako `jsonb`, `x`, `y`, `w`, `h` jako `integer`, `...timestamps` i indeks na `context_id`. Dopisz eksport w `schema/index.ts`.
-- [ ] **3. Migracja.** `pnpm --filter @one-place/api db:generate --name widgets`. Przeczytaj plik SQL i znajdź `ON DELETE cascade` przy obu kluczach obcych. Drugie `db:generate` ma odpowiedzieć „No schema changes, nothing to migrate”.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (54 testy w pakiecie API)**.
-- [ ] **5. Sprawdź, czy test pilnuje kaskady.** W pliku SQL zmień na chwilę `ON DELETE cascade` przy `context_id` na `ON DELETE no action`. Oczekiwany wynik: `"delete_rule": "NO ACTION"` zamiast `"CASCADE"`. Przywróć plik.
-- [ ] **6. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c '\d widgets'`. W „Foreign-key constraints” oba klucze mają `ON DELETE CASCADE`.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add widgets table`.
+- [x] **2. Schemat** `schema/widgets.ts` według tabeli z architektury: `context_id` z kaskadą do `contexts.id`, `type` jako `varchar(32)`, `config` jako `jsonb`, `x`, `y`, `w`, `h` jako `integer`, `...timestamps` i indeks na `context_id`. Dopisz eksport w `schema/index.ts`.
+- [x] **3. Migracja.** `pnpm --filter @one-place/api db:generate --name widgets`. Przeczytaj plik SQL i znajdź `ON DELETE cascade` przy obu kluczach obcych. Drugie `db:generate` ma odpowiedzieć „No schema changes, nothing to migrate”.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (54 testy w pakiecie API)**.
+- [x] **5. Sprawdź, czy test pilnuje kaskady.** W pliku SQL zmień na chwilę `ON DELETE cascade` przy `context_id` na `ON DELETE no action`. Oczekiwany wynik: `"delete_rule": "NO ACTION"` zamiast `"CASCADE"`. Przywróć plik.
+- [x] **6. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c '\d widgets'`. W „Foreign-key constraints” oba klucze mają `ON DELETE CASCADE`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add widgets table`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -579,8 +579,8 @@ CREATE INDEX "widgets_context_id_idx" ON "widgets" USING btree ("context_id");
 
 **Kroki:**
 
-- [ ] **1. Fabryka testowa.** W `test/fixtures.ts` dodaj `widgetInput(overrides)`: nowy `randomUUID()`, typ `todo`, `config: {}`, `x: 0, y: 0, w: 4, h: 6`.
-- [ ] **2. Czerwone testy** w `test/widgets.test.ts` (`setup()` zakłada Alicję z jednym kontekstem i Boba):
+- [x] **1. Fabryka testowa.** W `test/fixtures.ts` dodaj `widgetInput(overrides)`: nowy `randomUUID()`, typ `todo`, `config: {}`, `x: 0, y: 0, w: 4, h: 6`.
+- [x] **2. Czerwone testy** w `test/widgets.test.ts` (`setup()` zakłada Alicję z jednym kontekstem i Boba):
   - `GET` bez tokenu daje 401;
   - `GET` zwraca tylko widgety podanego kontekstu (drugi kontekst Alicji też ma widget);
   - `GET` dla kontekstu Alicji wysłany przez Boba daje 404 z treścią `{ error: { code: 'NOT_FOUND', message: 'Context not found' } }`;
@@ -594,11 +594,11 @@ CREATE INDEX "widgets_context_id_idx" ON "widgets" USING btree ("context_id");
 
   Oczekiwany wynik: **FAIL ośmiu testów**. 401 i usuwanie z kontekstem przechodzą już teraz. Zastanów się dlaczego (podpowiedź jest w zadaniu 6 Etapu 2).
 
-- [ ] **3. Serwis** `modules/widgets/service.ts`: `listWidgets(db, userId, contextId)` i `createWidget(db, userId, contextId, input)`. Właściciela kontekstu sprawdza wspólna funkcja `assertOwnContext`, która korzysta z `ownContext` i `contextNotFound` z serwisu kontekstów (wyeksportuj je). Kolejność w `createWidget`: istniejące ID, kontekst, limit, `insert`. Listę sortuj po `(y, x, id)`.
-- [ ] **4. Eksperyment: dwa routery pod `/contexts`.** Napisz trasy w nowym routerze z własnym `.use(requireAuth(auth))` i podłącz go w `app.ts` drugim `.route('/contexts', …)`. Dodaj na chwilę `console.count('session check')` na początku `requireAuth` i uruchom jeden test: `pnpm --filter @one-place/api exec vitest run test/widgets.test.ts -t "returns only the widgets" --silent=false`. **Oczekiwany wynik:** licznik dochodzi do 8, choć test wysyła 5 żądań z tokenem. Zastanów się, skąd różnica, zanim otworzysz wyjaśnienie.
-- [ ] **5. Poprawka.** Dopisz w `require-auth.ts` typ `AuthEnv`. `contextWidgetsRoutes({ db })` zwraca `new Hono<AuthEnv>()` bez `requireAuth`, a `contextsRoutes` podłącza go na końcu łańcucha: `.route('/', contextWidgetsRoutes({ db }))`. Usuń drugi `.route('/contexts', …)` z `app.ts`. Licznik pokazuje 5. Usuń `console.count`.
-- [ ] **6. Zielone testy.** Oczekiwany wynik: **PASS (64 testy w pakiecie API)**.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add widget list and idempotent create`.
+- [x] **3. Serwis** `modules/widgets/service.ts`: `listWidgets(db, userId, contextId)` i `createWidget(db, userId, contextId, input)`. Właściciela kontekstu sprawdza wspólna funkcja `assertOwnContext`, która korzysta z `ownContext` i `contextNotFound` z serwisu kontekstów (wyeksportuj je). Kolejność w `createWidget`: istniejące ID, kontekst, limit, `insert`. Listę sortuj po `(y, x, id)`.
+- [x] **4. Eksperyment: dwa routery pod `/contexts`.** Napisz trasy w nowym routerze z własnym `.use(requireAuth(auth))` i podłącz go w `app.ts` drugim `.route('/contexts', …)`. Dodaj na chwilę `console.count('session check')` na początku `requireAuth` i uruchom jeden test: `pnpm --filter @one-place/api exec vitest run test/widgets.test.ts -t "returns only the widgets" --silent=false`. **Oczekiwany wynik:** licznik dochodzi do 8, choć test wysyła 5 żądań z tokenem. Zastanów się, skąd różnica, zanim otworzysz wyjaśnienie.
+- [x] **5. Poprawka.** Dopisz w `require-auth.ts` typ `AuthEnv`. `contextWidgetsRoutes({ db })` zwraca `new Hono<AuthEnv>()` bez `requireAuth`, a `contextsRoutes` podłącza go na końcu łańcucha: `.route('/', contextWidgetsRoutes({ db }))`. Usuń drugi `.route('/contexts', …)` z `app.ts`. Licznik pokazuje 5. Usuń `console.count`.
+- [x] **6. Zielone testy.** Oczekiwany wynik: **PASS (64 testy w pakiecie API)**.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add widget list and idempotent create`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -972,7 +972,7 @@ import { contextWidgetsRoutes } from '../widgets/routes'
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** (nowe bloki w `test/widgets.test.ts`, z pomocnikiem `setupWithWidget()`):
+- [x] **1. Czerwone testy** (nowe bloki w `test/widgets.test.ts`, z pomocnikiem `setupWithWidget()`):
   - `PATCH` i `DELETE` bez tokenu dają 401;
   - `PATCH { config: { title: '  Zakupy  ' } }` daje 200, konfigurację `{ title: 'Zakupy', hideCompleted: false, source: { type: 'local' } }`, niezmienione `x` i `w` oraz `version: 2`;
   - `PATCH` cudzego widgetu daje 404 z treścią `{ error: { code: 'NOT_FOUND', message: 'Widget not found' } }`, a widget Alicji się nie zmienia;
@@ -982,10 +982,10 @@ import { contextWidgetsRoutes } from '../widgets/routes'
 
   Oczekiwany wynik: **FAIL wszystkich siedmiu**. Tym razem także 401, bo pod `/api/widgets` nie ma jeszcze żadnego routera z `requireAuth`.
 
-- [ ] **2. Eksperyment: zapis bez walidacji typu.** Napisz `updateWidgetConfig(db, userId, id, input)`, który od razu robi `update … set({ config: input.config, … })` z warunkiem właściciela, oraz `deleteWidget`. Dodaj `widgetsRoutes` (`.use(requireAuth(auth))`, `PATCH` i `DELETE` pod `/:id`) i podłącz go w `app.ts` jako `.route('/widgets', …)`. **Oczekiwany wynik: FAIL dwóch testów:** konfiguracja nie jest przycięta ani uzupełniona, a `{ title: 123 }` daje 200 zamiast 400.
-- [ ] **3. Poprawka.** Serwis najpierw czyta typ widgetu (z warunkiem właściciela, brak wiersza to 404), potem sprawdza konfigurację schematem tego typu (`parseConfig`) i dopiero zapisuje. `parse()` rzuca `ZodError`, który `handleError` zamienia na 400.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (71 testów w pakiecie API)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(api): add widget config update and delete`.
+- [x] **2. Eksperyment: zapis bez walidacji typu.** Napisz `updateWidgetConfig(db, userId, id, input)`, który od razu robi `update … set({ config: input.config, … })` z warunkiem właściciela, oraz `deleteWidget`. Dodaj `widgetsRoutes` (`.use(requireAuth(auth))`, `PATCH` i `DELETE` pod `/:id`) i podłącz go w `app.ts` jako `.route('/widgets', …)`. **Oczekiwany wynik: FAIL dwóch testów:** konfiguracja nie jest przycięta ani uzupełniona, a `{ title: 123 }` daje 200 zamiast 400.
+- [x] **3. Poprawka.** Serwis najpierw czyta typ widgetu (z warunkiem właściciela, brak wiersza to 404), potem sprawdza konfigurację schematem tego typu (`parseConfig`) i dopiero zapisuje. `parse()` rzuca `ZodError`, który `handleError` zamienia na 400.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (71 testów w pakiecie API)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(api): add widget config update and delete`.
 
 **Pułapki (sprawdzone na prototypie):**
 
