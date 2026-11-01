@@ -4,6 +4,7 @@ import { parseResponse } from 'hono/client'
 import { apiErrorInfo } from '@/api/api-error'
 import { apiClient } from '@/api/client'
 import { changeOptimistically } from './optimistic'
+import { widgetsKey } from './widgets'
 
 export const contextsKey = ['contexts'] as const
 
@@ -76,5 +77,6 @@ export function useDeleteContext() {
         list.filter((item) => item.id !== id),
       ),
     onError: (_error, _id, rollback) => rollback?.(),
+    onSuccess: (_data, id) => queryClient.removeQueries({ queryKey: widgetsKey(id) }),
   })
 }

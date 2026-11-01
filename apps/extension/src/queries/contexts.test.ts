@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/vue-query'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { contextsKey, useCreateContext, useDeleteContext, useUpdateContext } from './contexts'
 import { deferred, jsonResponse, withQueryClient } from './testing'
+import { widgetsKey } from './widgets'
 
 const api = vi.hoisted(() => ({ post: vi.fn(), patch: vi.fn(), delete: vi.fn() }))
 
@@ -104,4 +105,12 @@ describe('useDeleteContext', () => {
     await mutateAsync('work')
     expect(cachedNames()).toEqual(['Dom'])
   })
+})
+
+it('forgets the cached widgets of the deleted context', async () => {
+  api.delete.mockResolvedValue(new Response(null, { status: 204 }))
+  queryClient.setQueryData(widgetsKey('work'), [{ id: 'tasks' }])
+  const { mutateAsync } = withQueryClient(queryClient, useDeleteContext)
+  await mutateAsync('work')
+  expect(queryClient.getQueryData(widgetsKey('work'))).toBeUndefined()
 })

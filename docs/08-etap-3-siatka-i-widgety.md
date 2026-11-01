@@ -1472,21 +1472,21 @@ export function widgetsRoutes({ db, auth }: ModuleDeps) {
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/queries/widgets.test.ts`. `vi.mock('@/api/client', …)` podmienia `contexts[':id'].widgets.$post`, `contexts[':id'].layout.$put` oraz `widgets[':id'].$patch` i `$delete`. W cache kontekstu `work` są dwa widgety, `tasks` i `shopping`:
+- [x] **1. Czerwone testy** w `src/queries/widgets.test.ts`. `vi.mock('@/api/client', …)` podmienia `contexts[':id'].widgets.$post`, `contexts[':id'].layout.$put` oraz `widgets[':id'].$patch` i `$delete`. W cache kontekstu `work` są dwa widgety, `tasks` i `shopping`:
   - nowy widget jest w cache, zanim API odpowie, a po odpowiedzi 201 zostaje podmieniony na rekord z serwera;
   - odpowiedź 422 przywraca `[tasks, shopping]`;
   - zapis układu przesuwa `tasks` od razu, a odpowiedź 400 `LAYOUT_INVALID` przywraca poprzednie położenie;
   - zmiana konfiguracji jest widoczna od razu, a potem zostaje rekord z serwera (przycięty tytuł, `version: 2`);
   - `DELETE` z odpowiedzią 404 usuwa widget z cache i kończy się sukcesem.
-- [ ] **2. Czerwony test** w `src/queries/contexts.test.ts`: po udanym usunięciu kontekstu `work` w cache nie ma wpisu `widgetsKey('work')`.
+- [x] **2. Czerwony test** w `src/queries/contexts.test.ts`: po udanym usunięciu kontekstu `work` w cache nie ma wpisu `widgetsKey('work')`.
 
   Oczekiwany wynik obu plików: **FAIL**.
 
-- [ ] **3. Implementacja** `src/queries/widgets.ts` według wzoru z `contexts.ts`. Każda mutacja dostaje `contextId` w danych wejściowych, bo z niego powstaje klucz cache. `useWidgets` przyjmuje `MaybeRefOrGetter<string | null>`: klucz to `computed`, a `enabled` jest `false`, gdy ID nie ma.
-- [ ] **4. Sprzątanie.** W `useDeleteContext` dodaj `onSuccess`, który woła `queryClient.removeQueries({ queryKey: widgetsKey(id) })`.
-- [ ] **5. Zielone testy.** Oczekiwany wynik: **PASS (53 testy w rozszerzeniu)**.
-- [ ] **6. Sprawdź, czy test pilnuje sprzątania.** Usuń na chwilę `onSuccess` z `useDeleteContext`. Test „forgets the cached widgets…” **FAIL**. Bez tego widgety usuniętego kontekstu zostałyby w `chrome.storage.local` aż do wylogowania: persister zapisuje każde zapytanie z danymi, a nikt już tego klucza nie odświeży. Przywróć.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget queries with optimistic mutations`.
+- [x] **3. Implementacja** `src/queries/widgets.ts` według wzoru z `contexts.ts`. Każda mutacja dostaje `contextId` w danych wejściowych, bo z niego powstaje klucz cache. `useWidgets` przyjmuje `MaybeRefOrGetter<string | null>`: klucz to `computed`, a `enabled` jest `false`, gdy ID nie ma.
+- [x] **4. Sprzątanie.** W `useDeleteContext` dodaj `onSuccess`, który woła `queryClient.removeQueries({ queryKey: widgetsKey(id) })`.
+- [x] **5. Zielone testy.** Oczekiwany wynik: **PASS (53 testy w rozszerzeniu)**.
+- [x] **6. Sprawdź, czy test pilnuje sprzątania.** Usuń na chwilę `onSuccess` z `useDeleteContext`. Test „forgets the cached widgets…” **FAIL**. Bez tego widgety usuniętego kontekstu zostałyby w `chrome.storage.local` aż do wylogowania: persister zapisuje każde zapytanie z danymi, a nikt już tego klucza nie odświeży. Przywróć.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget queries with optimistic mutations`.
 
 **Pułapki (sprawdzone na prototypie):**
 
