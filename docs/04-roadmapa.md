@@ -97,6 +97,8 @@ Z Etapu 3 są już gotowe `TodoConfigSchema` ze źródłem `{ type: 'local' }` w
 
 **Wymagania:** F-THEME-01 … F-THEME-06.
 
+**Plan nauki krok po kroku:** [10-etap-5-motywy.md](10-etap-5-motywy.md).
+
 **Zakres:**
 
 - `shared`: `ThemeSettingsSchema`, `ThemeOverrideSchema`, `resolveTheme` z testami;
