@@ -2295,8 +2295,8 @@ describe('TaskList', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** `widgets.todo.edit`: „Edytuj zadanie” / „Edit the task”.
-- [ ] **2. Czerwone testy** w nowym `describe('editing in place')`. Pomocnik `startEditing(wrapper, text)` klika tekst „Mleko” i wpisuje `text` w pole „Edit the task”:
+- [x] **1. Tłumaczenia.** `widgets.todo.edit`: „Edytuj zadanie” / „Edit the task”.
+- [x] **2. Czerwone testy** w nowym `describe('editing in place')`. Pomocnik `startEditing(wrapper, text)` klika tekst „Mleko” i wpisuje `text` w pole „Edit the task”:
   - Enter, a zaraz potem `blur` zgłaszają `edit` z `['milk', 'Mleko 2%']` **jeden raz**, a pole znika;
   - sam `blur` zapisuje;
   - Escape, a zaraz potem `blur` nie zgłaszają `edit`, a wiersz pokazuje „Mleko”;
@@ -2304,10 +2304,10 @@ describe('TaskList', () => {
 
   W dwóch pierwszych scenariuszach z „zaraz potem” wywołaj `void input.trigger('keydown', …)` bez `await`, a dopiero potem `await input.trigger('blur')`. Oczekiwany wynik: **FAIL**, bo tekst nie jest jeszcze klikalny.
 
-- [ ] **3. Eksperyment: najprostsza wersja.** Tekst zadania to `<button>`, który ustawia `editingId` i `editText`. Pole `UInput` z `autofocus` ma trzy obsługi: `@keydown.enter="finishEdit(item.id, true)"`, `@keydown.esc="finishEdit(item.id, false)"` i `@blur="finishEdit(item.id, true)"`. `finishEdit(id, save)` ustawia `editingId = null` i przy `save` zgłasza `edit`, jeśli przycięty tekst nie jest pusty i różni się od starego. **Oczekiwany wynik:** testy Entera i Escape **FAIL**: Enter zgłasza `edit` dwa razy, a Escape raz. Wyjaśnienie jest niżej, otwórz je przed krokiem 4.
-- [ ] **4. Poprawka.** `finishEdit(save)` nie dostaje ID z szablonu, tylko czyta `editingId`. Gdy jest `null`, edycja już się skończyła i funkcja nic nie robi. W przeciwnym razie najpierw czyści `editingId`, potem ewentualnie zgłasza `edit`. Oczekiwany wynik: **PASS (99 testów w rozszerzeniu)**.
-- [ ] **5. Eksperyment: test z `await`.** Wróć na chwilę do wersji z kroku 3 i w obu testach zamień `void input.trigger('keydown', …)` na `await input.trigger('keydown', …)`. **Oczekiwany wynik:** testy **przechodzą**, choć kod ma błąd. Przywróć poprawkę i `void`.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): edit a task in place`.
+- [x] **3. Eksperyment: najprostsza wersja.** Tekst zadania to `<button>`, który ustawia `editingId` i `editText`. Pole `UInput` z `autofocus` ma trzy obsługi: `@keydown.enter="finishEdit(item.id, true)"`, `@keydown.esc="finishEdit(item.id, false)"` i `@blur="finishEdit(item.id, true)"`. `finishEdit(id, save)` ustawia `editingId = null` i przy `save` zgłasza `edit`, jeśli przycięty tekst nie jest pusty i różni się od starego. **Oczekiwany wynik:** testy Entera i Escape **FAIL**: Enter zgłasza `edit` dwa razy, a Escape raz. Wyjaśnienie jest niżej, otwórz je przed krokiem 4.
+- [x] **4. Poprawka.** `finishEdit(save)` nie dostaje ID z szablonu, tylko czyta `editingId`. Gdy jest `null`, edycja już się skończyła i funkcja nic nie robi. W przeciwnym razie najpierw czyści `editingId`, potem ewentualnie zgłasza `edit`. Oczekiwany wynik: **PASS (99 testów w rozszerzeniu)**.
+- [x] **5. Eksperyment: test z `await`.** Wróć na chwilę do wersji z kroku 3 i w obu testach zamień `void input.trigger('keydown', …)` na `await input.trigger('keydown', …)`. **Oczekiwany wynik:** testy **przechodzą**, choć kod ma błąd. Przywróć poprawkę i `void`.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): edit a task in place`.
 
 <details>
 <summary>Wyjaśnienie eksperymentów (otwórz po kroku 3)</summary>

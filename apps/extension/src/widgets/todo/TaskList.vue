@@ -30,6 +30,27 @@ function add() {
   scrollToNew = true
 }
 
+// F-TODO-03: one task at a time is edited in place
+const editingId = ref<string | null>(null)
+const editText = ref('')
+
+function startEdit(item: TaskItem) {
+  editingId.value = item.id
+  editText.value = item.text
+}
+
+// Enter and Escape close the field, and the browser then reports a blur as well. Clearing
+// editingId first makes that second call do nothing.
+function finishEdit(save: boolean) {
+  const id = editingId.value
+  if (id === null) return
+  editingId.value = null
+  const text = editText.value.trim()
+  const item = props.items.find((task) => task.id === id)
+  // An empty text cancels the edit, like Escape
+  if (save && text && item && text !== item.text) emit('edit', id, text)
+}
+
 // The new task appears after the optimistic update, so the list scrolls when it gets longer
 watch(
   () => props.items.length,
@@ -59,11 +80,27 @@ watch(
             :aria-label="t('widgets.todo.toggle')"
             @update:model-value="emit('toggle', item.id)"
           />
-          <span
-            class="min-w-0 flex-1 text-sm break-words"
+          <UInput
+            v-if="editingId === item.id"
+            v-model="editText"
+            :aria-label="t('widgets.todo.edit')"
+            :maxlength="TODO_TEXT_MAX_LENGTH"
+            size="sm"
+            autofocus
+            class="min-w-0 flex-1"
+            @keydown.enter="finishEdit(true)"
+            @keydown.esc="finishEdit(false)"
+            @blur="finishEdit(true)"
+          />
+          <button
+            v-else
+            type="button"
+            class="min-w-0 flex-1 cursor-text text-start text-sm break-words"
             :class="{ 'text-muted line-through': item.done }"
-            >{{ item.text }}</span
+            @click="startEdit(item)"
           >
+            {{ item.text }}
+          </button>
           <!-- F-TODO-04: without a confirmation -->
           <UButton
             icon="i-lucide-x"

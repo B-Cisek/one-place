@@ -91,6 +91,7 @@
       "add": "Dodaj zadanie",
       "empty": "Brak zadań",
       "toggle": "Ukończone",
+      "edit": "Edytuj zadanie",
       "delete": "Usuń zadanie",
       "settings": {
         "title": "Tytuł",

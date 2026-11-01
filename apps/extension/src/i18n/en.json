@@ -91,6 +91,7 @@
       "add": "Add a task",
       "empty": "No tasks",
       "toggle": "Done",
+      "edit": "Edit the task",
       "delete": "Delete the task",
       "settings": {
         "title": "Title",

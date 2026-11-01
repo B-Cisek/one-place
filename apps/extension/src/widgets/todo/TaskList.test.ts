@@ -58,4 +58,48 @@ describe('TaskList', () => {
     expect(wrapper.emitted('toggle')).toEqual([['bread']])
     expect(wrapper.emitted('remove')).toEqual([['milk']])
   })
+
+  describe('editing in place', () => {
+    async function startEditing(wrapper: ReturnType<typeof mountList>, text: string) {
+      // The text of a task is a button, so it can also be reached with the keyboard
+      const milkText = wrapper.findAll('li button').find((button) => button.text() === 'Mleko')
+      await milkText!.trigger('click')
+      const input = wrapper.get('input[aria-label="Edit the task"]')
+      await input.setValue(text)
+      return input
+    }
+
+    it('saves the trimmed text on Enter only once, although the field also loses focus', async () => {
+      const wrapper = mountList()
+      const input = await startEditing(wrapper, '  Mleko 2%  ')
+      // Without await in between: the browser reports the blur while the field is still there
+      void input.trigger('keydown', { key: 'Enter' })
+      await input.trigger('blur')
+      expect(wrapper.emitted('edit')).toEqual([['milk', 'Mleko 2%']])
+      expect(wrapper.find('input[aria-label="Edit the task"]').exists()).toBe(false)
+    })
+
+    it('saves when the field loses focus', async () => {
+      const wrapper = mountList()
+      const input = await startEditing(wrapper, 'Mleko 2%')
+      await input.trigger('blur')
+      expect(wrapper.emitted('edit')).toEqual([['milk', 'Mleko 2%']])
+    })
+
+    it('cancels on Escape, also when the field then loses focus', async () => {
+      const wrapper = mountList()
+      const input = await startEditing(wrapper, 'Mleko 2%')
+      void input.trigger('keydown', { key: 'Escape' })
+      await input.trigger('blur')
+      expect(wrapper.emitted('edit')).toBeUndefined()
+      expect(wrapper.findAll('li')[0]!.text()).toBe('Mleko')
+    })
+
+    it('treats an empty or unchanged text as a cancel', async () => {
+      const wrapper = mountList()
+      await (await startEditing(wrapper, '   ')).trigger('keydown', { key: 'Enter' })
+      await (await startEditing(wrapper, 'Mleko')).trigger('keydown', { key: 'Enter' })
+      expect(wrapper.emitted('edit')).toBeUndefined()
+    })
+  })
 })
