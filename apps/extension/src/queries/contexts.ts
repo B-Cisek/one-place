@@ -34,7 +34,13 @@ export function useCreateContext() {
       parseResponse(apiClient.api.contexts.$post({ json: input })),
     onMutate: async (input) => {
       const now = new Date().toISOString()
-      const draft: ContextDto = { ...input, createdAt: now, updatedAt: now, version: 1 }
+      const draft: ContextDto = {
+        ...input,
+        themeOverride: null,
+        createdAt: now,
+        updatedAt: now,
+        version: 1,
+      }
       const rollback = await changeOptimistically<ContextDto[]>(queryClient, contextsKey, (list) =>
         withContext(list, draft),
       )

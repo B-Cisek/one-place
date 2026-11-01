@@ -15,6 +15,7 @@ function toContextDto(row: typeof contexts.$inferSelect): ContextDto {
     name: row.name,
     icon: row.icon,
     position: row.position,
+    themeOverride: row.themeOverride,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
     version: row.version,

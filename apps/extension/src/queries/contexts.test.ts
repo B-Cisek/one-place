@@ -24,6 +24,7 @@ function context(overrides: Partial<ContextDto>): ContextDto {
     name: 'Praca',
     icon: 'i-lucide-briefcase',
     position: 'a0',
+    themeOverride: null,
     createdAt: '2026-10-01T10:00:00.000Z',
     updatedAt: '2026-10-01T10:00:00.000Z',
     version: 1,
