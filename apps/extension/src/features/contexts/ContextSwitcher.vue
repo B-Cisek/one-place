@@ -24,7 +24,7 @@ const items = computed<TabsItem[]>(() =>
       variant="link"
       :ui="{ root: 'items-start', list: 'w-max', trigger: 'shrink-0' }"
       class="min-w-0 overflow-x-auto"
-      @update:model-value="(id) => void ui.selectContext(String(id))"
+      @update:model-value="(id: string | number) => void ui.selectContext(String(id))"
     />
     <UButton
       icon="i-lucide-pencil"
