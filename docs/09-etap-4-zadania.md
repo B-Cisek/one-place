@@ -2971,12 +2971,12 @@ describe('TodoWidget', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** `widgets.todo.settings.hideCompleted`: „Ukryj ukończone” / „Hide completed”.
-- [ ] **2. Czerwony test** w `TodoSettings.test.ts`: dla konfiguracji `{ title: 'Zakupy' }` kliknięcie przełącznika (`[role="switch"]`) i wysłanie formularza zgłaszają `save` z `{ title: 'Zakupy', hideCompleted: true, source: { type: 'local' } }`. Oczekiwany wynik: **FAIL**, bo przełącznika nie ma.
-- [ ] **3. Implementacja.** `state` dostaje `hideCompleted: config.hideCompleted`, a pod polem tytułu `UFormField name="hideCompleted"` z `USwitch` i etykietą. Usuń komentarz „Stage 3 has only the title”.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (105 testów w rozszerzeniu)**. Pierwszy test z Etapu 3 („keeps the other fields of the config”) dalej przechodzi: `hideCompleted: true` z konfiguracji trafia teraz do `state` i wraca w zapisie.
+- [x] **1. Tłumaczenia.** `widgets.todo.settings.hideCompleted`: „Ukryj ukończone” / „Hide completed”.
+- [x] **2. Czerwony test** w `TodoSettings.test.ts`: dla konfiguracji `{ title: 'Zakupy' }` kliknięcie przełącznika (`[role="switch"]`) i wysłanie formularza zgłaszają `save` z `{ title: 'Zakupy', hideCompleted: true, source: { type: 'local' } }`. Oczekiwany wynik: **FAIL**, bo przełącznika nie ma.
+- [x] **3. Implementacja.** `state` dostaje `hideCompleted: config.hideCompleted`, a pod polem tytułu `UFormField name="hideCompleted"` z `USwitch` i etykietą. Usuń komentarz „Stage 3 has only the title”.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (105 testów w rozszerzeniu)**. Pierwszy test z Etapu 3 („keeps the other fields of the config”) dalej przechodzi: `hideCompleted: true` z konfiguracji trafia teraz do `state` i wraca w zapisie.
 - [ ] **5. W przeglądarce:** odhacz jedno zadanie, włącz „Ukryj ukończone” i zapisz: ukończone znikają. Odhacz kolejne: znika od razu. Wyłącz opcję: wszystkie wracają na swoje miejsca.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add "Hide completed" to the todo settings`.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add "Hide completed" to the todo settings`.
 
 **Pułapki (sprawdzone na prototypie):**
 

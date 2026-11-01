@@ -5,13 +5,12 @@ import { useI18n } from 'vue-i18n'
 import { formErrors } from '@/i18n/form-errors'
 import { resolveConfig } from '../config'
 
-// Stage 3 has only the title. Stage 4 adds "Hide completed".
 const props = defineProps<{ widget: WidgetDto }>()
 const emit = defineEmits<{ save: [config: TodoConfig] }>()
 
 const { t } = useI18n()
 const config = resolveConfig(TodoConfigSchema, props.widget.config)
-const state = reactive({ title: config.title })
+const state = reactive({ title: config.title, hideCompleted: config.hideCompleted })
 const validate = formErrors(TodoConfigSchema, t)
 
 function onSubmit() {
@@ -33,6 +32,9 @@ function onSubmit() {
         autofocus
         class="w-full"
       />
+    </UFormField>
+    <UFormField name="hideCompleted">
+      <USwitch v-model="state.hideCompleted" :label="t('widgets.todo.settings.hideCompleted')" />
     </UFormField>
     <UButton type="submit" :label="t('widgets.settings.save')" block />
   </UForm>

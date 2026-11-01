@@ -98,7 +98,8 @@
       "retry": "Try again",
       "settings": {
         "title": "Title",
-        "titleHelp": "An empty title shows “Tasks”."
+        "titleHelp": "An empty title shows “Tasks”.",
+        "hideCompleted": "Hide completed"
       }
     },
     "menu": {

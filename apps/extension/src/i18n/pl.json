@@ -98,7 +98,8 @@
       "retry": "Spróbuj ponownie",
       "settings": {
         "title": "Tytuł",
-        "titleHelp": "Pusty tytuł oznacza „Zadania”."
+        "titleHelp": "Pusty tytuł oznacza „Zadania”.",
+        "hideCompleted": "Ukryj ukończone"
       }
     },
     "menu": {
