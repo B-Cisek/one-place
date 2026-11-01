@@ -261,17 +261,17 @@ export * from './todos'
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `test/migrations.test.ts`:
+- [x] **1. Czerwone testy** w `test/migrations.test.ts`:
   - na liście tabel jest `'todo_items'` (alfabetycznie między `'session'` a `'user'`);
   - test kolacji obejmuje wszystkie kolumny `position`: zmień jego nazwę na „compare positions byte by byte”, pytaj o `table_name, collation_name` wszystkich kolumn o nazwie `position` i oczekuj `contexts` i `todo_items` z kolacją `'C'`;
   - nowy test: klucze obce tabeli `todo_items` mają regułę `CASCADE` (`user_id` i `widget_id`).
 
   Oczekiwany wynik: **FAIL trzech testów**.
 
-- [ ] **2. Schemat** `schema/todos.ts` według tabeli z architektury: `widget_id` z kaskadą do `widgets.id`, `text` jako `varchar(500)`, `done` jako `boolean` z wartością domyślną `false`, `position` przez `fractionalIndex`, `...timestamps` i indeks na `(widget_id, position)`. Dopisz eksport w `schema/index.ts`.
-- [ ] **3. Migracja.** `pnpm --filter @one-place/api db:generate --name todo_items`. W pliku SQL znajdź `"position" text COLLATE "C"` i dwa `ON DELETE cascade`.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (78 testów w pakiecie API)**.
-- [ ] **5. Eksperyment: kolacja w Dockerze.** Postgres z `docker-compose.yml` ma domyślną kolację `en_US.utf8`. Porównaj dwa sortowania tych samych kluczy:
+- [x] **2. Schemat** `schema/todos.ts` według tabeli z architektury: `widget_id` z kaskadą do `widgets.id`, `text` jako `varchar(500)`, `done` jako `boolean` z wartością domyślną `false`, `position` przez `fractionalIndex`, `...timestamps` i indeks na `(widget_id, position)`. Dopisz eksport w `schema/index.ts`.
+- [x] **3. Migracja.** `pnpm --filter @one-place/api db:generate --name todo_items`. W pliku SQL znajdź `"position" text COLLATE "C"` i dwa `ON DELETE cascade`.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (78 testów w pakiecie API)**.
+- [x] **5. Eksperyment: kolacja w Dockerze.** Postgres z `docker-compose.yml` ma domyślną kolację `en_US.utf8`. Porównaj dwa sortowania tych samych kluczy:
 
   ```bash
   docker compose exec db psql -U one one_place -c "select string_agg(p, ' ' order by p) from unnest(array['a0','Zz','a1']) p"
@@ -280,8 +280,8 @@ export * from './todos'
 
   **Oczekiwany wynik:** `a0 a1 Zz` i `Zz a0 a1`. `fractional-indexing` daje `Zz` jako pozycję przed `a0`, czyli dla zadania przeciągniętego na samą górę. W domyślnej kolacji to zadanie byłoby na końcu listy. PGlite w testach zawsze sortuje bajtowo, więc żaden test API tego nie pokaże. Dlatego test migracji pyta o kolację kolumny, a nie o kolejność wyników.
 
-- [ ] **6. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c '\d todo_items'`. Kolumna `position` ma `Collation` równe `C`, a oba klucze obce mają `ON DELETE CASCADE`.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add todo_items table`.
+- [x] **6. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c '\d todo_items'`. Kolumna `position` ma `Collation` równe `C`, a oba klucze obce mają `ON DELETE CASCADE`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add todo_items table`.
 
 **Pułapki (sprawdzone na prototypie):**
 
