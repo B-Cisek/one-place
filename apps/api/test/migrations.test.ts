@@ -65,4 +65,23 @@ describe('database migrations', () => {
       { column_name: 'widget_id', delete_rule: 'CASCADE' },
     ])
   })
+
+  // null means the default theme (or no override), so the columns can be added to tables that
+  // already have rows. PGlite starts empty, so it would not notice a NOT NULL column.
+  it('add nullable theme columns', async () => {
+    const { client } = await createTestApp()
+    const { rows } = await client.query(
+      `select table_name, column_name, data_type, is_nullable from information_schema.columns
+       where column_name in ('theme', 'theme_override') order by table_name`,
+    )
+    expect(rows).toEqual([
+      {
+        table_name: 'contexts',
+        column_name: 'theme_override',
+        data_type: 'jsonb',
+        is_nullable: 'YES',
+      },
+      { table_name: 'user_settings', column_name: 'theme', data_type: 'jsonb', is_nullable: 'YES' },
+    ])
+  })
 })
