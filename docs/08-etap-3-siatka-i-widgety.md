@@ -1829,8 +1829,8 @@ it('forgets the cached widgets of the deleted context', async () => {
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/extension add grid-layout-plus@^1.1`. Komponentu siatki jeszcze nie piszesz, ale test zgodności skorzysta z jej algorytmu.
-- [ ] **2. Czerwone testy** w `src/features/dashboard/layout.test.ts` (pomocnik `rect(id, x, y, w = 4, h = 2)`):
+- [x] **1. Zależność.** `pnpm --filter @one-place/extension add grid-layout-plus@^1.1`. Komponentu siatki jeszcze nie piszesz, ale test zgodności skorzysta z jej algorytmu.
+- [x] **2. Czerwone testy** w `src/features/dashboard/layout.test.ts` (pomocnik `rect(id, x, y, w = 4, h = 2)`):
   - widget pod przerwą po usuniętym widgecie przesuwa się w górę: `b` z `y: 5` trafia na `y: 2`;
   - widget, nad którym nic nie ma, trafia na `y: 0`;
   - dwa widgety w tym samym miejscu (dodane jednocześnie na dwóch urządzeniach) się rozsuwają: `a` zostaje na `y: 0`, `b` trafia na `y: 2`, a wynik zachowuje kolejność wejścia;
@@ -1841,9 +1841,9 @@ it('forgets the cached widgets of the deleted context', async () => {
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **3. Implementacja** `src/features/dashboard/layout.ts`. Przeczytaj wcześniej `compact` i `compactItem` w `node_modules/grid-layout-plus/src/helpers/common.ts`. Oczekiwany wynik: **PASS (60 testów w rozszerzeniu)**.
-- [ ] **4. Sprawdź test zgodności.** Zamień na chwilę kolejność sortowania na „najpierw kolumna, potem wiersz”. Oczekiwany wynik: **FAIL** testu zgodności i testu kolejności w kolumnie. Przywróć.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): add layout helpers for the grid`.
+- [x] **3. Implementacja** `src/features/dashboard/layout.ts`. Przeczytaj wcześniej `compact` i `compactItem` w `node_modules/grid-layout-plus/src/helpers/common.ts`. Oczekiwany wynik: **PASS (60 testów w rozszerzeniu)**.
+- [x] **4. Sprawdź test zgodności.** Zamień na chwilę kolejność sortowania na „najpierw kolumna, potem wiersz”. Oczekiwany wynik: **FAIL** testu zgodności i testu kolejności w kolumnie. Przywróć.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): add layout helpers for the grid`.
 
 **Pułapki (sprawdzone na prototypie):**
 

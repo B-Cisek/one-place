@@ -17,6 +17,7 @@
     "@tanstack/vue-query": "^5.104.2",
     "better-auth": "^1.7.7",
     "fractional-indexing": "^4.0.0",
+    "grid-layout-plus": "^1.1.1",
     "hono": "^4.13.13",
     "pinia": "^4.0.3",
     "tailwindcss": "^4.3.3",
