@@ -1841,18 +1841,18 @@ describe('order of changes', () => {
 
 **Kroki:**
 
-- [ ] **1. Interfejs** w `task-source.ts`: `TaskItem` to `{ id, text, done }`. `TaskSource` ma `items` (`Readonly<Ref<TaskItem[] | undefined>>`), `isError`, `retry()`, `capabilities: { reorder: boolean }` i metody `add(text)`, `toggle(id)`, `edit(id, text)`, `remove(id)`, `move(id, beforeId, afterId)`. `useTaskSource(source, widgetId)` wybiera implementację przez `switch (source.type)`.
-- [ ] **2. Czerwone testy** w `local-task-source.test.ts`. `vi.mock('@/queries/todos', …)` zwraca z `useTodos` stałą listę `milk (a0)`, `bread (a1, done)`, `butter (a2)`, a mutacje to `vi.fn()`:
+- [x] **1. Interfejs** w `task-source.ts`: `TaskItem` to `{ id, text, done }`. `TaskSource` ma `items` (`Readonly<Ref<TaskItem[] | undefined>>`), `isError`, `retry()`, `capabilities: { reorder: boolean }` i metody `add(text)`, `toggle(id)`, `edit(id, text)`, `remove(id)`, `move(id, beforeId, afterId)`. `useTaskSource(source, widgetId)` wybiera implementację przez `switch (source.type)`.
+- [x] **2. Czerwone testy** w `local-task-source.test.ts`. `vi.mock('@/queries/todos', …)` zwraca z `useTodos` stałą listę `milk (a0)`, `bread (a1, done)`, `butter (a2)`, a mutacje to `vi.fn()`:
   - `add('Jajka')` woła mutację dodania z `widgetId`, tekstem, wygenerowanym ID i pozycją większą od `'a2'`;
   - `toggle('milk')` woła zmianę z `done: true`, a `toggle('bread')` z `done: false`;
   - `move('butter', 'milk', 'bread')` daje pozycję między `'a0'` a `'a1'`, a `move('butter', null, 'milk')` mniejszą od `'a0'`.
 
   Oczekiwany wynik: **FAIL**, bo `./local-task-source` nie istnieje.
 
-- [ ] **3. Implementacja** `local-task-source.ts`. `items` to wprost `data` z `useTodos` (`TodoDto` ma wszystkie pola `TaskItem`), `isError` z zapytania, `retry` woła `refetch`, `reorder: true`. Nowe ID z `v7` z pakietu `uuid`, jak w `useAddWidget`.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (90 testów w rozszerzeniu)**.
-- [ ] **5. Eksperyment: nowe źródło w unii.** W `packages/shared/src/widgets.ts` dopisz na chwilę do unii `source` drugi wariant: `z.object({ type: z.literal('todoist') })`. Uruchom `pnpm --filter @one-place/extension typecheck`. **Oczekiwany wynik:** błąd `TS2366: Function lacks ending return statement` w `useTaskSource`. TypeScript pilnuje, żeby każdy typ źródła miał implementację. Usuń dopisany wariant.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add task source with the local implementation`.
+- [x] **3. Implementacja** `local-task-source.ts`. `items` to wprost `data` z `useTodos` (`TodoDto` ma wszystkie pola `TaskItem`), `isError` z zapytania, `retry` woła `refetch`, `reorder: true`. Nowe ID z `v7` z pakietu `uuid`, jak w `useAddWidget`.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (90 testów w rozszerzeniu)**.
+- [x] **5. Eksperyment: nowe źródło w unii.** W `packages/shared/src/widgets.ts` dopisz na chwilę do unii `source` drugi wariant: `z.object({ type: z.literal('todoist') })`. Uruchom `pnpm --filter @one-place/extension typecheck`. **Oczekiwany wynik:** błąd `TS2366: Function lacks ending return statement` w `useTaskSource`. TypeScript pilnuje, żeby każdy typ źródła miał implementację. Usuń dopisany wariant.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add task source with the local implementation`.
 
 **Pułapki (sprawdzone na prototypie):**
 
