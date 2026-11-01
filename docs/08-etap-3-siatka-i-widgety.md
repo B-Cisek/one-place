@@ -38,7 +38,7 @@ Obowiązują ograniczenia z [Etapu 0](05-implementacja-poczatkowa.md#ograniczeni
 | Pakiet               | Wersja | Gdzie              | Uwagi                                                             |
 | -------------------- | ------ | ------------------ | ----------------------------------------------------------------- |
 | `grid-layout-plus`   | `^1.1` | rozszerzenie       | siatka w trybie edycji, ładowana leniwie; wersja 2.0 jest w becie |
-| `@vueuse/core`       | `^14`  | rozszerzenie       | `useBreakpoints` i `useDebounceFn`                                |
+| `@vueuse/core`       | `^14`  | rozszerzenie       | `useBreakpoints`                                                  |
 | `@vue/test-utils`    | `^2.5` | rozszerzenie (dev) | testy komponentów                                                 |
 | `happy-dom`          | `^21`  | rozszerzenie (dev) | DOM w testach komponentów                                         |
 | `@vitejs/plugin-vue` | `^6`   | rozszerzenie (dev) | pliki `.vue` w Vitest                                             |
@@ -3330,6 +3330,7 @@ Teksty: w `dashboard` klucze `"edit": "Edytuj pulpit"`, `"done": "Gotowe"`, `"ad
 - **Przeciąganie tylko za nagłówek.** `drag-allow-from=".widget-drag-handle"` wskazuje nagłówek ramki. Domyślne `drag-ignore-from: 'a, button'` sprawia, że przycisk menu w nagłówku (zadanie 13) nie zaczyna przeciągania.
 - **CSS biblioteki przychodzi w JavaScripcie.** Wersja 1.x wstawia własny `<style>` przy imporcie. CSP stron rozszerzenia w MV3 ogranicza skrypty, a nie style, więc to działa. Kolor miejsca docelowego zmienia zmienna `--vgl-placeholder-bg`.
 - **Edytor ładuje się raz.** Pierwsze włączenie edycji pobiera chunk (na prototypie edytor był widoczny po około 50 ms od kliknięcia), kolejne korzystają z załadowanego modułu.
+- **Zapis zaplanowany przed przeciąganiem.** `layout-updated` po zamontowaniu edytora planuje zapis dosuniętego układu. Gdy przeciąganie zacznie się w ciągu 500 ms, zapis wykonałby się w jego trakcie: wysłałby położenie „w połowie drogi”, a odpowiedź API podmieniłaby `layout` pod kursorem. Dlatego `@move` i `@resize` z `GridItem` wstrzymują zaplanowany zapis, a koniec przeciągania albo skalowania zgłasza układ jeszcze raz i planuje go od nowa. Kliknięcie „Gotowe” zaraz po przeciągnięciu wysyła zaplanowany zapis od razu (`onBeforeUnmount`). Dlatego zamiast `useDebounceFn`, którego nie da się anulować, jest zwykły `setTimeout`. Wyszło przy sprawdzaniu w przeglądarce (szybkie przeciągnięcie zaraz po włączeniu edycji dawało dwa `PUT`).
 - **Zmiana kontekstu w trybie edycji.** Prop `widgets` dostaje wtedy nową tablicę, `watch` buduje nowy `layout`, a biblioteka zgłasza „nowy układ”. Porównanie z cache nowego kontekstu nie znajduje różnic, więc nic nie zostaje wysłane.
 
 <details>
@@ -3359,9 +3360,8 @@ Teksty: w `dashboard` klucze `"edit": "Edytuj pulpit"`, `"done": "Gotowe"`, `"ad
 ```vue
 <script setup lang="ts">
 import { GRID_COLUMNS, type WidgetDto } from '@one-place/shared'
-import { useDebounceFn } from '@vueuse/core'
 import { GridItem, GridLayout } from 'grid-layout-plus'
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useSaveLayout } from '@/queries/widgets'
 import { findWidgetDefinition } from '@/widgets/registry'
 import { GRID_GAP, ROW_HEIGHT } from './grid'
@@ -3404,13 +3404,39 @@ watch(
 
 const widgetsById = computed(() => new Map(props.widgets.map((widget) => [widget.id, widget])))
 
+const SAVE_DELAY_MS = 500
+let saveTimer: ReturnType<typeof setTimeout> | undefined
+
 // F-GRID-04. grid-layout-plus reports a new layout after a drag or resize, but also on mount and
 // after every change of `layout`, so only a real difference from the cache is saved.
-const save = useDebounceFn(() => {
+function save() {
   const current = layout.value.map(({ i, x, y, w, h }) => ({ id: i, x, y, w, h }))
   const items = changedLayout(props.widgets, current)
   if (items.length > 0) saveLayout({ contextId: props.contextId, items })
-}, 500)
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer)
+  saveTimer = setTimeout(() => {
+    saveTimer = undefined
+    save()
+  }, SAVE_DELAY_MS)
+}
+
+// A save scheduled earlier (e.g. right after mount) must not run in the middle of a drag: it would
+// send a half-dragged layout, and its response would replace the layout under the pointer.
+// The end of the drag or resize reports the layout again, which schedules the save anew.
+function holdSave() {
+  clearTimeout(saveTimer)
+  saveTimer = undefined
+}
+
+// "Done" right after a drag: the pending save runs now instead of after the editor is gone
+onBeforeUnmount(() => {
+  if (saveTimer === undefined) return
+  holdSave()
+  save()
+})
 </script>
 
 <template>
@@ -3423,13 +3449,15 @@ const save = useDebounceFn(() => {
     is-draggable
     is-resizable
     class="grid-editor"
-    @layout-updated="save"
+    @layout-updated="scheduleSave"
   >
     <GridItem
       v-for="item in layout"
       :key="item.i"
       v-bind="item"
       drag-allow-from=".widget-drag-handle"
+      @move="holdSave"
+      @resize="holdSave"
     >
       <WidgetFrame v-if="widgetsById.get(item.i)" :widget="widgetsById.get(item.i)!" edit-mode />
     </GridItem>

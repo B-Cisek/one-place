@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { GRID_COLUMNS, type WidgetDto } from '@one-place/shared'
-import { useDebounceFn } from '@vueuse/core'
 import { GridItem, GridLayout } from 'grid-layout-plus'
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useSaveLayout } from '@/queries/widgets'
 import { findWidgetDefinition } from '@/widgets/registry'
 import { GRID_GAP, ROW_HEIGHT } from './grid'
@@ -45,13 +44,39 @@ watch(
 
 const widgetsById = computed(() => new Map(props.widgets.map((widget) => [widget.id, widget])))
 
+const SAVE_DELAY_MS = 500
+let saveTimer: ReturnType<typeof setTimeout> | undefined
+
 // F-GRID-04. grid-layout-plus reports a new layout after a drag or resize, but also on mount and
 // after every change of `layout`, so only a real difference from the cache is saved.
-const save = useDebounceFn(() => {
+function save() {
   const current = layout.value.map(({ i, x, y, w, h }) => ({ id: i, x, y, w, h }))
   const items = changedLayout(props.widgets, current)
   if (items.length > 0) saveLayout({ contextId: props.contextId, items })
-}, 500)
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer)
+  saveTimer = setTimeout(() => {
+    saveTimer = undefined
+    save()
+  }, SAVE_DELAY_MS)
+}
+
+// A save scheduled earlier (e.g. right after mount) must not run in the middle of a drag: it would
+// send a half-dragged layout, and its response would replace the layout under the pointer.
+// The end of the drag or resize reports the layout again, which schedules the save anew.
+function holdSave() {
+  clearTimeout(saveTimer)
+  saveTimer = undefined
+}
+
+// "Done" right after a drag: the pending save runs now instead of after the editor is gone
+onBeforeUnmount(() => {
+  if (saveTimer === undefined) return
+  holdSave()
+  save()
+})
 </script>
 
 <template>
@@ -64,13 +89,15 @@ const save = useDebounceFn(() => {
     is-draggable
     is-resizable
     class="grid-editor"
-    @layout-updated="save"
+    @layout-updated="scheduleSave"
   >
     <GridItem
       v-for="item in layout"
       :key="item.i"
       v-bind="item"
       drag-allow-from=".widget-drag-handle"
+      @move="holdSave"
+      @resize="holdSave"
     >
       <WidgetFrame v-if="widgetsById.get(item.i)" :widget="widgetsById.get(item.i)!" edit-mode />
     </GridItem>
