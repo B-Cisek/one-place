@@ -81,6 +81,8 @@
 
 **Wymagania:** F-TODO-01 … F-TODO-08.
 
+**Plan nauki krok po kroku:** [09-etap-4-zadania.md](09-etap-4-zadania.md).
+
 **Zakres:**
 
 - API: moduł `todos` z sortowaniem po `position COLLATE "C"`, limit 500, sprawdzenie typu widgetu;
