@@ -1666,11 +1666,11 @@ describe('cache of deleted widgets', () => {
 
 **Kroki:**
 
-- [ ] **1. Czerwony test kolejki.** W `todos.test.ts` zmień `beforeEach` na `queryClient = createQueryClient()`, żeby testy miały ustawienia aplikacji. Dopisz test: `add.mutate(…butter…)` z odpowiedzią `deferred`, zaraz potem `remove.mutate({ id: 'butter', … })`. Usunięcie ma czekać w kolejce: `await vi.waitFor(() => expect(remove.isPaused.value).toBe(true))`, `api.delete` nie zostało wywołane, a po odpowiedzi na `POST` zostaje wywołane raz. Oczekiwany wynik: **FAIL** (`isPaused` nigdy nie staje się `true`).
-- [ ] **2. Kolejka.** W `createQueryClient` dopisz `mutations: { scope: { id: 'api' } }`. Oczekiwany wynik: test kolejki **PASS**.
-- [ ] **3. Czerwony test ostatniej zmiany.** Szybkie podwójne kliknięcie checkboxa: `mutate({ id: 'milk', …, done: true })`, zaraz potem `done: false`, obie odpowiedzi `deferred`. Po odpowiedzi na pierwsze (`done: true`) cache ma nadal pokazywać `done: false`, a po odpowiedzi na drugie `version: 3`. Oczekiwany wynik: **FAIL**, bo `onSuccess` pierwszej mutacji zapisuje `done: true`.
-- [ ] **4. Ostatnia zmiana zapisuje.** Trzy mutacje zadań dostają wspólne `mutationKey: todoChangeKey` (`['todos', 'change']`). Funkcja `hasLaterChanges(queryClient)` sprawdza, czy `isMutating({ mutationKey: todoChangeKey }) > 1`, a `onSuccess` w `useAddTodo` i `useUpdateTodo` nic nie zapisuje, gdy tak jest. Oczekiwany wynik: **PASS (87 testów w rozszerzeniu)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): send changes to the API one after another`.
+- [x] **1. Czerwony test kolejki.** W `todos.test.ts` zmień `beforeEach` na `queryClient = createQueryClient()`, żeby testy miały ustawienia aplikacji. Dopisz test: `add.mutate(…butter…)` z odpowiedzią `deferred`, zaraz potem `remove.mutate({ id: 'butter', … })`. Usunięcie ma czekać w kolejce: `await vi.waitFor(() => expect(remove.isPaused.value).toBe(true))`, `api.delete` nie zostało wywołane, a po odpowiedzi na `POST` zostaje wywołane raz. Oczekiwany wynik: **FAIL** (`isPaused` nigdy nie staje się `true`).
+- [x] **2. Kolejka.** W `createQueryClient` dopisz `mutations: { scope: { id: 'api' } }`. Oczekiwany wynik: test kolejki **PASS**.
+- [x] **3. Czerwony test ostatniej zmiany.** Szybkie podwójne kliknięcie checkboxa: `mutate({ id: 'milk', …, done: true })`, zaraz potem `done: false`, obie odpowiedzi `deferred`. Po odpowiedzi na pierwsze (`done: true`) cache ma nadal pokazywać `done: false`, a po odpowiedzi na drugie `version: 3`. Oczekiwany wynik: **FAIL**, bo `onSuccess` pierwszej mutacji zapisuje `done: true`.
+- [x] **4. Ostatnia zmiana zapisuje.** Trzy mutacje zadań dostają wspólne `mutationKey: todoChangeKey` (`['todos', 'change']`). Funkcja `hasLaterChanges(queryClient)` sprawdza, czy `isMutating({ mutationKey: todoChangeKey }) > 1`, a `onSuccess` w `useAddTodo` i `useUpdateTodo` nic nie zapisuje, gdy tak jest. Oczekiwany wynik: **PASS (87 testów w rozszerzeniu)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): send changes to the API one after another`.
 
 **Pułapki (sprawdzone na prototypie):**
 

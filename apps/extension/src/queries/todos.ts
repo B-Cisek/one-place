@@ -4,7 +4,13 @@ import type {
   TodoDto,
   UpdateTodoInput,
 } from '@one-place/shared'
-import { useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/vue-query'
+import {
+  type QueryClient,
+  useMutation,
+  useMutationState,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/vue-query'
 import { parseResponse } from 'hono/client'
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import { apiErrorInfo } from '@/api/api-error'
@@ -21,6 +27,16 @@ interface TodoRef {
 // Adds the task or replaces the one with the same id, keeping the list sorted
 function withTodo(list: TodoDto[], todo: TodoDto) {
   return [...list.filter((item) => item.id !== todo.id), todo].sort(byPosition)
+}
+
+const todoChangeKey = ['todos', 'change'] as const
+
+// Changes wait in one queue, so a later change of the tasks may still be waiting when this one is
+// answered. Its optimistic state is newer than this response: writing the response would show an
+// older state for a moment (a task ticked twice in a row would blink). The last change writes.
+function hasLaterChanges(queryClient: QueryClient) {
+  // This mutation is still pending while its onSuccess runs, so it counts too
+  return queryClient.isMutating({ mutationKey: todoChangeKey }) > 1
 }
 
 export function useTodos(widgetId: MaybeRefOrGetter<string>) {
@@ -41,6 +57,7 @@ export function useTodos(widgetId: MaybeRefOrGetter<string>) {
 export function useAddTodo() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: todoChangeKey,
     mutationFn: ({ widgetId, ...input }: CreateTodoInput & { widgetId: string }) =>
       parseResponse(
         apiClient.api.widgets[':id'].todos.$post({ param: { id: widgetId }, json: input }),
@@ -60,16 +77,19 @@ export function useAddTodo() {
       )
     },
     onError: (_error, _input, rollback) => rollback?.(),
-    onSuccess: (saved) =>
+    onSuccess: (saved) => {
+      if (hasLaterChanges(queryClient)) return
       queryClient.setQueryData<TodoDto[]>(todosKey(saved.widgetId), (list = []) =>
         withTodo(list, saved),
-      ),
+      )
+    },
   })
 }
 
 export function useUpdateTodo() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: todoChangeKey,
     mutationFn: ({ id, text, done, position }: TodoRef & UpdateTodoInput) =>
       parseResponse(
         apiClient.api.todos[':id'].$patch({ param: { id }, json: { text, done, position } }),
@@ -80,16 +100,19 @@ export function useUpdateTodo() {
         return current ? withTodo(list, { ...current, ...changes }) : list
       }),
     onError: (_error, _input, rollback) => rollback?.(),
-    onSuccess: (saved) =>
+    onSuccess: (saved) => {
+      if (hasLaterChanges(queryClient)) return
       queryClient.setQueryData<TodoDto[]>(todosKey(saved.widgetId), (list = []) =>
         withTodo(list, saved),
-      ),
+      )
+    },
   })
 }
 
 export function useDeleteTodo() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: todoChangeKey,
     mutationFn: async ({ id }: TodoRef) => {
       try {
         await parseResponse(apiClient.api.todos[':id'].$delete({ param: { id } }))

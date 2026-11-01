@@ -11,6 +11,12 @@ export function createQueryClient() {
         // (max about 24.8 days) and would become 1 ms, so the cache is never collected.
         gcTime: Infinity,
       },
+      mutations: {
+        // All changes go to the API one after another, in the order they were made. Otherwise a
+        // change of a task could reach the API before the task (or its widget) is saved and get 404,
+        // e.g. after coming back online.
+        scope: { id: 'api' },
+      },
     },
   })
 }

@@ -1,8 +1,9 @@
 import type { TodoDto, WidgetDto } from '@one-place/shared'
-import { QueryClient } from '@tanstack/vue-query'
+import type { QueryClient } from '@tanstack/vue-query'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useDeleteContext } from './contexts'
 import { todosKey, widgetsKey } from './keys'
+import { createQueryClient } from './query-client'
 import { deferred, jsonResponse, withQueryClient } from './testing'
 import { useAddTodo, useDeleteTodo, useTodos, useUpdateTodo } from './todos'
 import { useCreateWidget, useDeleteWidget } from './widgets'
@@ -61,7 +62,8 @@ function ids() {
 
 beforeEach(() => {
   vi.resetAllMocks()
-  queryClient = new QueryClient()
+  // With the defaults of the app, so changes go to the API one after another
+  queryClient = createQueryClient()
   queryClient.setQueryData(key, [milk, bread])
 })
 
@@ -162,5 +164,44 @@ describe('cache of deleted widgets', () => {
     const { mutateAsync } = withQueryClient(queryClient, useDeleteContext)
     await mutateAsync('work')
     expect(cached()).toBeUndefined()
+  })
+})
+
+describe('order of changes', () => {
+  it('sends a change of a new task only after the API saves the task', async () => {
+    const created = deferred<Response>()
+    api.post.mockReturnValue(created.promise)
+    api.delete.mockResolvedValue(new Response(null, { status: 204 }))
+    const add = withQueryClient(queryClient, useAddTodo)
+    const remove = withQueryClient(queryClient, useDeleteTodo)
+
+    add.mutate({ widgetId: 'tasks', id: 'butter', text: 'Masło', position: 'a2' })
+    remove.mutate({ id: 'butter', widgetId: 'tasks' })
+    // The delete waits in the queue (paused) until the task is saved
+    await vi.waitFor(() => expect(remove.isPaused.value).toBe(true))
+    expect(ids()).toEqual(['milk', 'bread'])
+    expect(api.delete).not.toHaveBeenCalled()
+
+    created.resolve(jsonResponse(201, todo({ id: 'butter', text: 'Masło', position: 'a2' })))
+    await vi.waitFor(() => expect(api.delete).toHaveBeenCalledOnce())
+  })
+
+  it('keeps showing the latest change while an earlier one is answered', async () => {
+    const first = deferred<Response>()
+    const second = deferred<Response>()
+    api.patch.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
+    const { mutate } = withQueryClient(queryClient, useUpdateTodo)
+
+    // A quick double click on the checkbox
+    mutate({ id: 'milk', widgetId: 'tasks', done: true })
+    mutate({ id: 'milk', widgetId: 'tasks', done: false })
+    await vi.waitFor(() => expect(cached()?.[0]?.done).toBe(false))
+
+    first.resolve(jsonResponse(200, { ...milk, done: true, version: 2 }))
+    await vi.waitFor(() => expect(api.patch).toHaveBeenCalledTimes(2))
+    expect(cached()?.[0]?.done).toBe(false)
+
+    second.resolve(jsonResponse(200, { ...milk, done: false, version: 3 }))
+    await vi.waitFor(() => expect(cached()?.[0]?.version).toBe(3))
   })
 })
