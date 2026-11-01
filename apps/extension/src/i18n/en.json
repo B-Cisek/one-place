@@ -84,6 +84,14 @@
     "todo": {
       "name": "Tasks",
       "description": "A list of things to do"
+    },
+    "unknown": {
+      "name": "Unknown widget",
+      "title": "This widget needs a newer version of the extension"
+    },
+    "error": {
+      "title": "This widget stopped working",
+      "retry": "Try again"
     }
   },
   "settings": {

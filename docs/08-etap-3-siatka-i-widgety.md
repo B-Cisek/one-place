@@ -2336,17 +2336,17 @@ Teksty: `"widgets": { "todo": { "name": "Zadania", "description": "Lista rzeczy 
 
 **Kroki:**
 
-- [ ] **1. Zależności.** `pnpm --filter @one-place/extension add -D @vue/test-utils@^2.5 happy-dom@^21 @vitejs/plugin-vue@^6`
-- [ ] **2. Czerwone testy** w `src/features/dashboard/WidgetFrame.test.ts` (pierwsza linia: `// @vitest-environment happy-dom`). `vi.mock('@/widgets/registry', …)` zwraca dla typu `todo` definicję z komponentem `FlakyWidget`, który rzuca błąd, dopóki flaga `fails` jest `true`:
+- [x] **1. Zależności.** `pnpm --filter @one-place/extension add -D @vue/test-utils@^2.5 happy-dom@^21 @vitejs/plugin-vue@^6`
+- [x] **2. Czerwone testy** w `src/features/dashboard/WidgetFrame.test.ts` (pierwsza linia: `// @vitest-environment happy-dom`). `vi.mock('@/widgets/registry', …)` zwraca dla typu `todo` definicję z komponentem `FlakyWidget`, który rzuca błąd, dopóki flaga `fails` jest `true`:
   - widget znanego typu się renderuje;
   - błąd widgetu pokazuje w ramce „This widget stopped working”, a po kliknięciu „Try again” (z `fails = false`) widget renderuje się poprawnie;
   - typ `notes` pokazuje „This widget needs a newer version of the extension”.
-- [ ] **3. Uruchom.** `pnpm --filter @one-place/extension test`. Oczekiwany wynik: **FAIL** z błędem `"./vue-plugin" is not exported under the conditions ["node", "development", "import"] from package …/@nuxt/ui`. `WxtVitest()` dodaje fake browser i aliasy, ale nie pluginy z `wxt.config.ts`. Bez nich Vitest nie rozwiąże `@nuxt/ui/vue-plugin` (robi to plugin Nuxt UI) ani nie skompiluje plików `.vue` (robi to `@vitejs/plugin-vue`).
-- [ ] **4. Konfiguracja Vitest.** W `vitest.config.ts` dodaj `vue()` z `@vitejs/plugin-vue` i `ui({ router: false, colorMode: false })` z `@nuxt/ui/vite`. Napisz `WidgetFrame.vue` (wskazówki w podpowiedzi) i teksty `widgets.unknown` oraz `widgets.error`. Oczekiwany wynik: **PASS (68 testów w rozszerzeniu)**.
-- [ ] **5. Eksperyment: ikony w testach.** Przeczytaj koniec wyniku testów. **Oczekiwany wynik:** dwa razy `DOMException [AbortError]: The operation was aborted.`, choć wszystkie testy przeszły. Zastanów się, co happy-dom przerwał, zanim otworzysz wyjaśnienie.
-- [ ] **6. Poprawka.** Utwórz `nuxt-ui.config.ts` z funkcją `nuxtUiOptions(dataIcons = [])`, która zwraca opcje Nuxt UI z `wxt.config.ts` (`router`, `colorMode`, `ui.colors`, `icon.clientBundle` ze `scan: true` i listą `dataIcons`). `wxt.config.ts` woła `ui(nuxtUiOptions(CONTEXT_ICONS))`, a `vitest.config.ts` `ui(nuxtUiOptions())`. Import w `vitest.config.ts` zapisz z rozszerzeniem: `'./nuxt-ui.config.ts'`. Uruchom testy: bez `AbortError`.
-- [ ] **7. Eksperyment: `return false`.** Usuń na chwilę `return false` z `onErrorCaptured`. Oczekiwany wynik: test błędu **FAIL** (`expected '' to contain 'This widget stopped working'`) i `Unhandled Rejection … Error: Boom`. Przywróć.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget frame with error boundary and component tests`.
+- [x] **3. Uruchom.** `pnpm --filter @one-place/extension test`. Oczekiwany wynik: **FAIL** z błędem `"./vue-plugin" is not exported under the conditions ["node", "development", "import"] from package …/@nuxt/ui`. `WxtVitest()` dodaje fake browser i aliasy, ale nie pluginy z `wxt.config.ts`. Bez nich Vitest nie rozwiąże `@nuxt/ui/vue-plugin` (robi to plugin Nuxt UI) ani nie skompiluje plików `.vue` (robi to `@vitejs/plugin-vue`).
+- [x] **4. Konfiguracja Vitest.** W `vitest.config.ts` dodaj `vue()` z `@vitejs/plugin-vue` i `ui({ router: false, colorMode: false })` z `@nuxt/ui/vite`. Napisz `WidgetFrame.vue` (wskazówki w podpowiedzi) i teksty `widgets.unknown` oraz `widgets.error`. Oczekiwany wynik: **PASS (68 testów w rozszerzeniu)**.
+- [x] **5. Eksperyment: ikony w testach.** Przeczytaj koniec wyniku testów. **Oczekiwany wynik:** dwa razy `DOMException [AbortError]: The operation was aborted.`, choć wszystkie testy przeszły. Zastanów się, co happy-dom przerwał, zanim otworzysz wyjaśnienie.
+- [x] **6. Poprawka.** Utwórz `nuxt-ui.config.ts` z funkcją `nuxtUiOptions(dataIcons = [])`, która zwraca opcje Nuxt UI z `wxt.config.ts` (`router`, `colorMode`, `ui.colors`, `icon.clientBundle` ze `scan: true` i listą `dataIcons`). `wxt.config.ts` woła `ui(nuxtUiOptions(CONTEXT_ICONS))`, a `vitest.config.ts` `ui(nuxtUiOptions())`. Import w `vitest.config.ts` zapisz z rozszerzeniem: `'./nuxt-ui.config.ts'`. Uruchom testy: bez `AbortError`.
+- [x] **7. Eksperyment: `return false`.** Usuń na chwilę `return false` z `onErrorCaptured`. Oczekiwany wynik: test błędu **FAIL** (`expected '' to contain 'This widget stopped working'`) i `Unhandled Rejection … Error: Boom`. Przywróć.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget frame with error boundary and component tests`.
 
 **Pułapki (sprawdzone na prototypie):**
 

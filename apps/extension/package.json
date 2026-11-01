@@ -31,8 +31,11 @@
     "@iconify-json/lucide": "^1.2.142",
     "@intlify/unplugin-vue-i18n": "^11.2.5",
     "@one-place/api": "workspace:*",
+    "@vitejs/plugin-vue": "^6.0.9",
     "@vue/devtools-api": "^8.2.1",
+    "@vue/test-utils": "^2.5.1",
     "@wxt-dev/module-vue": "^1.0.3",
+    "happy-dom": "^21.0.4",
     "vue-tsc": "^3.3.12",
     "wxt": "^0.21.4"
   }

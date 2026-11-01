@@ -84,6 +84,14 @@
     "todo": {
       "name": "Zadania",
       "description": "Lista rzeczy do zrobienia"
+    },
+    "unknown": {
+      "name": "Nieznany widget",
+      "title": "Ten widget wymaga nowszej wersji rozszerzenia"
+    },
+    "error": {
+      "title": "Ten widget przestał działać",
+      "retry": "Spróbuj ponownie"
     }
   },
   "settings": {

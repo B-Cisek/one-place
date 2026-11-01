@@ -3,6 +3,7 @@ import { defineConfig } from 'wxt'
 import ui from '@nuxt/ui/vite'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import { CONTEXT_ICONS } from '@one-place/shared'
+import { nuxtUiOptions } from './nuxt-ui.config'
 
 export default defineConfig({
   dev: {
@@ -20,14 +21,7 @@ export default defineConfig({
         include: [fileURLToPath(new URL('./src/i18n/*.json', import.meta.url))],
         dropMessageCompiler: true,
       }),
-      ui({
-        router: false,
-        colorMode: false,
-        ui: { colors: { primary: 'blue', neutral: 'zinc' } },
-        // The scanner finds icons written in .vue files. Context icons come from data,
-        // so they are listed here, otherwise they would be fetched from the Iconify API.
-        icon: { clientBundle: { scan: true, icons: [...CONTEXT_ICONS] } },
-      }),
+      ui(nuxtUiOptions(CONTEXT_ICONS)),
     ],
   }),
   manifest: {
