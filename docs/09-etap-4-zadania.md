@@ -25,11 +25,11 @@ Kroki oznaczone jako **eksperyment** celowo pokazują błąd, zanim go naprawisz
 
 ## Wymagania wstępne
 
-- [ ] Etap 3 jest skończony, a `pnpm check` przechodzi (177 testów)
-- [ ] Postgres działa: `docker compose up -d`
-- [ ] Migracje z Etapów 1–3 są zastosowane: `pnpm --filter @one-place/api db:migrate`
+- [x] Etap 3 jest skończony, a `pnpm check` przechodzi (177 testów)
+- [x] Postgres działa: `docker compose up -d`
+- [x] Migracje z Etapów 1–3 są zastosowane: `pnpm --filter @one-place/api db:migrate`
 - [ ] `pnpm dev` uruchamia API i przeglądarkę z rozszerzeniem, a widget Zadania (zaślepka) da się dodać do pulpitu
-- [ ] `pnpm --filter @one-place/extension build && pnpm size` pokazuje około 490 kB
+- [x] `pnpm --filter @one-place/extension build && pnpm size` pokazuje około 490 kB
 
 ## Ograniczenia globalne
 
@@ -2767,7 +2767,7 @@ describe('moving', () => {
 - [x] **3. Implementacja** `TodoWidget.vue`: `config` jak w zaślepce, `source = useTaskSource(config.value.source, props.widget.id)`, `visible` jako `computed` z filtrem przy `hideCompleted`. Szablon: kolumna z `h2` (z `pe-6`, żeby tytuł nie wchodził pod przycisk menu ramki), potem szkielety albo `UEmpty` z błędem, gdy `visible` jest `undefined`, a w przeciwnym razie `TaskList`, którego zdarzenia idą prosto do metod źródła.
 - [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (104 testy w rozszerzeniu)**.
 - [x] **5. Eksperyment: `ref` w obiekcie.** Zamień w szablonie `v-if="source.isError.value"` na `v-if="source.isError"`. Uruchom typecheck i testy. **Oczekiwany wynik:** typecheck przechodzi, a test szkieletów **FAIL**: widget w trakcie wczytywania pokazuje „Could not load the tasks.”. Vue rozpakowuje w szablonie tylko `ref` z najwyższego poziomu. `source.isError` to obiekt `ref`, który zawsze jest prawdziwy. Przywróć `.value`.
-- [ ] **6. W przeglądarce** (zbuduj paczkę i załaduj `.output/chrome-mv3`), z otwartym DevTools → Network:
+- [x] **6. W przeglądarce** (zbuduj paczkę i załaduj `.output/chrome-mv3`), z otwartym DevTools → Network:
   - dodaj widget Zadania: od razu widać „Brak zadań” i pole „Dodaj zadanie”, bez szkieletów, a `GET /widgets/:id/todos` wychodzi dopiero po `POST` widgetu;
   - dodaj „Mleko”, „Chleb” i „Masło”, odhacz „Chleb”, zmień „Mleko” na „Mleko 2%” Enterem (**jeden** `PATCH`), zacznij edytować „Masło”, wpisz coś i naciśnij Escape (**żadnego** `PATCH`), usuń „Masło” krzyżykiem;
   - przeładuj kartę: „Mleko 2%” i odhaczony „Chleb” są na swoich miejscach (scenariusz akceptacyjny 2);
@@ -2975,7 +2975,7 @@ describe('TodoWidget', () => {
 - [x] **2. Czerwony test** w `TodoSettings.test.ts`: dla konfiguracji `{ title: 'Zakupy' }` kliknięcie przełącznika (`[role="switch"]`) i wysłanie formularza zgłaszają `save` z `{ title: 'Zakupy', hideCompleted: true, source: { type: 'local' } }`. Oczekiwany wynik: **FAIL**, bo przełącznika nie ma.
 - [x] **3. Implementacja.** `state` dostaje `hideCompleted: config.hideCompleted`, a pod polem tytułu `UFormField name="hideCompleted"` z `USwitch` i etykietą. Usuń komentarz „Stage 3 has only the title”.
 - [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (105 testów w rozszerzeniu)**. Pierwszy test z Etapu 3 („keeps the other fields of the config”) dalej przechodzi: `hideCompleted: true` z konfiguracji trafia teraz do `state` i wraca w zapisie.
-- [ ] **5. W przeglądarce:** odhacz jedno zadanie, włącz „Ukryj ukończone” i zapisz: ukończone znikają. Odhacz kolejne: znika od razu. Wyłącz opcję: wszystkie wracają na swoje miejsca.
+- [x] **5. W przeglądarce:** odhacz jedno zadanie, włącz „Ukryj ukończone” i zapisz: ukończone znikają. Odhacz kolejne: znika od razu. Wyłącz opcję: wszystkie wracają na swoje miejsca.
 - [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add "Hide completed" to the todo settings`.
 
 **Pułapki (sprawdzone na prototypie):**
@@ -3085,14 +3085,14 @@ it('saves "Hide completed" and keeps the title', async () => {
 **Kroki:**
 
 - [x] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 492 kB** (budżet 550 kB). W liście plików z buildu osobno: `TodoWidget` (około 22 kB), `TodoSettings` (około 10 kB) i `vue-draggable-plus` (około 41 kB, ten sam chunk co w oknie kontekstów).
-- [ ] **2. Czas pierwszego renderu.** Zbuduj, załaduj `.output/chrome-mv3`, dodaj do widgetu kilkadziesiąt zadań i odczekaj sekundę. Otwórz nową kartę i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Powtórz kilka razy. Na prototypie, z jednym widgetem i 500 zadaniami, w Chromium headless: 59–73 ms. Wymaganie to poniżej 200 ms.
-- [ ] **3. Kolejka offline.** W zbudowanej paczce utwórz nowy kontekst i odczekaj chwilę. DevTools → Network → „Offline”. Dodaj widget Zadania, dodaj „X” i je odhacz, dodaj „Y” i je usuń. Wyłącz tryb Offline. **Oczekiwany wynik:** żądania w kolejności `POST /widgets`, `POST /todos`, `PATCH`, `POST /todos`, `DELETE`, wszystkie 2xx, bez toastów. Po przeładowaniu jest odhaczone „X” i nie ma „Y”.
-- [ ] **4. Eksperyment: bez kolejki.** Zakomentuj `scope` w `createQueryClient`, zbuduj i powtórz krok 3 w nowym kontekście. **Oczekiwany wynik:** `POST /todos` wychodzi przed `POST /widgets` i dostaje 404, `PATCH` i `DELETE` też dostają 404, a dwa toasty mówią, że zmiana została cofnięta. Po przeładowaniu nie ma „X”, a usunięte „Y” jest na liście. Kolejność żądań może się różnić między próbami. Przywróć `scope` i zbuduj ponownie.
-- [ ] **5. Eksperyment: kolacja w Dockerze.** Zmień na chwilę kolację kolumny: `docker compose exec db psql -U one one_place -c 'alter table todo_items alter column position type text collate "default"'`. Przeciągnij ostatnie zadanie na samą górę listy i przeładuj kartę. **Oczekiwany wynik:** zadanie jest na dole. Dostało pozycję zaczynającą się wielką literą (np. `Zz`), a `en_US.utf8` stawia ją za `a0`. Przywróć: `… alter column position type text collate "C"` i przeładuj: zadanie wraca na górę.
+- [x] **2. Czas pierwszego renderu.** Zbuduj, załaduj `.output/chrome-mv3`, dodaj do widgetu kilkadziesiąt zadań i odczekaj sekundę. Otwórz nową kartę i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Powtórz kilka razy. Na prototypie, z jednym widgetem i 500 zadaniami, w Chromium headless: 59–73 ms. Wymaganie to poniżej 200 ms.
+- [x] **3. Kolejka offline.** W zbudowanej paczce utwórz nowy kontekst i odczekaj chwilę. DevTools → Network → „Offline”. Dodaj widget Zadania, dodaj „X” i je odhacz, dodaj „Y” i je usuń. Wyłącz tryb Offline. **Oczekiwany wynik:** żądania w kolejności `POST /widgets`, `POST /todos`, `PATCH`, `POST /todos`, `DELETE`, wszystkie 2xx, bez toastów. Po przeładowaniu jest odhaczone „X” i nie ma „Y”.
+- [x] **4. Eksperyment: bez kolejki.** Zakomentuj `scope` w `createQueryClient`, zbuduj i powtórz krok 3 w nowym kontekście. **Oczekiwany wynik:** `POST /todos` wychodzi przed `POST /widgets` i dostaje 404, `PATCH` i `DELETE` też dostają 404, a dwa toasty mówią, że zmiana została cofnięta. Po przeładowaniu nie ma „X”, a usunięte „Y” jest na liście. Kolejność żądań może się różnić między próbami. Przywróć `scope` i zbuduj ponownie.
+- [x] **5. Eksperyment: kolacja w Dockerze.** Zmień na chwilę kolację kolumny: `docker compose exec db psql -U one one_place -c 'alter table todo_items alter column position type text collate "default"'`. Przeciągnij ostatnie zadanie na samą górę listy i przeładuj kartę. **Oczekiwany wynik:** zadanie jest na dole. Dostało pozycję zaczynającą się wielką literą (np. `Zz`), a `en_US.utf8` stawia ją za `a0`. Przywróć: `… alter column position type text collate "C"` i przeładuj: zadanie wraca na górę.
 - [ ] **6. Eksperyment: zadanie usunięte na innym urządzeniu.** Usuń zadanie w bazie: `docker compose exec db psql -U one one_place -c "delete from todo_items where text = 'Chleb'"`. Bez przełączania karty odhacz „Chleb”. **Oczekiwany wynik:** `PATCH` z 404, toast „Ten element został już usunięty, np. na innym urządzeniu.”, a „Chleb” zostaje na liście, dopóki nie przejdziesz na inną kartę i z powrotem.
 - [x] **7. Czerwony test.** W `todos.test.ts` dodaj test: `useUpdateTodo` z odpowiedzią 404 `NOT_FOUND` odrzuca mutację, a `queryClient.getQueryState(key)?.isInvalidated` jest `true`. Oczekiwany wynik: **FAIL**.
 - [x] **8. Poprawka.** W `onError` mutacji `useUpdateTodo` po cofnięciu wywołaj `invalidateQueries` dla `todosKey(widgetId)`, gdy `apiErrorInfo(error)?.status === 404`. Oczekiwany wynik: **PASS (106 testów w rozszerzeniu)**. Zbuduj i powtórz krok 6 z innym zadaniem: po `PATCH` z 404 wychodzi `GET`, a zadanie znika.
-- [ ] **9. Limit 500.** Uzupełnij widget Zadania do 499 zadań (wpisz swój e-mail; polecenie dotyczy wszystkich widgetów Zadania tego konta):
+- [x] **9. Limit 500.** Uzupełnij widget Zadania do 499 zadań (wpisz swój e-mail; polecenie dotyczy wszystkich widgetów Zadania tego konta):
 
   ```bash
   docker compose exec db psql -U one one_place -c "insert into todo_items (id, user_id, widget_id, text, position) select gen_random_uuid(), w.user_id, w.id, 'Task ' || n, 'b' || lpad(n::text, 3, '0') from widgets w join \"user\" u on u.id = w.user_id cross join lateral generate_series(1, 499 - (select count(*)::int from todo_items t where t.widget_id = w.id)) n where w.type = 'todo' and u.email = 'twoj@email.pl'"
@@ -3100,7 +3100,7 @@ it('saves "Hide completed" and keeps the title', async () => {
 
   Przejdź na inną kartę i wróć, potem dodaj dwa zadania. **Oczekiwany wynik:** pierwsze zostaje, drugie pojawia się i znika, a toast mówi „Osiągnięto limit. Usuń coś, zanim dodasz kolejny element.”. Na koniec usuń zadania testowe: `delete from todo_items t using "user" u where u.id = t.user_id and u.email = 'twoj@email.pl' and t.text like 'Task %'`.
 
-- [ ] **10. Prywatność.** W zbudowanej paczce przejdź przez kroki 3–9 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
+- [x] **10. Prywatność.** W zbudowanej paczce przejdź przez kroki 3–9 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
 - [x] **11.** `pnpm format && pnpm check`, potem commit: `fix(extension): refetch tasks after a change of a deleted task`.
 
 **Pułapki (sprawdzone na prototypie):**
@@ -3160,7 +3160,7 @@ describe('useUpdateTodo after a task was deleted on another device', () => {
 
 **Kroki:**
 
-- [ ] **1. Architektura.** W [03-architektura.md](03-architektura.md):
+- [x] **1. Architektura.** W [03-architektura.md](03-architektura.md):
   - w „Struktura repozytorium”: `src/lib/` (`positions.ts`, `by-position.ts`) i pliki widgetu Zadania (`task-source.ts`, `local-task-source.ts`, `TaskList.vue`);
   - w „API” (zasady): trasy `/widgets/:id/todos` są w routerze zagnieżdżonym w `widgetsRoutes`, a `/todos/:id` w osobnym routerze z własnym `requireAuth`; zadania widgetu innego typu dają `400 VALIDATION_ERROR`, a cudzy widget albo zadanie 404; lista zadań jest sortowana po `(position, id)`;
   - w „Start nowej karty”: startowy JS po Etapie 4 (Twój pomiar, na prototypie około 492 kB), leniwe części (`TodoWidget` z listą, `TodoSettings`, `vue-draggable-plus`) i uwaga, że `byPosition` jest w osobnym pliku, żeby `fractional-indexing` nie trafiał na ścieżkę startową;
@@ -3168,15 +3168,15 @@ describe('useUpdateTodo after a task was deleted on another device', () => {
   - w „Zachowanie sieciowe”: wszystkie mutacje mają `scope: { id: 'api' }`, więc idą do API po kolei, w kolejności wykonania, także po powrocie sieci; jedno zawieszone żądanie wstrzymuje następne;
   - w „System widgetów” (źródła danych): `TaskSource` w wersji z decyzji 5 (`items` z `undefined` do pierwszego wczytania, `isError`, `retry`, `capabilities.reorder`, `move` z ID sąsiadów), `TaskItem` bez `position`, filtr „Ukryj ukończone” w `TodoWidget`;
   - w rejestrze decyzji: wspólna kolejka mutacji (odrzucone: równoległe zapisy z 404 po powrocie sieci, blokada pola do zapisu widgetu i zadania).
-- [ ] **2. Roadmapa.** Przy Etapie 4 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza.
-- [ ] **3. Specyfikacja.** W [02-specyfikacja.md](02-specyfikacja.md) w F-SYNC-05 dopisz, że zmiany czekające na sieć są wysyłane w kolejności, w jakiej zostały zrobione. Sprawdź, czy F-TODO-01 … F-TODO-08 zgadzają się z tym, co powstało.
-- [ ] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-4-widget-zadania):
-  - [ ] wszystkie operacje na zadaniach (dodawanie, odhaczanie, edycja, usuwanie, przeciąganie) działają optymistycznie i przetrwają przeładowanie (zadania 12 i 13);
-  - [ ] `TaskList` ma testy komponentu niezależne od API (`TaskList.test.ts`, zadania 9–11);
-  - [ ] testy API sprawdzają 401 bez sesji, 404 dla cudzego widgetu i zadania, 400 dla niepoprawnych danych i widgetu innego typu oraz 422 przy limicie (`todos.test.ts`);
-  - [ ] kolumna `position` w `todo_items` ma kolację `"C"` (test migracji i krok 5 zadania 14);
-  - [ ] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
-- [ ] **5.** `pnpm check` (oczekiwany wynik: 31 + 97 + 106 = **234 testy**), potem commit: `docs: add stage 4 results`.
+- [x] **2. Roadmapa.** Przy Etapie 4 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza.
+- [x] **3. Specyfikacja.** W [02-specyfikacja.md](02-specyfikacja.md) w F-SYNC-05 dopisz, że zmiany czekające na sieć są wysyłane w kolejności, w jakiej zostały zrobione. Sprawdź, czy F-TODO-01 … F-TODO-08 zgadzają się z tym, co powstało.
+- [x] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-4-widget-zadania):
+  - [x] wszystkie operacje na zadaniach (dodawanie, odhaczanie, edycja, usuwanie, przeciąganie) działają optymistycznie i przetrwają przeładowanie (zadania 12 i 13);
+  - [x] `TaskList` ma testy komponentu niezależne od API (`TaskList.test.ts`, zadania 9–11);
+  - [x] testy API sprawdzają 401 bez sesji, 404 dla cudzego widgetu i zadania, 400 dla niepoprawnych danych i widgetu innego typu oraz 422 przy limicie (`todos.test.ts`);
+  - [x] kolumna `position` w `todo_items` ma kolację `"C"` (test migracji i krok 5 zadania 14);
+  - [x] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
+- [x] **5.** `pnpm check` (oczekiwany wynik: 31 + 97 + 106 = **234 testy**), potem commit: `docs: add stage 4 results`.
 
 ---
 
