@@ -436,8 +436,8 @@ CREATE INDEX "todo_items_widget_id_position_idx" ON "todo_items" USING btree ("w
 
 **Kroki:**
 
-- [ ] **1. Fabryka testowa.** W `test/fixtures.ts` dodaj `todoInput(overrides)`: nowy `randomUUID()`, tekst `'Mleko'`, pozycja `'a0'`.
-- [ ] **2. Czerwone testy** w `test/todos.test.ts`. `setup()` zakłada Alicję z kontekstem i widgetem Zadania oraz Boba i zwraca też `todosPath`. Pomocnik `insertNotesWidget(client, contextId)` wstawia przez SQL widget typu `'notes'` do kontekstu Alicji:
+- [x] **1. Fabryka testowa.** W `test/fixtures.ts` dodaj `todoInput(overrides)`: nowy `randomUUID()`, tekst `'Mleko'`, pozycja `'a0'`.
+- [x] **2. Czerwone testy** w `test/todos.test.ts`. `setup()` zakłada Alicję z kontekstem i widgetem Zadania oraz Boba i zwraca też `todosPath`. Pomocnik `insertNotesWidget(client, contextId)` wstawia przez SQL widget typu `'notes'` do kontekstu Alicji:
   - `GET` bez tokenu daje 401;
   - `GET` zwraca zadania w kolejności bajtowej pozycji (`'Zz'`, `'a0'`, `'a1'`, `'a1'`), a dwa zadania z tą samą pozycją `'a1'` w kolejności `id` (wyślij je w odwrotnej kolejności niż ich ID);
   - `GET` dla widgetu Alicji wysłany przez Boba daje 404 z treścią `{ error: { code: 'NOT_FOUND', message: 'Widget not found' } }`;
@@ -453,12 +453,12 @@ CREATE INDEX "todo_items_widget_id_position_idx" ON "todo_items" USING btree ("w
 
   Oczekiwany wynik: **FAIL dziesięciu testów**. 401 i usuwanie z widgetem przechodzą już teraz. Zastanów się dlaczego, zanim przejdziesz dalej.
 
-- [ ] **3. Serwis** `modules/todos/service.ts`: `listTodos(db, userId, widgetId)` i `createTodo(db, userId, widgetId, input)`. Właściciela i typ widgetu sprawdza wspólna funkcja `assertTodoWidget`, która korzysta z `ownWidget` i `widgetNotFound` z serwisu widgetów (wyeksportuj je). Kolejność w `createTodo`: istniejące ID, widget, limit, `insert`. Listę sortuj po `(position, id)`.
-- [ ] **4. Trasy.** `widgetTodosRoutes({ db })` w `modules/todos/routes.ts` zwraca `new Hono<AuthEnv>()` z `GET` i `POST` `/:id/todos`. `widgetsRoutes` podłącza go na końcu łańcucha: `.route('/', widgetTodosRoutes({ db }))`. To ten sam wzór co `contextWidgetsRoutes` w `contextsRoutes`.
-- [ ] **5. Zielone testy.** Oczekiwany wynik: **PASS (90 testów w pakiecie API)**.
-- [ ] **6. Eksperyment: bez sprawdzenia typu.** Zakomentuj w `assertTodoWidget` warunek `widget.type !== 'todo'`. Oczekiwany wynik: dwa testy widgetu `'notes'` **FAIL**: `GET` zwraca `200 []`, a `POST` dodaje zadanie do widgetu, który nie ma listy zadań. Przywróć warunek.
-- [ ] **7. Eksperyment: równe pozycje.** Usuń `asc(todoItems.id)` z `orderBy`. Oczekiwany wynik: test kolejności **FAIL**, bo zadania z tą samą pozycją wracają w kolejności wstawienia. Rozszerzenie sortuje w cache po `(position, id)` (zadanie 5), więc bez `id` w API lista po odświeżeniu potrafiłaby zamienić dwa zadania miejscami. Przywróć sortowanie.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add task list and idempotent create`.
+- [x] **3. Serwis** `modules/todos/service.ts`: `listTodos(db, userId, widgetId)` i `createTodo(db, userId, widgetId, input)`. Właściciela i typ widgetu sprawdza wspólna funkcja `assertTodoWidget`, która korzysta z `ownWidget` i `widgetNotFound` z serwisu widgetów (wyeksportuj je). Kolejność w `createTodo`: istniejące ID, widget, limit, `insert`. Listę sortuj po `(position, id)`.
+- [x] **4. Trasy.** `widgetTodosRoutes({ db })` w `modules/todos/routes.ts` zwraca `new Hono<AuthEnv>()` z `GET` i `POST` `/:id/todos`. `widgetsRoutes` podłącza go na końcu łańcucha: `.route('/', widgetTodosRoutes({ db }))`. To ten sam wzór co `contextWidgetsRoutes` w `contextsRoutes`.
+- [x] **5. Zielone testy.** Oczekiwany wynik: **PASS (90 testów w pakiecie API)**.
+- [x] **6. Eksperyment: bez sprawdzenia typu.** Zakomentuj w `assertTodoWidget` warunek `widget.type !== 'todo'`. Oczekiwany wynik: dwa testy widgetu `'notes'` **FAIL**: `GET` zwraca `200 []`, a `POST` dodaje zadanie do widgetu, który nie ma listy zadań. Przywróć warunek.
+- [x] **7. Eksperyment: równe pozycje.** Usuń `asc(todoItems.id)` z `orderBy`. Oczekiwany wynik: test kolejności **FAIL**, bo zadania z tą samą pozycją wracają w kolejności wstawienia. Rozszerzenie sortuje w cache po `(position, id)` (zadanie 5), więc bez `id` w API lista po odświeżeniu potrafiłaby zamienić dwa zadania miejscami. Przywróć sortowanie.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add task list and idempotent create`.
 
 **Pułapki (sprawdzone na prototypie):**
 

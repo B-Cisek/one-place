@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { IdParamSchema, validate } from '../../lib/validate'
 import { type AuthEnv, requireAuth } from '../../middleware/require-auth'
 import type { ModuleDeps } from '../deps'
+import { widgetTodosRoutes } from '../todos/routes'
 import { createWidget, deleteWidget, listWidgets, saveLayout, updateWidgetConfig } from './service'
 
 // /api/contexts/:id/widgets. Mounted inside contextsRoutes, behind its requireAuth, so the
@@ -54,4 +55,5 @@ export function widgetsRoutes({ db, auth }: ModuleDeps) {
       await deleteWidget(db, c.var.user.id, c.req.valid('param').id)
       return c.body(null, 204)
     })
+    .route('/', widgetTodosRoutes({ db }))
 }
