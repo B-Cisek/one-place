@@ -111,17 +111,17 @@ one-place/
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/todos.test.ts`:
+- [x] **1. Czerwone testy** w `src/todos.test.ts`:
   - `CreateTodoSchema` przyjmuje `{ id, text: '  Mleko  ', position: 'a0' }` i zwraca tekst `'Mleko'`;
   - tekst `'   '` i tekst z 501 znaków nie przechodzą, a 500 znaków przechodzi;
   - ID, które nie jest UUID, i pozycja `'a 0'` nie przechodzą;
   - `UpdateTodoSchema` przyjmuje samo `{ done: true }` i samo `{ text: ' Chleb ' }` (przycięte), a odrzuca `{ done: 'yes' }` i `{ text: '' }`;
   - `UpdateTodoSchema.parse({ widgetId: '…' })` daje `{}`.
-- [ ] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./todos` nie istnieje.
-- [ ] **3. Implementacja** `src/todos.ts`. `TodoDto` to zwykły interfejs, tak jak `WidgetDto`. W `src/index.ts` dopisz eksport.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (31 testów w `shared`)**.
-- [ ] **5. Eksperyment: kolejność sprawdzeń.** Zamień w `TodoTextSchema` kolejność na `z.string().min(1, …).trim().max(…)`. Oczekiwany wynik: test tekstu **FAIL**, bo `'   '` przechodzi i daje pusty tekst. Zod sprawdza długość, zanim przytnie tekst. Przywróć `.trim()` na początek.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add todo schemas`.
+- [x] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./todos` nie istnieje.
+- [x] **3. Implementacja** `src/todos.ts`. `TodoDto` to zwykły interfejs, tak jak `WidgetDto`. W `src/index.ts` dopisz eksport.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (31 testów w `shared`)**.
+- [x] **5. Eksperyment: kolejność sprawdzeń.** Zamień w `TodoTextSchema` kolejność na `z.string().min(1, …).trim().max(…)`. Oczekiwany wynik: test tekstu **FAIL**, bo `'   '` przechodzi i daje pusty tekst. Zod sprawdza długość, zanim przytnie tekst. Przywróć `.trim()` na początek.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add todo schemas`.
 
 **Pułapki (sprawdzone na prototypie):**
 
