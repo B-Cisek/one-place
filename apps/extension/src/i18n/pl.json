@@ -94,6 +94,8 @@
       "edit": "Edytuj zadanie",
       "delete": "Usuń zadanie",
       "drag": "Przeciągnij, aby zmienić kolejność",
+      "loadError": "Nie udało się wczytać zadań.",
+      "retry": "Spróbuj ponownie",
       "settings": {
         "title": "Tytuł",
         "titleHelp": "Pusty tytuł oznacza „Zadania”."

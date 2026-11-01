@@ -94,6 +94,8 @@
       "edit": "Edit the task",
       "delete": "Delete the task",
       "drag": "Drag to change the order",
+      "loadError": "Could not load the tasks.",
+      "retry": "Try again",
       "settings": {
         "title": "Title",
         "titleHelp": "An empty title shows “Tasks”."

@@ -2756,17 +2756,17 @@ describe('moving', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** `widgets.todo.loadError` („Nie udało się wczytać zadań.” / „Could not load the tasks.”) i `widgets.todo.retry` („Spróbuj ponownie” / „Try again”).
-- [ ] **2. Czerwone testy** w `TodoWidget.test.ts`. `vi.mock('./task-source', …)` zwraca z `useTaskSource` obiekt z `items` (współdzielony `ref`, ustawiany w `beforeEach` na „Mleko” i ukończony „Chleb”), `isError: ref(false)`, `retry` i `capabilities`:
+- [x] **1. Tłumaczenia.** `widgets.todo.loadError` („Nie udało się wczytać zadań.” / „Could not load the tasks.”) i `widgets.todo.retry` („Spróbuj ponownie” / „Try again”).
+- [x] **2. Czerwone testy** w `TodoWidget.test.ts`. `vi.mock('./task-source', …)` zwraca z `useTaskSource` obiekt z `items` (współdzielony `ref`, ustawiany w `beforeEach` na „Mleko” i ukończony „Chleb”), `isError: ref(false)`, `retry` i `capabilities`:
   - widget z tytułem „Zakupy” pokazuje go w `h2` i oba zadania;
   - przy `hideCompleted: true` i pustym tytule `h2` to „Tasks”, a lista ma tylko „Mleko”;
   - przy `items` równym `undefined` nie ma wierszy, a są trzy szkielety (`.animate-pulse`).
 
   Oczekiwany wynik: **FAIL wszystkich trzech testów**, bo zaślepka pokazuje tylko tytuł.
 
-- [ ] **3. Implementacja** `TodoWidget.vue`: `config` jak w zaślepce, `source = useTaskSource(config.value.source, props.widget.id)`, `visible` jako `computed` z filtrem przy `hideCompleted`. Szablon: kolumna z `h2` (z `pe-6`, żeby tytuł nie wchodził pod przycisk menu ramki), potem szkielety albo `UEmpty` z błędem, gdy `visible` jest `undefined`, a w przeciwnym razie `TaskList`, którego zdarzenia idą prosto do metod źródła.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (104 testy w rozszerzeniu)**.
-- [ ] **5. Eksperyment: `ref` w obiekcie.** Zamień w szablonie `v-if="source.isError.value"` na `v-if="source.isError"`. Uruchom typecheck i testy. **Oczekiwany wynik:** typecheck przechodzi, a test szkieletów **FAIL**: widget w trakcie wczytywania pokazuje „Could not load the tasks.”. Vue rozpakowuje w szablonie tylko `ref` z najwyższego poziomu. `source.isError` to obiekt `ref`, który zawsze jest prawdziwy. Przywróć `.value`.
+- [x] **3. Implementacja** `TodoWidget.vue`: `config` jak w zaślepce, `source = useTaskSource(config.value.source, props.widget.id)`, `visible` jako `computed` z filtrem przy `hideCompleted`. Szablon: kolumna z `h2` (z `pe-6`, żeby tytuł nie wchodził pod przycisk menu ramki), potem szkielety albo `UEmpty` z błędem, gdy `visible` jest `undefined`, a w przeciwnym razie `TaskList`, którego zdarzenia idą prosto do metod źródła.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (104 testy w rozszerzeniu)**.
+- [x] **5. Eksperyment: `ref` w obiekcie.** Zamień w szablonie `v-if="source.isError.value"` na `v-if="source.isError"`. Uruchom typecheck i testy. **Oczekiwany wynik:** typecheck przechodzi, a test szkieletów **FAIL**: widget w trakcie wczytywania pokazuje „Could not load the tasks.”. Vue rozpakowuje w szablonie tylko `ref` z najwyższego poziomu. `source.isError` to obiekt `ref`, który zawsze jest prawdziwy. Przywróć `.value`.
 - [ ] **6. W przeglądarce** (zbuduj paczkę i załaduj `.output/chrome-mv3`), z otwartym DevTools → Network:
   - dodaj widget Zadania: od razu widać „Brak zadań” i pole „Dodaj zadanie”, bez szkieletów, a `GET /widgets/:id/todos` wychodzi dopiero po `POST` widgetu;
   - dodaj „Mleko”, „Chleb” i „Masło”, odhacz „Chleb”, zmień „Mleko” na „Mleko 2%” Enterem (**jeden** `PATCH`), zacznij edytować „Masło”, wpisz coś i naciśnij Escape (**żadnego** `PATCH`), usuń „Masło” krzyżykiem;
@@ -2774,7 +2774,7 @@ describe('moving', () => {
   - przeciągnij zadanie za uchwyt w inne miejsce: jeden `PATCH` z samą pozycją, a kolejność zostaje po przeładowaniu (scenariusz 3);
   - włącz „Edytuj pulpit” i przeciągnij zadanie w widgecie: zadanie się przesuwa, a widget stoi w miejscu;
   - dodaj kilkanaście zadań: lista przewija się do każdego nowego, a pole zostaje na dole.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): show the task list in the todo widget`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): show the task list in the todo widget`.
 
 **Pułapki (sprawdzone na prototypie):**
 
