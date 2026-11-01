@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { positionAfterLast, positionAt } from './positions'
+import { positionAfterLast, positionAt, positionBetween } from './positions'
 
 const items = (...positions: string[]) => positions.map((position) => ({ position }))
 
@@ -29,5 +29,19 @@ describe('positionAt', () => {
   it('does not throw when two neighbours have the same position', () => {
     // Two devices added a context at the same time, both after 'a0'
     expect(() => positionAt(items('a1', 'a0', 'a1'), 1)).not.toThrow()
+  })
+})
+
+describe('positionBetween', () => {
+  it('goes between the neighbours, or to the start or the end of the list', () => {
+    expect(positionBetween(null, null)).toBe('a0')
+    expect(positionBetween(null, 'a0') < 'a0').toBe(true)
+    expect(positionBetween('a1', null) > 'a1').toBe(true)
+    const middle = positionBetween('a0', 'a1')
+    expect(middle > 'a0' && middle < 'a1').toBe(true)
+  })
+
+  it('goes right after the first neighbour when both have the same position', () => {
+    expect(positionBetween('a1', 'a1') > 'a1').toBe(true)
   })
 })

@@ -1085,17 +1085,17 @@ import { todosRoutes } from './modules/todos/routes'
 
 **Kroki:**
 
-- [ ] **1. Przeniesienie.** `git mv apps/extension/src/features/contexts/positions.ts apps/extension/src/lib/positions.ts` i tak samo test. Popraw importy w `use-add-context.ts` i `ManageContexts.vue` na `@/lib/positions`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**. Refaktoryzacja nie zmienia zachowania, więc testy nie mogą się zmienić.
-- [ ] **2. Czerwone testy:**
+- [x] **1. Przeniesienie.** `git mv apps/extension/src/features/contexts/positions.ts apps/extension/src/lib/positions.ts` i tak samo test. Popraw importy w `use-add-context.ts` i `ManageContexts.vue` na `@/lib/positions`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**. Refaktoryzacja nie zmienia zachowania, więc testy nie mogą się zmienić.
+- [x] **2. Czerwone testy:**
   - w `lib/positions.test.ts`: `positionBetween(null, null)` to `'a0'`; `positionBetween(null, 'a0')` jest mniejsze od `'a0'`, `positionBetween('a1', null)` większe od `'a1'`, a `positionBetween('a0', 'a1')` leży między nimi; przy równych sąsiadach `positionBetween('a1', 'a1')` jest większe od `'a1'` i nie rzuca;
   - w nowym `lib/by-position.test.ts`: lista `[{ id: '2', position: 'a0' }, { id: '3', position: 'Zz' }, { id: '1', position: 'a0' }]` posortowana przez `byPosition` daje ID `['3', '1', '2']`.
 
   Oczekiwany wynik: **FAIL**, bo obu funkcji nie ma w `lib/`.
 
-- [ ] **3. Implementacja.** `positionBetween(before, after)` przejmuje ciało `positionAt` (z obsługą równych sąsiadów), a `positionAt` tylko wybiera sąsiadów z listy i woła `positionBetween`. Funkcję `byPosition` przenieś z `queries/contexts.ts` do `lib/by-position.ts` (typ parametrów: `{ id: string; position: string }`) i zaimportuj ją w `contexts.ts`.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (77 testów w rozszerzeniu)**.
-- [ ] **5. Eksperyment: `byPosition` w `positions.ts`.** Przenieś na chwilę `byPosition` do `lib/positions.ts` i importuj ją stamtąd w `queries/contexts.ts`. Zbuduj i uruchom `pnpm size`. **Oczekiwany wynik:** startowy JS rośnie o około 3,5 kB. `queries/contexts.ts` jest na ścieżce startowej, a `positions.ts` importuje `fractional-indexing`, który przy starcie nie jest potrzebny: klucze generuje się dopiero przy dodawaniu i przeciąganiu. Przywróć osobny plik.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `refactor(extension): move position helpers to lib`.
+- [x] **3. Implementacja.** `positionBetween(before, after)` przejmuje ciało `positionAt` (z obsługą równych sąsiadów), a `positionAt` tylko wybiera sąsiadów z listy i woła `positionBetween`. Funkcję `byPosition` przenieś z `queries/contexts.ts` do `lib/by-position.ts` (typ parametrów: `{ id: string; position: string }`) i zaimportuj ją w `contexts.ts`.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (77 testów w rozszerzeniu)**.
+- [x] **5. Eksperyment: `byPosition` w `positions.ts`.** Przenieś na chwilę `byPosition` do `lib/positions.ts` i importuj ją stamtąd w `queries/contexts.ts`. Zbuduj i uruchom `pnpm size`. **Oczekiwany wynik:** startowy JS rośnie o około 3,5 kB. `queries/contexts.ts` jest na ścieżce startowej, a `positions.ts` importuje `fractional-indexing`, który przy starcie nie jest potrzebny: klucze generuje się dopiero przy dodawaniu i przeciąganiu. Przywróć osobny plik.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `refactor(extension): move position helpers to lib`.
 
 **Pułapki (sprawdzone na prototypie):**
 

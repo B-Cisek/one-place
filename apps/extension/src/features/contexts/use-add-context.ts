@@ -2,7 +2,7 @@ import type { ContextFormInput } from '@one-place/shared'
 import { v7 as uuidv7 } from 'uuid'
 import { useContexts, useCreateContext } from '@/queries/contexts'
 import { useUiStore } from '@/stores/ui'
-import { positionAfterLast } from './positions'
+import { positionAfterLast } from '@/lib/positions'
 
 export function useAddContext() {
   const { data: contexts } = useContexts()
