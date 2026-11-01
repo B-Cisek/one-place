@@ -4147,15 +4147,15 @@ const deleteDescription = computed(() => {
 
 **Kroki:**
 
-- [ ] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 490 kB** (budżet 550 kB). W liście plików z buildu osobno: `GridEditor` (około 140 kB), `WidgetActions`, `WidgetCatalog`, `TodoWidget` i `TodoSettings`.
-- [ ] **2. Eksperyment: edytor w pierwszym renderze.** W `DashboardGrid.vue` zamień na chwilę `defineAsyncComponent` na zwykły `import GridEditor from './GridEditor.vue'`, zbuduj i uruchom `pnpm size`. **Oczekiwany wynik: około 630 kB i błąd przekroczenia budżetu.** To liczba, od której zaczęła się decyzja 1. Przywróć leniwy import.
-- [ ] **3. Czas pierwszego renderu.** Zbuduj, załaduj `.output/chrome-mv3`, dodaj sześć widgetów i odczekaj sekundę. Otwórz nową kartę i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Powtórz kilka razy, potem z „CPU: 4x slowdown” w DevTools → Performance. Na prototypie: mediana 30 ms i 86 ms. Wymaganie to poniżej 200 ms.
-- [ ] **4. Karta otwarta offline.** W zbudowanej paczce: DevTools → Network → „Offline”, przeładuj kartę. Widgety są z cache, widać baner offline. Włącz edycję (chunk edytora jest w paczce, więc ładuje się bez sieci) i przesuń widget: żadnego żądania i żadnego toastu. Wyłącz tryb Offline: wychodzi jeden `PUT` z nowym położeniem.
-- [ ] **5. Eksperyment: widget usunięty na innym urządzeniu.** Włącz edycję. W `psql` usuń jeden z widgetów: `docker compose exec db psql -U one one_place -c "delete from widgets where config->>'title' = 'Zakupy'"`. Przeciągnij „Zakupy” w inne miejsce. **Oczekiwany wynik:** `PUT` z odpowiedzią 400 `LAYOUT_INVALID`, toast „Serwer odrzucił zmianę. Spróbuj ponownie.” i widget wraca na swoje miejsce. Ale zostaje na pulpicie, choć w bazie już go nie ma, dopóki nie przełączysz się na inną kartę i z powrotem.
-- [ ] **6. Czerwony test.** W teście `useSaveLayout` z zadania 6 dopisz na końcu: `expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)`. Oczekiwany wynik: **FAIL**.
-- [ ] **7. Poprawka.** W `onError` mutacji `useSaveLayout` po cofnięciu wywołaj `queryClient.invalidateQueries({ queryKey: widgetsKey(contextId) })`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**. Zbuduj i powtórz krok 5 z innym widgetem: po toaście usunięty widget znika sam.
-- [ ] **8. Błąd w zaślepce (DoD).** W `TodoWidget.vue` dodaj na chwilę pod `config`: `if (config.value.title === 'Boom') throw new Error('Boom')`. Zbuduj, ustaw w ustawieniach jednego widgetu tytuł „Boom” i przeładuj kartę. **Oczekiwany wynik:** ta ramka pokazuje „Ten widget przestał działać” z „Spróbuj ponownie”, a nagłówek, pozostałe widgety i menu tej ramki działają. Zmień w jej ustawieniach tytuł na „Naprawiony” i kliknij „Spróbuj ponownie”: widget wraca. Usuń dodaną linię.
-- [ ] **9. Limit 50 widgetów.** Uzupełnij kontekst „Praca” do 50 widgetów (wpisz swój e-mail):
+- [x] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 490 kB** (budżet 550 kB). W liście plików z buildu osobno: `GridEditor` (około 140 kB), `WidgetActions`, `WidgetCatalog`, `TodoWidget` i `TodoSettings`.
+- [x] **2. Eksperyment: edytor w pierwszym renderze.** W `DashboardGrid.vue` zamień na chwilę `defineAsyncComponent` na zwykły `import GridEditor from './GridEditor.vue'`, zbuduj i uruchom `pnpm size`. **Oczekiwany wynik: około 630 kB i błąd przekroczenia budżetu.** To liczba, od której zaczęła się decyzja 1. Przywróć leniwy import.
+- [x] **3. Czas pierwszego renderu.** Zbuduj, załaduj `.output/chrome-mv3`, dodaj sześć widgetów i odczekaj sekundę. Otwórz nową kartę i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Powtórz kilka razy, potem z „CPU: 4x slowdown” w DevTools → Performance. Na prototypie: mediana 30 ms i 86 ms. Wymaganie to poniżej 200 ms.
+- [x] **4. Karta otwarta offline.** W zbudowanej paczce: DevTools → Network → „Offline”, przeładuj kartę. Widgety są z cache, widać baner offline. Włącz edycję (chunk edytora jest w paczce, więc ładuje się bez sieci) i przesuń widget: żadnego żądania i żadnego toastu. Wyłącz tryb Offline: wychodzi jeden `PUT` z nowym położeniem.
+- [x] **5. Eksperyment: widget usunięty na innym urządzeniu.** Włącz edycję. W `psql` usuń jeden z widgetów: `docker compose exec db psql -U one one_place -c "delete from widgets where config->>'title' = 'Zakupy'"`. Przeciągnij „Zakupy” w inne miejsce. **Oczekiwany wynik:** `PUT` z odpowiedzią 400 `LAYOUT_INVALID`, toast „Serwer odrzucił zmianę. Spróbuj ponownie.” i widget wraca na swoje miejsce. Ale zostaje na pulpicie, choć w bazie już go nie ma, dopóki nie przełączysz się na inną kartę i z powrotem.
+- [x] **6. Czerwony test.** W teście `useSaveLayout` z zadania 6 dopisz na końcu: `expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)`. Oczekiwany wynik: **FAIL**.
+- [x] **7. Poprawka.** W `onError` mutacji `useSaveLayout` po cofnięciu wywołaj `queryClient.invalidateQueries({ queryKey: widgetsKey(contextId) })`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**. Zbuduj i powtórz krok 5 z innym widgetem: po toaście usunięty widget znika sam.
+- [x] **8. Błąd w zaślepce (DoD).** W `TodoWidget.vue` dodaj na chwilę pod `config`: `if (config.value.title === 'Boom') throw new Error('Boom')`. Zbuduj, ustaw w ustawieniach jednego widgetu tytuł „Boom” i przeładuj kartę. **Oczekiwany wynik:** ta ramka pokazuje „Ten widget przestał działać” z „Spróbuj ponownie”, a nagłówek, pozostałe widgety i menu tej ramki działają. Zmień w jej ustawieniach tytuł na „Naprawiony” i kliknij „Spróbuj ponownie”: widget wraca. Usuń dodaną linię.
+- [x] **9. Limit 50 widgetów.** Uzupełnij kontekst „Praca” do 50 widgetów (wpisz swój e-mail):
 
   ```bash
   docker compose exec db psql -U one one_place -c "insert into widgets (id, user_id, context_id, type, config, x, y, w, h) select gen_random_uuid(), c.user_id, c.id, 'todo', '{}', 0, 100 + n * 6, 4, 6 from contexts c join \"user\" u on u.id = c.user_id cross join lateral generate_series(1, 50 - (select count(*)::int from widgets w where w.context_id = c.id)) n where c.name = 'Praca' and u.email = 'twoj@email.pl'"
@@ -4163,8 +4163,8 @@ const deleteDescription = computed(() => {
 
   Przejdź na inną kartę i wróć, potem dodaj widget z katalogu. **Oczekiwany wynik:** widget pojawia się i znika, a toast mówi „Osiągnięto limit. Usuń coś, zanim dodasz kolejny element.”. Na koniec usuń widgety testowe: `delete from widgets where y >= 100`.
 
-- [ ] **10. Prywatność.** W zbudowanej paczce przejdź przez kroki 4–9 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
-- [ ] **11.** `pnpm format && pnpm check`, potem commit: `fix(extension): refetch widgets after a rejected layout`.
+- [x] **10. Prywatność.** W zbudowanej paczce przejdź przez kroki 4–9 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
+- [x] **11.** `pnpm format && pnpm check`, potem commit: `fix(extension): refetch widgets after a rejected layout`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -4217,7 +4217,7 @@ expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)
 
 **Kroki:**
 
-- [ ] **1. Architektura.** W [03-architektura.md](03-architektura.md):
+- [x] **1. Architektura.** W [03-architektura.md](03-architektura.md):
   - w „Pakiet `shared`”: stałe bez Zoda w `widget-types.ts` (`WIDGET_TYPES`, `GRID_COLUMNS`, `MAX_WIDGETS_PER_CONTEXT`, `WIDGET_SIZES`, `isWidgetType`, `WidgetDto`), schematy w `widgets.ts`; na ścieżce startowej rozszerzenia importuje się tylko pliki bez Zoda; każde pole konfiguracji widgetu ma wartość domyślną, więc `{}` daje konfigurację domyślną;
   - w „Struktura repozytorium”: `features/widgets/` (katalog i dodawanie), `apps/extension/nuxt-ui.config.ts`;
   - w „API” (zasady): `PATCH /widgets/:id` zastępuje całą konfigurację, sprawdzaną schematem typu zapisanego w bazie; trasy `/contexts/:id/widgets` i `/contexts/:id/layout` są w routerze zagnieżdżonym w `contextsRoutes` (`Hono<AuthEnv>`), więc sesja jest sprawdzana raz; cudzy kontekst w tych trasach daje 404; układ sprawdza przynależność w `UPDATE … WHERE` i zapisuje się w jednej transakcji;
@@ -4228,16 +4228,16 @@ expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)
   - w „Testy”: komponenty w Vitest z `@vitejs/plugin-vue` i pluginem Nuxt UI (wspólne `nuxtUiOptions`), `happy-dom` włączany w pliku testu;
   - w rejestrze decyzji: podgląd na CSS grid z leniwym `grid-layout-plus` (odrzucone: biblioteka w obu trybach, +139 kB startowego JS) oraz rejestr widgetów bez Zoda ze schematem przy komponencie (odrzucone: walidacja w ramce, +93 kB, i `zod/mini`, +52 kB);
   - w „Ryzyka”: wynik R4 z notatek z zadania 12 (wersja, aktywność repozytorium, działanie z Vue, rozmiar chunka, plan awaryjny bez zmian).
-- [ ] **2. Roadmapa.** Przy Etapie 3 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza. Przy Etapie 4 zaznacz, że `TodoConfigSchema` ze źródłem `local` i `TodoSettings.vue` z tytułem już istnieją, więc Etap 4 dopisuje „Ukryj ukończone”, listę zadań i moduł `todos`.
-- [ ] **3. Specyfikacja.** Sprawdź, czy [02-specyfikacja.md](02-specyfikacja.md) zgadza się z tym, co powstało. Na prototypie nic nie trzeba było zmieniać: budżet 550 kB zostaje.
-- [ ] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-3-siatka-i-system-widgetów):
-  - [ ] w trybie edycji można dodać, przesunąć, przeskalować i usunąć widget, a układ zostaje zachowany po przeładowaniu (zadania 11–13);
-  - [ ] błąd rzucony w zaślepce nie wywraca pulpitu (zadanie 15, krok 8);
-  - [ ] modal usuwania kontekstu pokazuje liczbę widgetów (zadanie 14);
-  - [ ] testy API sprawdzają 401 bez sesji, 404 dla cudzego kontekstu i widgetu, 400 dla niepoprawnych danych i `LAYOUT_INVALID` bez częściowego zapisu (`widgets.test.ts`);
-  - [ ] ryzyko R4 ma zapisany wynik;
-  - [ ] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
-- [ ] **5.** `pnpm check` (oczekiwany wynik: 26 + 77 + 74 = **177 testów**), potem commit: `docs: add stage 3 results`.
+- [x] **2. Roadmapa.** Przy Etapie 3 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza. Przy Etapie 4 zaznacz, że `TodoConfigSchema` ze źródłem `local` i `TodoSettings.vue` z tytułem już istnieją, więc Etap 4 dopisuje „Ukryj ukończone”, listę zadań i moduł `todos`.
+- [x] **3. Specyfikacja.** Sprawdź, czy [02-specyfikacja.md](02-specyfikacja.md) zgadza się z tym, co powstało. Na prototypie nic nie trzeba było zmieniać: budżet 550 kB zostaje.
+- [x] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-3-siatka-i-system-widgetów):
+  - [x] w trybie edycji można dodać, przesunąć, przeskalować i usunąć widget, a układ zostaje zachowany po przeładowaniu (zadania 11–13);
+  - [x] błąd rzucony w zaślepce nie wywraca pulpitu (zadanie 15, krok 8);
+  - [x] modal usuwania kontekstu pokazuje liczbę widgetów (zadanie 14);
+  - [x] testy API sprawdzają 401 bez sesji, 404 dla cudzego kontekstu i widgetu, 400 dla niepoprawnych danych i `LAYOUT_INVALID` bez częściowego zapisu (`widgets.test.ts`);
+  - [x] ryzyko R4 ma zapisany wynik;
+  - [x] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
+- [x] **5.** `pnpm check` (oczekiwany wynik: 26 + 77 + 74 = **177 testów**), potem commit: `docs: add stage 3 results`.
 
 ---
 

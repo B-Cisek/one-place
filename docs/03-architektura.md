@@ -70,10 +70,12 @@ one-place/
 │  │  │  │  ├─ auth/              ekrany logowania i rejestracji
 │  │  │  │  ├─ contexts/          przełącznik, pusty stan, zarządzanie
 │  │  │  │  ├─ settings/          slideover ustawień (motyw, język)
-│  │  │  │  └─ dashboard/         DashboardGrid, WidgetFrame, katalog widgetów
-│  │  │  ├─ widgets/              registry.ts, types.ts, todo/
+│  │  │  │  ├─ dashboard/         ContextDashboard, DashboardGrid (podgląd), GridEditor (edycja), WidgetFrame, WidgetActions, layout.ts
+│  │  │  │  └─ widgets/           WidgetCatalog, use-add-widget.ts (katalog i dodawanie)
+│  │  │  ├─ widgets/              registry.ts, types.ts, config.ts (resolveConfig), todo/
 │  │  │  └─ i18n/                 pl.json, en.json
 │  │  ├─ tests/e2e/               Playwright
+│  │  ├─ nuxt-ui.config.ts        opcje Nuxt UI wspólne dla buildu i testów komponentów
 │  │  └─ wxt.config.ts
 │  └─ api/
 │     ├─ src/
@@ -131,6 +133,8 @@ export const CONTEXT_ICONS = [
   'i-lucide-shopping-cart',
   'i-lucide-star',
 ] as const // stała lista, bo ikony muszą być w paczce
+// Stałe widgetów bez Zoda (widget-types.ts): WIDGET_TYPES, GRID_COLUMNS, MAX_WIDGETS_PER_CONTEXT,
+// WIDGET_SIZES (rozmiar minimalny i domyślny typu), isWidgetType(), WidgetDto
 export const WIDGET_TYPES = ['todo'] as const
 export const GRID_COLUMNS = 12
 
@@ -153,16 +157,21 @@ export const DEFAULT_THEME: ThemeSettings = {
 }
 export function resolveTheme(global: ThemeSettings, override?: ThemeOverride | null): ThemeSettings
 
-// Konfiguracje widgetów: mapa typ → schemat
+// Konfiguracje widgetów (widgets.ts): mapa typ → schemat. Każde pole ma wartość domyślną,
+// więc schemat.parse({}) daje konfigurację domyślną.
 export const TodoConfigSchema = z.object({
-  title: z.string().max(60).default(''),
+  title: z.string().trim().max(60).default(''),
   hideCompleted: z.boolean().default(false),
-  source: z.discriminatedUnion('type', [z.object({ type: z.literal('local') })]),
+  source: z
+    .discriminatedUnion('type', [z.object({ type: z.literal('local') })])
+    .default({ type: 'local' }),
 })
 export const widgetConfigSchemas = { todo: TodoConfigSchema } satisfies Record<WidgetType, ZodType>
 ```
 
 Pakiet zawiera też schematy wejścia i DTO dla każdego zasobu (`CreateContextInput`, `ContextDto`, `WidgetDto`, `LayoutItem`, `TodoDto`…).
+
+**Pliki z Zodem i bez niego.** Stałe i typy widgetów, których rozszerzenie potrzebuje na ścieżce startowej, są w `widget-types.ts`, a schematy w `widgets.ts`. `"sideEffects": false` usuwa z paczki tylko pliki, z których nic nie jest importowane, więc import jednej stałej z pliku ze schematami dokładał do startowego JS cały rdzeń Zoda (około 93 kB, pomiar z Etapu 3). Na ścieżce startowej rozszerzenia importuje się tylko pliki bez Zoda.
 
 ## Model danych
 
@@ -261,7 +270,9 @@ Prefiks `/api`, JSON. Wszystkie endpointy poza `/api/auth/*` i `/api/health` wym
 - **Walidacja wejścia przez `validate(target, schema)`** (`lib/validate.ts`): `zValidator` z hookiem, który rzuca `ZodError`, więc błędne dane dają `400 VALIDATION_ERROR` w standardowym formacie z `handleError`. ID w ścieżce sprawdza `IdParamSchema` (UUID), zanim trafi do Postgresa. Treść, która nie jest poprawnym JSON-em (`HTTPException(400)` z walidatora Hono), też daje `400 VALIDATION_ERROR`, a nie 500.
 - **Idempotentne tworzenie.** `POST` tworzący rekord odpowiada `201`. `POST` z ID, które już istnieje u tego samego użytkownika, zwraca istniejący rekord ze statusem `200`. To samo ID u innego użytkownika daje `409 ID_CONFLICT`. Istniejące ID jest sprawdzane przed limitem, więc ponowienie dwudziestego kontekstu przy limicie 20 dostaje `200`, a nie `422`.
 - **Układ zapisywany hurtowo.** `PUT /contexts/:id/layout` aktualizuje w jednej transakcji pozycje i rozmiary podanych widgetów. Każde ID musi należeć do tego kontekstu i użytkownika, w przeciwnym razie całe żądanie jest odrzucane (`400 LAYOUT_INVALID`). Widgety spoza listy pozostają bez zmian.
-- **Walidacja typu widgetu.** `POST /contexts/:id/widgets` sprawdza, czy `type` należy do `WIDGET_TYPES`, oraz waliduje `config` schematem z `widgetConfigSchemas`. `POST /widgets/:id/todos` sprawdza, czy widget jest typu `todo`.
+- **Walidacja typu widgetu.** `POST /contexts/:id/widgets` sprawdza, czy `type` należy do `WIDGET_TYPES`, oraz waliduje `config` schematem z `widgetConfigSchemas` i uzupełnia go wartościami domyślnymi (klient wysyła `config: {}`). Rozmiar nie może być mniejszy niż `WIDGET_SIZES[type].min`, a widget musi się mieścić w 12 kolumnach. `PATCH /widgets/:id` zastępuje całą konfigurację, sprawdzaną schematem typu zapisanego w bazie. `POST /widgets/:id/todos` sprawdza, czy widget jest typu `todo`.
+- **Trasy widgetów kontekstu.** `/contexts/:id/widgets` i `/contexts/:id/layout` są w routerze zagnieżdżonym w `contextsRoutes` (`new Hono<AuthEnv>()` podłączony przez `.route('/', …)`), więc sesja jest sprawdzana raz. Osobny router z własnym `requireAuth` pod `/contexts` sprawdzałby ją dwa razy, bo wzorzec `/api/contexts/*` pasuje do obu. Cudzy albo nieistniejący kontekst daje w tych trasach 404 (osobne zapytanie o właściciela), a nie pustą listę.
+- **Układ w jednej transakcji.** `PUT /contexts/:id/layout` sprawdza przynależność każdego widgetu w samym `UPDATE … WHERE id AND context_id AND user_id`. Gdy któryś `UPDATE` nie zmieni wiersza, transakcja jest wycofywana i nic nie zostaje zapisane.
 - **Konflikty: ostatni zapis wygrywa** (F-SYNC-06). Klient może wysyłać `version`, ale w MVP serwer go nie porównuje. Przejście na `409 VERSION_CONFLICT` jest w roadmapie.
 - **Limity** (F-CTX-08, F-WGT-07, F-TODO-08) są sprawdzane w serwisach i zwracają `422 LIMIT_EXCEEDED`.
 - **Trasy są definiowane łańcuchowo** i składane w `app.ts` przez `app.route()`, żeby `AppType` niósł pełne typy dla klienta `hc` (wymóg Hono RPC).
@@ -344,9 +355,9 @@ Serwisy nie znają Hono, a trasy nie znają Drizzle. `createApp({ db })` przyjmu
 
 Kroki 2 i 3 dzieją się przed `mount`: `main.ts` czeka na `Promise.all([loadSession(), restoreCache(queryClient), uiStore.load()])`. Opcja `clientPersister` z `VueQueryPlugin` odtwarzałaby cache dopiero po zainstalowaniu pluginu, więc pierwszy render pokazałby szkielety.
 
-Startowy JS nowej karty liczymy jako sumę skryptu wejściowego i chunków z `modulepreload` (`pnpm size` po buildzie). Po Etapie 1: **325,6 kB**. Po Etapie 2: **473 kB** (budżet 550 kB). Sam `newtab-*.js` ma około 200 kB, bo Vite wydziela kod wspólny z leniwymi komponentami (Vue, Nuxt UI) do osobnych chunków, które strona i tak pobiera przy starcie. Leniwie ładują się ekran logowania, formularz pierwszego kontekstu, okno zarządzania kontekstami (około 126 kB z `UModal`, `UPopover` i `vue-draggable-plus`) i panel ustawień.
+Startowy JS nowej karty liczymy jako sumę skryptu wejściowego i chunków z `modulepreload` (`pnpm size` po buildzie). Po Etapie 1: **325,6 kB**. Po Etapie 2: **473 kB**. Po Etapie 3: **490,6 kB** (budżet 550 kB). Leniwie w Etapie 3 ładują się: edytor siatki `GridEditor` z `grid-layout-plus` (około 140 kB, przy pierwszym włączeniu edycji), menu widgetu z modalami ustawień i usuwania (`WidgetActions`, około 25 kB, przy pierwszym kliknięciu), katalog widgetów, ustawienia Zadań i komponenty widgetów. Sam `newtab-*.js` ma około 200 kB, bo Vite wydziela kod wspólny z leniwymi komponentami (Vue, Nuxt UI) do osobnych chunków, które strona i tak pobiera przy starcie. Leniwie ładują się ekran logowania, formularz pierwszego kontekstu, okno zarządzania kontekstami (około 126 kB z `UModal`, `UPopover` i `vue-draggable-plus`) i panel ustawień.
 
-`performance.mark('dashboard-rendered')` w `DashboardScreen` (tylko gdy lista kontekstów jest w cache) mierzy wymaganie wydajnościowe. Po Etapie 2 pierwszy render z cache: mediana 22–26 ms na prototypie (około 80 ms przy `CPU 4x slowdown`) i 68 ms w Chromium headless w maszynie wirtualnej. Pełny pomiar we wszystkich scenariuszach dojdzie w Etapie 6.
+`performance.mark('dashboard-rendered')` w `DashboardScreen` (tylko gdy lista kontekstów jest w cache) mierzy wymaganie wydajnościowe. Po Etapie 2 pierwszy render z cache: mediana 22–26 ms na prototypie (około 80 ms przy `CPU 4x slowdown`) i 68 ms w Chromium headless w maszynie wirtualnej. Po Etapie 3 z 23 widgetami na pulpicie w Chromium headless w maszynie wirtualnej: mediana około 140 ms (115–188 ms), a przy `CPU 4x slowdown` około 600 ms. Prototyp z sześcioma widgetami miał 30 ms i 86 ms. Pełny pomiar we wszystkich scenariuszach dojdzie w Etapie 6.
 
 ### Warstwa danych
 
@@ -362,6 +373,12 @@ Startowy JS nowej karty liczymy jako sumę skryptu wejściowego i chunków z `mo
 | `['todos', widgetId]`    | `GET /widgets/:id/todos`    | `useTodos(widgetId)`    |
 
 Mutacje są udostępniane przez composables w `src/queries/` (`useCreateContext()`, `useSaveLayout()`, `useAddTodo()`…). **Widgety i komponenty nigdy nie wołają API bezpośrednio.**
+
+Klucze używane przez więcej niż jeden plik (`widgetsKey(contextId)` i `createContextKey`, klucz mutacji tworzenia kontekstu) są w `queries/keys.ts`, żeby `contexts.ts` i `widgets.ts` nie importowały się nawzajem. Zależności między wpisami cache:
+
+- nowy kontekst dostaje w `onMutate` pustą listę widgetów w cache, a `useWidgets` jest wyłączone, dopóki mutacja tworzenia tego kontekstu czeka na API (`useMutationState` po `createContextKey`). Bez tego pulpit nowego kontekstu dostawał 404 zamiast pustej listy;
+- usunięcie kontekstu usuwa wpis jego widgetów (`removeQueries`), bo inaczej zostałby w `chrome.storage.local` do wylogowania;
+- odrzucony układ (`useSaveLayout` → `onError`) po cofnięciu unieważnia zapytanie widgetów, bo odrzucenie zwykle znaczy, że cache jest nieaktualny (np. widget usunięty na innym urządzeniu). Pozostałe mutacje widgetów tylko cofają zmianę.
 
 **Schemat mutacji optymistycznej (F-SYNC-04):**
 
@@ -415,28 +432,28 @@ Toast „Zmiana została cofnięta” pokazuje jeden słuchacz `MutationCache` (
 **Kontrakt (`widgets/types.ts`):**
 
 ```ts
-interface WidgetDefinition<TConfig> {
+interface WidgetDefinition {
   type: WidgetType // z packages/shared
   name: string // klucz i18n
   description: string // klucz i18n
   icon: string // ikona Lucide
-  defaultSize: { w: number; h: number }
-  minSize: { w: number; h: number }
-  configSchema: ZodType<TConfig> // z widgetConfigSchemas
-  defaultConfig: TConfig
-  component: AsyncComponentLoader // otrzymuje props { widget: WidgetDto<TConfig> }
-  settingsComponent?: AsyncComponentLoader
+  defaultSize: WidgetSize // z WIDGET_SIZES
+  minSize: WidgetSize // z WIDGET_SIZES
+  component: AsyncComponentLoader // otrzymuje props { widget: WidgetDto }
+  settingsComponent?: AsyncComponentLoader // otrzymuje props { widget }, emituje save z nową konfiguracją
 }
 ```
 
-`widgets/registry.ts` eksportuje mapę `type → WidgetDefinition`. Komponenty są ładowane leniwie (`defineAsyncComponent`).
+`widgets/registry.ts` eksportuje mapę `type → WidgetDefinition` (`satisfies Record<WidgetType, WidgetDefinition>`) i `findWidgetDefinition(type)`, która dla nieznanego typu zwraca `null`. Komponenty są ładowane leniwie (`defineAsyncComponent`).
+
+**Definicja nie ma schematu konfiguracji.** Rejestr i ramka są w pierwszym renderze, więc `configSchema` i `defaultConfig` w definicji (albo walidacja w ramce) dołożyłyby do startowego JS cały Zod (+93 kB; `zod/mini` +52 kB). Schemat przychodzi z leniwym komponentem widgetu, który sam woła `resolveConfig(schema, widget.config)` z `widgets/config.ts`: niepoprawne pola dostają wartości domyślne, poprawne zostają, a w konsoli jest ostrzeżenie. `resolveConfig` nie importuje Zoda, tylko woła metody przekazanego schematu.
 
 **`WidgetFrame.vue`** opakowuje każdy widget:
 
-- nagłówek z tytułem i menu (Ustawienia, Usuń); w trybie edycji nagłówek jest uchwytem przeciągania (F-GRID-03);
-- `onErrorCaptured`: komunikat błędu i przycisk „Spróbuj ponownie”, który ponownie montuje komponent (F-WGT-05);
-- nieznany typ (brak w rejestrze): placeholder z F-WGT-06;
-- walidacja `config` przez `configSchema.safeParse`. Gdy się nie powiedzie, ramka scala dane z `defaultConfig` i zapisuje ostrzeżenie w konsoli.
+- nagłówek tylko w trybie edycji: uchwyt przeciągania z ikoną i nazwą typu (F-GRID-03); tytuł z konfiguracji pokazuje sam widget;
+- menu (Ustawienia, jeśli typ je ma, i Usuń) w prawym górnym rogu. Ramka pokazuje zwykły przycisk, a pierwsze kliknięcie ładuje `WidgetActions.vue` z `UDropdownMenu` i modalami ustawień i usuwania (statyczny import kosztował +142 kB startowego JS);
+- `onErrorCaptured` z `return false`: komunikat błędu i przycisk „Spróbuj ponownie”, który ponownie montuje komponent (F-WGT-05). Bez `return false` błąd idzie dalej i wywraca cały pulpit;
+- nieznany typ (brak w rejestrze): placeholder z F-WGT-06; taki widget można usunąć.
 
 **Źródła danych.** Widget, którego dane mogą w przyszłości pochodzić z różnych miejsc, oddziela UI od źródła. Dla Zadań:
 
@@ -462,16 +479,17 @@ function useTaskSource(config: TodoConfig, widgetId: string): TaskSource
 
 **Dodanie nowego typu widgetu:**
 
-1. `packages/shared`: typ w `WIDGET_TYPES` i schemat konfiguracji w `widgetConfigSchemas`.
-2. `apps/extension/src/widgets/<typ>/`: definicja i komponenty, wpis w `registry.ts`, klucze i18n PL i EN.
+1. `packages/shared`: typ w `WIDGET_TYPES` i rozmiary w `WIDGET_SIZES` (`widget-types.ts`), schemat konfiguracji z wartością domyślną na każdym polu w `widgetConfigSchemas` (`widgets.ts`).
+2. `apps/extension/src/widgets/<typ>/`: komponent (sam woła `resolveConfig` ze swoim schematem) i opcjonalnie ustawienia, wpis w `registry.ts` bez schematu, klucze i18n PL i EN. Ikona typu jest w pliku `.ts`, więc skaner ikon Nuxt UI musi czytać też `.ts` (`scan: { globInclude: ['src/**/*.{vue,ts}'] }` w `nuxt-ui.config.ts`).
 3. Jeśli widget ma dane: moduł w `apps/api/src/modules/`, tabela, migracja i testy.
 
 ### Siatka
 
-- `DashboardGrid.vue` jest **jedynym** miejscem, które zna `grid-layout-plus`. Reszta aplikacji operuje na `LayoutItem[]`, więc wymiana biblioteki dotyczy jednego komponentu (ryzyko R4).
-- Konfiguracja: `colNum: 12`, stała `rowHeight`, `verticalCompact: true`, `isDraggable` i `isResizable` równe `editMode`, przeciąganie tylko za nagłówek ramki, `minW` i `minH` z definicji typu.
-- Zapis: zdarzenie zmiany układu → debounce 500 ms → porównanie z układem w cache → `useSaveLayout()` tylko przy faktycznej różnicy.
-- Nowy widget: `x = 0`, `y = max(y + h)` istniejących, rozmiar `defaultSize`.
+- **Podgląd bez biblioteki.** `DashboardGrid.vue` w podglądzie rysuje CSS grid (`repeat(12, minmax(0, 1fr))`, `grid-auto-rows: ROW_HEIGHT`, `gap` i `padding` równe `GRID_GAP`) z położeniem z `compactLayout()`. To ten sam algorytm co `verticalCompact` w `grid-layout-plus` (pilnuje tego test zgodności w `layout.test.ts`), więc przełączenie trybu nie przesuwa widgetów. `ROW_HEIGHT` 40 px i `GRID_GAP` 10 px są w `grid.ts`.
+- **Edycja.** `GridEditor.vue` jest **jedynym** plikiem, który zna `grid-layout-plus`, i ładuje się leniwie przy pierwszym włączeniu edycji. Dostaje `widgets` i `contextId`, trzyma własną kopię układu (biblioteka zmienia tablicę w miejscu) i odbudowuje ją po każdej zmianie cache. Wymiana biblioteki dotyczy tego jednego komponentu (ryzyko R4).
+- Konfiguracja: `colNum: 12`, `rowHeight` i `margin` z `grid.ts`, `verticalCompact`, `isDraggable`, `isResizable`, przeciąganie tylko za nagłówek ramki (`.widget-drag-handle`), `minW` i `minH` z definicji typu.
+- Zapis: `layout-updated` → 500 ms → `changedLayout()` (porównanie z cache) → `useSaveLayout()` tylko przy faktycznej różnicy. Biblioteka zgłasza `layout-updated` także po zamontowaniu i po każdej zmianie danych, więc bez porównania każda odpowiedź API wywoływała kolejny zapis. `move` i `resize` z `GridItem` wstrzymują zaplanowany zapis, żeby nie wysłać układu w trakcie przeciągania, a zapis czekający przy zamknięciu edytora jest wysyłany od razu.
+- Nowy widget: `x = 0`, `y = max(y + h)` widgetów po `compactLayout()`, rozmiar `defaultSize`, `config: {}`.
 - Poniżej 768 px (`useBreakpoints` z VueUse) zamiast siatki renderowana jest kolumna `WidgetFrame` posortowana po `(y, x)`, a przycisk edycji jest ukryty (F-GRID-05).
 
 ### i18n
@@ -485,8 +503,10 @@ function useTaskSource(config: TodoConfig, widgetId: string): TaskSource
 | ----------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | Jednostkowe: `shared`   | Vitest                                                           | schematy, `resolveTheme`, walidacja układu                                                  |
 | Integracyjne: `api`     | Vitest, `app.request()`, PGlite                                  | każdy endpoint; świeża baza z migracjami w każdym pliku testowym                            |
-| Komponenty: `extension` | Vitest, `@vue/test-utils`, fake-browser WXT                      | `TaskList`, `WidgetFrame` (błąd, nieznany typ), `applyTheme`, composables z mockowanym API  |
+| Komponenty: `extension` | Vitest, `@vue/test-utils`, `happy-dom`, fake-browser WXT         | `TaskList`, `WidgetFrame` (błąd, nieznany typ), `applyTheme`, composables z mockowanym API  |
 | E2E                     | Playwright, Chromium z rozszerzeniem, API na testowym Postgresie | scenariusze akceptacyjne z [02-specyfikacja.md](02-specyfikacja.md#kryteria-akceptacji-mvp) |
+
+**Testy komponentów.** `vitest.config.ts` dodaje do `WxtVitest()` pluginy `@vitejs/plugin-vue` i Nuxt UI z tymi samymi opcjami co build (`nuxtUiOptions()` z `nuxt-ui.config.ts`), więc testy montują prawdziwe komponenty Nuxt UI, a ikony są w paczce, a nie pobierane z sieci. DOM (`happy-dom`) włącza komentarz `// @vitest-environment happy-dom` w pliku testu; pozostałe testy działają w środowisku Node.
 
 **Obowiązkowe przypadki dla każdego chronionego endpointu:** brak sesji daje 401, zasób innego użytkownika daje 404, niepoprawne dane dają 400.
 
@@ -505,31 +525,33 @@ pnpm dev                      # API (watch) + WXT dev, który uruchamia przeglą
 
 ## Rejestr decyzji
 
-| #   | Decyzja                                                                      | Odrzucone alternatywy                                        | Uzasadnienie                                                                                                 |
-| --- | ---------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| D1  | Backend jest źródłem prawdy, lokalnie tylko cache                            | `chrome.storage.sync`, tylko lokalnie                        | synchronizacja między urządzeniami bez limitów `storage.sync`                                                |
-| D2  | TanStack Query z persisterem (stale-while-revalidate, mutacje optymistyczne) | własny silnik sync (outbox i delta), Zero/Electric/PowerSync | najkrótsza droga do działającego MVP; API z `version` i `updatedAt` pozwala później przejść na własny silnik |
-| D3  | Hono na Node 24 LTS, docelowo VPS                                            | Cloudflare Workers                                           | wybór autora; wdrożenie po MVP                                                                               |
-| D4  | PostgreSQL i Drizzle; PGlite w testach                                       | SQLite                                                       | `jsonb`, współbieżne zapisy wielu użytkowników, zgodność z silnikami synchronizacji                          |
-| D5  | Better Auth, e-mail i hasło, plugin `bearer`                                 | Google OAuth, klucz synchronizacji, ciasteczka               | prostota; token w nagłówku działa przewidywalnie z originu rozszerzenia; magic link później                  |
-| D6  | Logowanie wymagane w MVP                                                     | tryb lokalny z opcjonalnym kontem                            | mniej przypadków brzegowych; tryb bez konta przed publikacją                                                 |
-| D7  | Vue 3, Nuxt UI, WXT                                                          | React (`react-grid-layout`, `cmdk`), Svelte                  | preferencja autora; `UCommandPalette` pod przyszłe Cmd+K                                                     |
-| D8  | Motyw globalny z opcjonalnym nadpisaniem w kontekście                        | tylko globalny, tylko per kontekst                           | elastyczność bez migracji przy dodaniu tła per kontekst                                                      |
-| D9  | Brak domyślnych kontekstów                                                   | seed „Praca” i „Prywatne”                                    | użytkownik sam decyduje o strukturze                                                                         |
-| D10 | UUIDv7 generowany przez klienta                                              | ID z serwera                                                 | mutacje optymistyczne bez podmiany ID, idempotentne `POST`                                                   |
-| D11 | Jeden widget Zadania z wymiennym źródłem danych                              | osobny widget per integracja                                 | jeden UI listy, zmiana źródła w ustawieniach                                                                 |
-| D12 | Bez `host_permissions`, CORS z allowlistą originów                           | `host_permissions` do API                                    | mniej uprawnień, łatwiejsze review w sklepie                                                                 |
-| D13 | Integracje zewnętrzne przez backend                                          | wywołania z rozszerzenia                                     | tokeny poza przeglądarką, konfiguracja raz na koncie                                                         |
-| D14 | Przełącznik kontekstów jako zakładki (`UTabs`) w nagłówku                    | menu rozwijane (`UDropdownMenu`)                             | menu dokłada ponad 100 kB startowego JS (pomiar z Etapu 2: +104 kB); zakładki przełączają jednym kliknięciem |
+| #   | Decyzja                                                                         | Odrzucone alternatywy                                        | Uzasadnienie                                                                                                      |
+| --- | ------------------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| D1  | Backend jest źródłem prawdy, lokalnie tylko cache                               | `chrome.storage.sync`, tylko lokalnie                        | synchronizacja między urządzeniami bez limitów `storage.sync`                                                     |
+| D2  | TanStack Query z persisterem (stale-while-revalidate, mutacje optymistyczne)    | własny silnik sync (outbox i delta), Zero/Electric/PowerSync | najkrótsza droga do działającego MVP; API z `version` i `updatedAt` pozwala później przejść na własny silnik      |
+| D3  | Hono na Node 24 LTS, docelowo VPS                                               | Cloudflare Workers                                           | wybór autora; wdrożenie po MVP                                                                                    |
+| D4  | PostgreSQL i Drizzle; PGlite w testach                                          | SQLite                                                       | `jsonb`, współbieżne zapisy wielu użytkowników, zgodność z silnikami synchronizacji                               |
+| D5  | Better Auth, e-mail i hasło, plugin `bearer`                                    | Google OAuth, klucz synchronizacji, ciasteczka               | prostota; token w nagłówku działa przewidywalnie z originu rozszerzenia; magic link później                       |
+| D6  | Logowanie wymagane w MVP                                                        | tryb lokalny z opcjonalnym kontem                            | mniej przypadków brzegowych; tryb bez konta przed publikacją                                                      |
+| D7  | Vue 3, Nuxt UI, WXT                                                             | React (`react-grid-layout`, `cmdk`), Svelte                  | preferencja autora; `UCommandPalette` pod przyszłe Cmd+K                                                          |
+| D8  | Motyw globalny z opcjonalnym nadpisaniem w kontekście                           | tylko globalny, tylko per kontekst                           | elastyczność bez migracji przy dodaniu tła per kontekst                                                           |
+| D9  | Brak domyślnych kontekstów                                                      | seed „Praca” i „Prywatne”                                    | użytkownik sam decyduje o strukturze                                                                              |
+| D10 | UUIDv7 generowany przez klienta                                                 | ID z serwera                                                 | mutacje optymistyczne bez podmiany ID, idempotentne `POST`                                                        |
+| D11 | Jeden widget Zadania z wymiennym źródłem danych                                 | osobny widget per integracja                                 | jeden UI listy, zmiana źródła w ustawieniach                                                                      |
+| D12 | Bez `host_permissions`, CORS z allowlistą originów                              | `host_permissions` do API                                    | mniej uprawnień, łatwiejsze review w sklepie                                                                      |
+| D13 | Integracje zewnętrzne przez backend                                             | wywołania z rozszerzenia                                     | tokeny poza przeglądarką, konfiguracja raz na koncie                                                              |
+| D14 | Przełącznik kontekstów jako zakładki (`UTabs`) w nagłówku                       | menu rozwijane (`UDropdownMenu`)                             | menu dokłada ponad 100 kB startowego JS (pomiar z Etapu 2: +104 kB); zakładki przełączają jednym kliknięciem      |
+| D15 | Podgląd pulpitu na CSS grid, `grid-layout-plus` ładowany leniwie tylko w edycji | biblioteka w obu trybach                                     | biblioteka w pierwszym renderze to +139 kB startowego JS (ponad budżet); ten sam algorytm dosuwania w obu trybach |
+| D16 | Rejestr widgetów bez Zoda, schemat konfiguracji przy leniwym komponencie        | walidacja w ramce (`configSchema` w definicji), `zod/mini`   | ramka jest w pierwszym renderze: walidacja w niej to +93 kB, a `zod/mini` nadal +52 kB                            |
 
 ## Ryzyka
 
-| #   | Ryzyko                                                                                                                                            | Kiedy sprawdzamy                                     | Plan awaryjny                                                            | Wynik                                                                                                                                                                                                                                                                                                                                                                                |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| R1  | Integracja WXT z `@nuxt/ui/vite` (konfiguracja Vite, Tailwind v4, brak `vue-router`)                                                              | Etap 0                                               | czysty Vite z ręcznie złożonym manifestem lub `@crxjs/vite-plugin`       | **zamknięte w Etapie 0:** plugin `ui()` w opcji `vite` z `wxt.config.ts` z `router: false`; `srcDir: 'src'`, żeby aliasy `@` i `~` wskazywały `src`; `.npmrc` z `public-hoist-pattern[]=@wxt-dev/*`, bo WXT szuka modułów od własnej lokalizacji; serwer deweloperski WXT na porcie 3001, bo domyślny 3000 koliduje z API                                                            |
-| R2  | Ikony Nuxt UI pobierane w trakcie działania z API Iconify zamiast z paczki                                                                        | Etap 0: zakładka Network, potem test E2E prywatności | zainstalowane kolekcje `@iconify-json/lucide` i jawne bundlowanie ikon   | **zamknięte w Etapie 0:** `@iconify-json/lucide` i `icon.clientBundle.scan: true`; ikony są w paczce, zero żądań do `api.iconify.design` (sprawdzone w trybie Offline)                                                                                                                                                                                                               |
-| R3  | Zmiana akcentu w trakcie działania: zmienne `--ui-color-primary-*`, obecność palet w CSS (Tailwind v4), wyłączenie wbudowanego color mode Nuxt UI | Etap 0                                               | jawne zdefiniowanie palet w CSS; własny zestaw zmiennych akcentu         | **zamknięte w Etapie 0:** `colorMode: false` i własne przełączanie klasy `dark`; akcent jako styl inline `--ui-color-primary-*` na `<html>`; `@import 'tailwindcss' theme(static)` emituje wszystkie palety (+14 kB CSS); 10 akcentów działa w obu trybach                                                                                                                           |
-| R4  | `grid-layout-plus`: stan utrzymania i zgodność z aktualnym Vue                                                                                    | Etap 3                                               | gridstack.js za tym samym interfejsem `DashboardGrid.vue`                | otwarte                                                                                                                                                                                                                                                                                                                                                                              |
-| R5  | Better Auth z originem `chrome-extension://` (sprawdzanie `Origin`, `trustedOrigins`, ekspozycja `set-auth-token` przez CORS)                     | Etap 1                                               | konfiguracja `trustedOrigins` lub własny endpoint wymiany sesji na token | **zamknięte w Etapie 1:** origin rozszerzenia w `trustedOrigins` (rejestracja i logowanie zawsze sprawdzają `Origin`, obcy origin daje 403); CORS z `allowHeaders: ['Authorization', 'Content-Type']` i `exposeHeaders: ['set-auth-token']`; klient Better Auth z `credentials: 'omit'` (z domyślnym `include` przeglądarka blokuje preflight); `bearer({ requireSignature: true })` |
-| R6  | Różnice w Brave (Shields, polityki storage)                                                                                                       | Etap 6, ręcznie                                      | dokumentacja ograniczeń; poprawki punktowe                               | otwarte                                                                                                                                                                                                                                                                                                                                                                              |
-| R7  | Utrata zmian offline po zamknięciu karty                                                                                                          | świadome ograniczenie MVP                            | trwała kolejka mutacji lub własny silnik sync (roadmapa)                 | otwarte                                                                                                                                                                                                                                                                                                                                                                              |
+| #   | Ryzyko                                                                                                                                            | Kiedy sprawdzamy                                     | Plan awaryjny                                                            | Wynik                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R1  | Integracja WXT z `@nuxt/ui/vite` (konfiguracja Vite, Tailwind v4, brak `vue-router`)                                                              | Etap 0                                               | czysty Vite z ręcznie złożonym manifestem lub `@crxjs/vite-plugin`       | **zamknięte w Etapie 0:** plugin `ui()` w opcji `vite` z `wxt.config.ts` z `router: false`; `srcDir: 'src'`, żeby aliasy `@` i `~` wskazywały `src`; `.npmrc` z `public-hoist-pattern[]=@wxt-dev/*`, bo WXT szuka modułów od własnej lokalizacji; serwer deweloperski WXT na porcie 3001, bo domyślny 3000 koliduje z API                                                                                                                                                                                                             |
+| R2  | Ikony Nuxt UI pobierane w trakcie działania z API Iconify zamiast z paczki                                                                        | Etap 0: zakładka Network, potem test E2E prywatności | zainstalowane kolekcje `@iconify-json/lucide` i jawne bundlowanie ikon   | **zamknięte w Etapie 0:** `@iconify-json/lucide` i `icon.clientBundle.scan: true`; ikony są w paczce, zero żądań do `api.iconify.design` (sprawdzone w trybie Offline)                                                                                                                                                                                                                                                                                                                                                                |
+| R3  | Zmiana akcentu w trakcie działania: zmienne `--ui-color-primary-*`, obecność palet w CSS (Tailwind v4), wyłączenie wbudowanego color mode Nuxt UI | Etap 0                                               | jawne zdefiniowanie palet w CSS; własny zestaw zmiennych akcentu         | **zamknięte w Etapie 0:** `colorMode: false` i własne przełączanie klasy `dark`; akcent jako styl inline `--ui-color-primary-*` na `<html>`; `@import 'tailwindcss' theme(static)` emituje wszystkie palety (+14 kB CSS); 10 akcentów działa w obu trybach                                                                                                                                                                                                                                                                            |
+| R4  | `grid-layout-plus`: stan utrzymania i zgodność z aktualnym Vue                                                                                    | Etap 3                                               | gridstack.js za tym samym interfejsem `GridEditor.vue`                   | **sprawdzone w Etapie 3:** wersja 1.1.1 (13.10.2025), 2.0.0-beta.0 od 04.08.2026; działa z Vue 3.5.43 bez ostrzeżeń w konsoli; chunk `GridEditor` około 140 kB, ładowany tylko w edycji; przeciąganie, skalowanie z minimalnym rozmiarem i dosuwanie działają, a podgląd zgadza się z edytorem co do piksela. `layout-updated` przychodzi też po zamontowaniu i po zmianie danych, więc zapis porównuje układ z cache. Plan awaryjny bez zmian: bibliotekę zna tylko `GridEditor.vue`. Ryzyko zostaje otwarte do stabilnej wersji 2.0 |
+| R5  | Better Auth z originem `chrome-extension://` (sprawdzanie `Origin`, `trustedOrigins`, ekspozycja `set-auth-token` przez CORS)                     | Etap 1                                               | konfiguracja `trustedOrigins` lub własny endpoint wymiany sesji na token | **zamknięte w Etapie 1:** origin rozszerzenia w `trustedOrigins` (rejestracja i logowanie zawsze sprawdzają `Origin`, obcy origin daje 403); CORS z `allowHeaders: ['Authorization', 'Content-Type']` i `exposeHeaders: ['set-auth-token']`; klient Better Auth z `credentials: 'omit'` (z domyślnym `include` przeglądarka blokuje preflight); `bearer({ requireSignature: true })`                                                                                                                                                  |
+| R6  | Różnice w Brave (Shields, polityki storage)                                                                                                       | Etap 6, ręcznie                                      | dokumentacja ograniczeń; poprawki punktowe                               | otwarte                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| R7  | Utrata zmian offline po zamknięciu karty                                                                                                          | świadome ograniczenie MVP                            | trwała kolejka mutacji lub własny silnik sync (roadmapa)                 | otwarte                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
