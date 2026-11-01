@@ -1,15 +1,17 @@
-import type { CreateWidgetInput, LayoutItem, UpdateWidgetInput, WidgetDto } from '@one-place/shared'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import type {
+  CreateContextInput,
+  CreateWidgetInput,
+  LayoutItem,
+  UpdateWidgetInput,
+  WidgetDto,
+} from '@one-place/shared'
+import { useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { parseResponse } from 'hono/client'
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import { apiErrorInfo } from '@/api/api-error'
 import { apiClient } from '@/api/client'
+import { createContextKey, widgetsKey } from './keys'
 import { changeOptimistically } from './optimistic'
-
-// One cache entry per context, so switching back to a context shows its widgets at once
-export function widgetsKey(contextId: string) {
-  return ['widgets', contextId] as const
-}
 
 interface WidgetRef {
   id: string
@@ -32,11 +34,20 @@ function withLayout(list: WidgetDto[], items: LayoutItem[]) {
 }
 
 export function useWidgets(contextId: MaybeRefOrGetter<string | null>) {
+  // A context created in this tab is in the cache before the API saves it. Asking for its widgets
+  // earlier would get 404, so the query waits. Until then the cache has [] from useCreateContext().
+  const unsaved = useMutationState({
+    filters: { mutationKey: createContextKey, status: 'pending' },
+    select: (mutation) => (mutation.state.variables as CreateContextInput).id,
+  })
   return useQuery({
     queryKey: computed(() => widgetsKey(toValue(contextId) ?? '')),
     queryFn: ({ queryKey: [, id] }) =>
       parseResponse(apiClient.api.contexts[':id'].widgets.$get({ param: { id } })),
-    enabled: computed(() => toValue(contextId) !== null),
+    enabled: computed(() => {
+      const id = toValue(contextId)
+      return id !== null && !unsaved.value.includes(id)
+    }),
   })
 }
 

@@ -1,10 +1,15 @@
-import type { ContextDto, CreateContextInput, UpdateContextInput } from '@one-place/shared'
+import type {
+  ContextDto,
+  CreateContextInput,
+  UpdateContextInput,
+  WidgetDto,
+} from '@one-place/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { parseResponse } from 'hono/client'
 import { apiErrorInfo } from '@/api/api-error'
 import { apiClient } from '@/api/client'
+import { createContextKey, widgetsKey } from './keys'
 import { changeOptimistically } from './optimistic'
-import { widgetsKey } from './widgets'
 
 export const contextsKey = ['contexts'] as const
 
@@ -30,16 +35,23 @@ export function useContexts() {
 export function useCreateContext() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: createContextKey,
     mutationFn: (input: CreateContextInput) =>
       parseResponse(apiClient.api.contexts.$post({ json: input })),
-    onMutate: (input) => {
+    onMutate: async (input) => {
       const now = new Date().toISOString()
       const draft: ContextDto = { ...input, createdAt: now, updatedAt: now, version: 1 }
-      return changeOptimistically<ContextDto[]>(queryClient, contextsKey, (list) =>
+      const rollback = await changeOptimistically<ContextDto[]>(queryClient, contextsKey, (list) =>
         withContext(list, draft),
       )
+      // A new context has no widgets. Its dashboard shows that at once, also offline.
+      queryClient.setQueryData<WidgetDto[]>(widgetsKey(input.id), [])
+      return rollback
     },
-    onError: (_error, _input, rollback) => rollback?.(),
+    onError: (_error, input, rollback) => {
+      rollback?.()
+      queryClient.removeQueries({ queryKey: widgetsKey(input.id) })
+    },
     onSuccess: (saved) =>
       queryClient.setQueryData<ContextDto[]>(contextsKey, (list = []) => withContext(list, saved)),
   })

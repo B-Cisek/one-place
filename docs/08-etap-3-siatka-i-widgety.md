@@ -2643,10 +2643,10 @@ Teksty w grupie `widgets`:
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/extension add @vueuse/core@^14`
-- [ ] **2. Siatka.** `grid.ts`: `ROW_HEIGHT = 40`, `GRID_GAP = 10` i `widgetHeight(h)`. `use-narrow-screen.ts`: `useBreakpoints(breakpointsTailwind).smaller('md')`. `DashboardGrid.vue`: na wąskim ekranie kolumna `WidgetFrame` w kolejności `columnOrder`, każdy o wysokości `widgetHeight(h)`, a na szerokim CSS grid z `repeat(12, minmax(0, 1fr))`, `grid-auto-rows: 40px`, `gap` i `padding` 10 px oraz położeniem z `compactLayout`.
-- [ ] **3. Pulpit kontekstu.** `ContextDashboard.vue`: `useWidgets(() => props.context.id)`, szkielety albo błąd z „Spróbuj ponownie”, gdy nie ma danych, `UEmpty` z nazwą i ikoną kontekstu dla pustej listy i `DashboardGrid` dla reszty. W `DashboardScreen.vue` zamień `UEmpty` aktywnego kontekstu na `<ContextDashboard v-else-if="active" :context="active" />`.
-- [ ] **4. Sprawdzenie ręczne** (`pnpm dev`). Widgetów nie da się jeszcze dodać z UI, więc wstaw je w bazie (wpisz swój e-mail):
+- [x] **1. Zależność.** `pnpm --filter @one-place/extension add @vueuse/core@^14`
+- [x] **2. Siatka.** `grid.ts`: `ROW_HEIGHT = 40`, `GRID_GAP = 10` i `widgetHeight(h)`. `use-narrow-screen.ts`: `useBreakpoints(breakpointsTailwind).smaller('md')`. `DashboardGrid.vue`: na wąskim ekranie kolumna `WidgetFrame` w kolejności `columnOrder`, każdy o wysokości `widgetHeight(h)`, a na szerokim CSS grid z `repeat(12, minmax(0, 1fr))`, `grid-auto-rows: 40px`, `gap` i `padding` 10 px oraz położeniem z `compactLayout`.
+- [x] **3. Pulpit kontekstu.** `ContextDashboard.vue`: `useWidgets(() => props.context.id)`, szkielety albo błąd z „Spróbuj ponownie”, gdy nie ma danych, `UEmpty` z nazwą i ikoną kontekstu dla pustej listy i `DashboardGrid` dla reszty. W `DashboardScreen.vue` zamień `UEmpty` aktywnego kontekstu na `<ContextDashboard v-else-if="active" :context="active" />`.
+- [x] **4. Sprawdzenie ręczne** (`pnpm dev`). Widgetów nie da się jeszcze dodać z UI, więc wstaw je w bazie (wpisz swój e-mail):
 
   ```bash
   docker compose exec db psql -U one one_place -c "insert into widgets (id, user_id, context_id, type, config, x, y, w, h) select gen_random_uuid(), c.user_id, c.id, v.type, v.config::jsonb, v.x, v.y, v.w, v.h from contexts c join \"user\" u on u.id = c.user_id cross join (values ('todo', '{}', 0, 0, 4, 6), ('todo', '{\"title\": \"Zakupy\"}', 4, 0, 4, 6), ('notes', '{}', 8, 0, 4, 4), ('todo', '{\"title\": \"Pod spodem\"}', 0, 10, 6, 4)) as v(type, config, x, y, w, h) where c.name = 'Praca' and u.email = 'twoj@email.pl'"
@@ -2654,16 +2654,16 @@ Teksty w grupie `widgets`:
 
   Przejdź na inną kartę i wróć. **Oczekiwany wynik:** „Zadania”, „Zakupy” i komunikat o nowszej wersji w pierwszym rzędzie, a „Pod spodem” zaraz pod nimi, na `y: 6` zamiast zapisanego `y: 10`. Zwęź okno poniżej 768 px: jedna kolumna w kolejności Zadania, Zakupy, nieznany widget, Pod spodem.
 
-- [ ] **5. Eksperyment: nowy kontekst.** Otwórz „Konteksty”, dodaj kontekst „Hobby” i spójrz na pulpit. **Oczekiwany wynik:** „Nie udało się wczytać danych.” zamiast pustego pulpitu, a w DevTools → Network `GET /api/contexts/<id>/widgets` z odpowiedzią 404. Po kliknięciu „Spróbuj ponownie” pulpit jest już pusty, jak powinien. Zastanów się, skąd 404, zanim otworzysz wyjaśnienie.
-- [ ] **6. Czerwony test** w `src/queries/widgets.test.ts`: po `mutate` z `useCreateContext` (odpowiedź API wstrzymana przez `deferred`) `useWidgets('hobby')` od razu ma `[]` i nie woła API, a po odpowiedzi 201 woła je raz. Rozszerz mock o `contexts.$post` i `contexts[':id'].widgets.$get`. Oczekiwany wynik: **FAIL** (`expected "vi.fn()" to not be called at all`).
-- [ ] **7. Poprawka.**
+- [x] **5. Eksperyment: nowy kontekst.** Otwórz „Konteksty”, dodaj kontekst „Hobby” i spójrz na pulpit. **Oczekiwany wynik:** „Nie udało się wczytać danych.” zamiast pustego pulpitu, a w DevTools → Network `GET /api/contexts/<id>/widgets` z odpowiedzią 404. Po kliknięciu „Spróbuj ponownie” pulpit jest już pusty, jak powinien. Zastanów się, skąd 404, zanim otworzysz wyjaśnienie.
+- [x] **6. Czerwony test** w `src/queries/widgets.test.ts`: po `mutate` z `useCreateContext` (odpowiedź API wstrzymana przez `deferred`) `useWidgets('hobby')` od razu ma `[]` i nie woła API, a po odpowiedzi 201 woła je raz. Rozszerz mock o `contexts.$post` i `contexts[':id'].widgets.$get`. Oczekiwany wynik: **FAIL** (`expected "vi.fn()" to not be called at all`).
+- [x] **7. Poprawka.**
   - Utwórz `queries/keys.ts` z `createContextKey` i przenieś do niego `widgetsKey`. Oba pliki zapytań będą potrzebować kluczy drugiego, a wspólny plik zapobiega cyklowi importów. Popraw importy (także w testach).
   - `useCreateContext` dostaje `mutationKey: createContextKey`, w `onMutate` zapisuje w cache pustą listę widgetów nowego kontekstu, a w `onError` ją usuwa.
   - `useWidgets` czyta przez `useMutationState` ID kontekstów, które czekają na zapis, i wyłącza dla nich zapytanie.
 
   Oczekiwany wynik: **PASS (69 testów w rozszerzeniu)**. Powtórz krok 5: pusty pulpit od razu i żadnego 404.
 
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): show widgets in a grid with a one-column view`.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): show widgets in a grid with a one-column view`.
 
 **Pułapki (sprawdzone na prototypie):**
 

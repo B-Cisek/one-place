@@ -15,6 +15,7 @@
     "@tanstack/query-async-storage-persister": "^5.104.2",
     "@tanstack/query-persist-client-core": "^5.104.2",
     "@tanstack/vue-query": "^5.104.2",
+    "@vueuse/core": "^14.4.0",
     "better-auth": "^1.7.7",
     "fractional-indexing": "^4.0.0",
     "grid-layout-plus": "^1.1.1",

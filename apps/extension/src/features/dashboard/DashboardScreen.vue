@@ -7,6 +7,7 @@ import { useAccountLocale } from '@/features/settings/use-account-locale'
 import { useContexts } from '@/queries/contexts'
 import { useOnline } from '@/queries/use-online'
 import AppHeader from './AppHeader.vue'
+import ContextDashboard from './ContextDashboard.vue'
 
 // Not needed for the first render, so their forms (and Zod) stay out of the start-up bundle
 const FirstContext = defineAsyncComponent(() => import('@/features/contexts/FirstContext.vue'))
@@ -78,13 +79,7 @@ function openSettings() {
         </div>
       </template>
       <FirstContext v-else-if="contexts.length === 0" />
-      <UEmpty
-        v-else-if="active"
-        :icon="active.icon"
-        :title="active.name"
-        :description="t('dashboard.empty')"
-        class="mt-16"
-      />
+      <ContextDashboard v-else-if="active" :context="active" />
     </main>
     <ManageContextsModal v-if="manageUsed" v-model:open="manageOpen" />
     <SettingsSlideover v-if="settingsUsed" v-model:open="settingsOpen" />
