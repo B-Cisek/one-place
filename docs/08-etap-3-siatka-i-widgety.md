@@ -3015,18 +3015,18 @@ import { widgetsKey } from './keys'
 
 **Kroki:**
 
-- [ ] **1. Czerwony test** w `src/stores/ui.test.ts`: `editMode` ustawione na `true` w jednej karcie jest `false` w nowej karcie po `load()`. Oczekiwany wynik: **FAIL**. Po dodaniu `editMode` (zwykły `ref(false)`, także w `reset()`): **PASS (70 testów w rozszerzeniu)**.
-- [ ] **2. Dodawanie.** `use-add-widget.ts`: miejsce z `placeNewWidget(compactLayout(widgets), definition.defaultSize)`, ID z `v7()`, `config: {}` i `mutate` z `useCreateWidget`.
-- [ ] **3. Katalog.** `WidgetCatalog.vue`: `UModal` z listą przycisków dla `Object.values(widgetRegistry)`. Kliknięcie dodaje widget i zamyka okno. `DashboardScreen` ładuje katalog leniwie i montuje go przy pierwszym otwarciu, tak jak okno kontekstów.
-- [ ] **4. Nagłówek i pusty pulpit.** `AppHeader`: przy aktywnym kontekście i szerokim ekranie przycisk „Edytuj pulpit” / „Gotowe” (`aria-pressed`) oraz, w trybie edycji, „Dodaj widget”, który emituje `addWidget`. `ContextDashboard`: akcja „Dodaj widget” w `UEmpty` pustego pulpitu. Teksty: `dashboard.edit`, `dashboard.done`, `dashboard.addWidget`, `widgets.catalog.title`.
-- [ ] **5. Eksperyment: ikona z rejestru.** Zbuduj rozszerzenie, załaduj `.output/chrome-mv3`, zaloguj się i otwórz DevTools → Network. Kliknij „Dodaj widget” na pustym pulpicie. **Oczekiwany wynik:** żądanie do `https://api.iconify.design/lucide.json?icons=list-checks`. Ikona `i-lucide-list-checks` jest w `registry.ts`, a nie w `.vue`.
-- [ ] **6. Poprawka.** W `nuxt-ui.config.ts` zamień `scan: true` na `scan: { globInclude: ['src/**/*.{vue,ts}'] }`. Zbuduj i powtórz krok 5: żadnych żądań poza API. Ikony kontekstów nadal przychodzą z `wxt.config.ts`, bo leżą poza `src` rozszerzenia.
-- [ ] **7. Sprawdzenie ręczne** (`pnpm dev`):
+- [x] **1. Czerwony test** w `src/stores/ui.test.ts`: `editMode` ustawione na `true` w jednej karcie jest `false` w nowej karcie po `load()`. Oczekiwany wynik: **FAIL**. Po dodaniu `editMode` (zwykły `ref(false)`, także w `reset()`): **PASS (70 testów w rozszerzeniu)**.
+- [x] **2. Dodawanie.** `use-add-widget.ts`: miejsce z `placeNewWidget(compactLayout(widgets), definition.defaultSize)`, ID z `v7()`, `config: {}` i `mutate` z `useCreateWidget`.
+- [x] **3. Katalog.** `WidgetCatalog.vue`: `UModal` z listą przycisków dla `Object.values(widgetRegistry)`. Kliknięcie dodaje widget i zamyka okno. `DashboardScreen` ładuje katalog leniwie i montuje go przy pierwszym otwarciu, tak jak okno kontekstów.
+- [x] **4. Nagłówek i pusty pulpit.** `AppHeader`: przy aktywnym kontekście i szerokim ekranie przycisk „Edytuj pulpit” / „Gotowe” (`aria-pressed`) oraz, w trybie edycji, „Dodaj widget”, który emituje `addWidget`. `ContextDashboard`: akcja „Dodaj widget” w `UEmpty` pustego pulpitu. Teksty: `dashboard.edit`, `dashboard.done`, `dashboard.addWidget`, `widgets.catalog.title`.
+- [x] **5. Eksperyment: ikona z rejestru.** Zbuduj rozszerzenie, załaduj `.output/chrome-mv3`, zaloguj się i otwórz DevTools → Network. Kliknij „Dodaj widget” na pustym pulpicie. **Oczekiwany wynik:** żądanie do `https://api.iconify.design/lucide.json?icons=list-checks`. Ikona `i-lucide-list-checks` jest w `registry.ts`, a nie w `.vue`.
+- [x] **6. Poprawka.** W `nuxt-ui.config.ts` zamień `scan: true` na `scan: { globInclude: ['src/**/*.{vue,ts}'] }`. Zbuduj i powtórz krok 5: żadnych żądań poza API. Ikony kontekstów nadal przychodzą z `wxt.config.ts`, bo leżą poza `src` rozszerzenia.
+- [x] **7. Sprawdzenie ręczne** (`pnpm dev`):
   - nowy kontekst: pusty pulpit z „Dodaj widget”; po wyborze „Zadania” widget pojawia się od razu;
   - „Edytuj pulpit”: przycisk zmienia się na „Gotowe”, obok jest „Dodaj widget”; kolejny widget trafia pod pierwszy (`x: 0, y: 6`);
   - zwęź okno poniżej 768 px: przyciski edycji znikają;
   - przeładuj kartę: „Edytuj pulpit”, czyli tryb podglądu.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget catalog and edit mode switch`.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget catalog and edit mode switch`.
 
 **Pułapki (sprawdzone na prototypie):**
 

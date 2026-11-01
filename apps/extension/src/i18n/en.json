@@ -78,7 +78,10 @@
     "empty": "Your widgets will appear here.",
     "loadError": "Could not load your data.",
     "retry": "Try again",
-    "offline": "Offline, showing saved data"
+    "offline": "Offline, showing saved data",
+    "edit": "Edit dashboard",
+    "done": "Done",
+    "addWidget": "Add widget"
   },
   "widgets": {
     "todo": {
@@ -92,6 +95,9 @@
     "error": {
       "title": "This widget stopped working",
       "retry": "Try again"
+    },
+    "catalog": {
+      "title": "Add widget"
     }
   },
   "settings": {

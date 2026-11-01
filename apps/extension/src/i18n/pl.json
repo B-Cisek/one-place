@@ -78,7 +78,10 @@
     "empty": "Tu pojawią się widgety.",
     "loadError": "Nie udało się wczytać danych.",
     "retry": "Spróbuj ponownie",
-    "offline": "Offline, pokazuję zapisane dane"
+    "offline": "Offline, pokazuję zapisane dane",
+    "edit": "Edytuj pulpit",
+    "done": "Gotowe",
+    "addWidget": "Dodaj widget"
   },
   "widgets": {
     "todo": {
@@ -92,6 +95,9 @@
     "error": {
       "title": "Ten widget przestał działać",
       "retry": "Spróbuj ponownie"
+    },
+    "catalog": {
+      "title": "Dodaj widget"
     }
   },
   "settings": {

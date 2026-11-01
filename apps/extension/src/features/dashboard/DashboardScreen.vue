@@ -17,6 +17,7 @@ const ManageContextsModal = defineAsyncComponent(
 const SettingsSlideover = defineAsyncComponent(
   () => import('@/features/settings/SettingsSlideover.vue'),
 )
+const WidgetCatalog = defineAsyncComponent(() => import('@/features/widgets/WidgetCatalog.vue'))
 
 const { t } = useI18n()
 const { data: contexts, isError, refetch } = useContexts()
@@ -27,6 +28,8 @@ const manageOpen = ref(false)
 const manageUsed = ref(false)
 const settingsOpen = ref(false)
 const settingsUsed = ref(false)
+const catalogOpen = ref(false)
+const catalogUsed = ref(false)
 useMutationErrorToasts()
 useAccountLocale()
 
@@ -45,6 +48,11 @@ function openSettings() {
   settingsUsed.value = true
   settingsOpen.value = true
 }
+
+function openCatalog() {
+  catalogUsed.value = true
+  catalogOpen.value = true
+}
 </script>
 
 <template>
@@ -54,6 +62,7 @@ function openSettings() {
       :active="active"
       @manage-contexts="openManage"
       @open-settings="openSettings"
+      @add-widget="openCatalog"
     />
     <main class="flex-1 space-y-4 p-4">
       <!-- F-SYNC-05 -->
@@ -79,9 +88,14 @@ function openSettings() {
         </div>
       </template>
       <FirstContext v-else-if="contexts.length === 0" />
-      <ContextDashboard v-else-if="active" :context="active" />
+      <ContextDashboard v-else-if="active" :context="active" @add-widget="openCatalog" />
     </main>
     <ManageContextsModal v-if="manageUsed" v-model:open="manageOpen" />
     <SettingsSlideover v-if="settingsUsed" v-model:open="settingsOpen" />
+    <WidgetCatalog
+      v-if="catalogUsed && active"
+      v-model:open="catalogOpen"
+      :context-id="active.id"
+    />
   </div>
 </template>
