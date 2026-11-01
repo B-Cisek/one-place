@@ -86,7 +86,26 @@
   "widgets": {
     "todo": {
       "name": "Zadania",
-      "description": "Lista rzeczy do zrobienia"
+      "description": "Lista rzeczy do zrobienia",
+      "settings": {
+        "title": "Tytuł",
+        "titleHelp": "Pusty tytuł oznacza „Zadania”."
+      }
+    },
+    "menu": {
+      "open": "Opcje widgetu",
+      "settings": "Ustawienia",
+      "delete": "Usuń"
+    },
+    "settings": {
+      "title": "Ustawienia widgetu",
+      "save": "Zapisz"
+    },
+    "delete": {
+      "title": "Usunąć widget „{name}”?",
+      "description": "Widget i jego dane znikną na wszystkich urządzeniach. Tej operacji nie można cofnąć.",
+      "confirm": "Usuń",
+      "cancel": "Anuluj"
     },
     "unknown": {
       "name": "Nieznany widget",
@@ -122,6 +141,7 @@
     "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków",
     "passwordTooLong": "Hasło może mieć najwyżej 128 znaków",
     "contextNameRequired": "Podaj nazwę kontekstu",
-    "contextNameTooLong": "Nazwa może mieć najwyżej 40 znaków"
+    "contextNameTooLong": "Nazwa może mieć najwyżej 40 znaków",
+    "widgetTitleTooLong": "Tytuł może mieć najwyżej 60 znaków"
   }
 }

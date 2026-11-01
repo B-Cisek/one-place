@@ -10,6 +10,7 @@ export const widgetRegistry = {
     defaultSize: WIDGET_SIZES.todo.default,
     minSize: WIDGET_SIZES.todo.min,
     component: () => import('./todo/TodoWidget.vue'),
+    settingsComponent: () => import('./todo/TodoSettings.vue'),
   },
 } satisfies Record<WidgetType, WidgetDefinition>
 

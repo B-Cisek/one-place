@@ -3523,23 +3523,23 @@ const ui = useUiStore()
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/widgets/todo/TodoSettings.test.ts` (happy-dom, prawdziwy Nuxt UI i i18n jak w zadaniu 9):
+- [x] **1. Czerwone testy** w `src/widgets/todo/TodoSettings.test.ts` (happy-dom, prawdziwy Nuxt UI i i18n jak w zadaniu 9):
   - tytuł `'  Zakupy  '` wysłany dla konfiguracji `{ title: 'Stary', hideCompleted: true }` emituje `save` z `{ title: 'Zakupy', hideCompleted: true, source: { type: 'local' } }`;
   - tytuł z 61 znaków nie emituje `save`, a formularz pokazuje komunikat z „at most 60 characters”.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **2. Ustawienia Zadań.** `TodoSettings.vue`: konfiguracja z `resolveConfig`, `UForm` z `:validate="formErrors(TodoConfigSchema, t)"`, jedno pole „Tytuł” z podpowiedzią i przycisk „Zapisz”. Przy wysyłce `emit('save', TodoConfigSchema.parse({ ...config, ...state }))`. W `registry.ts` dodaj `settingsComponent: () => import('./todo/TodoSettings.vue')`. Teksty `widgets.todo.settings.*`, `widgets.settings.save` i `validation.widgetTitleTooLong`. Oczekiwany wynik: **PASS (72 testy w rozszerzeniu)**.
-- [ ] **3. Menu.** `WidgetActions.vue`: `UDropdownMenu` z `v-model:open` i przyciskiem `i-lucide-ellipsis`, pozycje „Ustawienia” (tylko gdy definicja ma `settingsComponent`) i „Usuń”, modal ustawień z leniwym komponentem ustawień typu i modal potwierdzenia usunięcia. Zapis ustawień woła `useUpdateWidgetConfig`, a potwierdzenie `useDeleteWidget`.
-- [ ] **4. Ramka.** W `WidgetFrame` dodaj w prawym górnym rogu (`absolute end-1.5 top-1.5`) zwykły `UButton` z tą samą ikoną. Kliknięcie ustawia `menuUsed` i `menuOpen` na `true`, a od tej chwili zamiast przycisku jest leniwy `WidgetActions` z `v-model:open="menuOpen"`. Nagłówek w trybie edycji dostaje `pe-10`, żeby tytuł nie wchodził pod przycisk.
-- [ ] **5. Eksperyment: menu na ścieżce startowej.** Zaimportuj na chwilę `WidgetActions` w ramce statycznie (`import WidgetActions from './WidgetActions.vue'` zamiast `defineAsyncComponent`), zbuduj i uruchom `pnpm size`. **Oczekiwany wynik: około 633 kB, czyli +142 kB i ponad budżet.** `UDropdownMenu` ciągnie warstwę menu z `reka-ui` i pozycjonowanie z `@floating-ui`, a `UModal` warstwę okien. Przywróć leniwy import.
-- [ ] **6. Sprawdzenie ręczne** (`pnpm dev`):
+- [x] **2. Ustawienia Zadań.** `TodoSettings.vue`: konfiguracja z `resolveConfig`, `UForm` z `:validate="formErrors(TodoConfigSchema, t)"`, jedno pole „Tytuł” z podpowiedzią i przycisk „Zapisz”. Przy wysyłce `emit('save', TodoConfigSchema.parse({ ...config, ...state }))`. W `registry.ts` dodaj `settingsComponent: () => import('./todo/TodoSettings.vue')`. Teksty `widgets.todo.settings.*`, `widgets.settings.save` i `validation.widgetTitleTooLong`. Oczekiwany wynik: **PASS (72 testy w rozszerzeniu)**.
+- [x] **3. Menu.** `WidgetActions.vue`: `UDropdownMenu` z `v-model:open` i przyciskiem `i-lucide-ellipsis`, pozycje „Ustawienia” (tylko gdy definicja ma `settingsComponent`) i „Usuń”, modal ustawień z leniwym komponentem ustawień typu i modal potwierdzenia usunięcia. Zapis ustawień woła `useUpdateWidgetConfig`, a potwierdzenie `useDeleteWidget`.
+- [x] **4. Ramka.** W `WidgetFrame` dodaj w prawym górnym rogu (`absolute end-1.5 top-1.5`) zwykły `UButton` z tą samą ikoną. Kliknięcie ustawia `menuUsed` i `menuOpen` na `true`, a od tej chwili zamiast przycisku jest leniwy `WidgetActions` z `v-model:open="menuOpen"`. Nagłówek w trybie edycji dostaje `pe-10`, żeby tytuł nie wchodził pod przycisk.
+- [x] **5. Eksperyment: menu na ścieżce startowej.** Zaimportuj na chwilę `WidgetActions` w ramce statycznie (`import WidgetActions from './WidgetActions.vue'` zamiast `defineAsyncComponent`), zbuduj i uruchom `pnpm size`. **Oczekiwany wynik: około 633 kB, czyli +142 kB i ponad budżet.** `UDropdownMenu` ciągnie warstwę menu z `reka-ui` i pozycjonowanie z `@floating-ui`, a `UModal` warstwę okien. Przywróć leniwy import.
+- [x] **6. Sprawdzenie ręczne** (`pnpm dev`):
   - kliknij menu widgetu: otwiera się za pierwszym razem (na prototypie po około 60 ms), z pozycjami „Ustawienia” i „Usuń”;
   - „Ustawienia” → tytuł z 61 znaków: komunikat „Tytuł może mieć najwyżej 60 znaków”; tytuł `  Zakupy  `: modal się zamyka, a widget od razu pokazuje „Zakupy”;
   - menu widgetu nieznanego typu ma tylko „Usuń”;
   - w trybie edycji menu jest w nagłówku, a kliknięcie go nie zaczyna przeciągania;
   - „Usuń” → modal „Usunąć widget „Zadania”?” → „Usuń”: widget znika, a reszta się dosuwa.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget menu with settings and delete`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget menu with settings and delete`.
 
 **Pułapki (sprawdzone na prototypie):**
 

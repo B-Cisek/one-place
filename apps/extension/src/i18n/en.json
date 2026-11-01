@@ -86,7 +86,26 @@
   "widgets": {
     "todo": {
       "name": "Tasks",
-      "description": "A list of things to do"
+      "description": "A list of things to do",
+      "settings": {
+        "title": "Title",
+        "titleHelp": "An empty title shows “Tasks”."
+      }
+    },
+    "menu": {
+      "open": "Widget options",
+      "settings": "Settings",
+      "delete": "Delete"
+    },
+    "settings": {
+      "title": "Widget settings",
+      "save": "Save"
+    },
+    "delete": {
+      "title": "Delete the widget “{name}”?",
+      "description": "The widget and its data will disappear on all devices. This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
     },
     "unknown": {
       "name": "Unknown widget",
@@ -122,6 +141,7 @@
     "passwordTooShort": "Password must be at least 8 characters long",
     "passwordTooLong": "Password can be at most 128 characters long",
     "contextNameRequired": "Enter a context name",
-    "contextNameTooLong": "Name can be at most 40 characters long"
+    "contextNameTooLong": "Name can be at most 40 characters long",
+    "widgetTitleTooLong": "Title can be at most 60 characters long"
   }
 }

@@ -11,6 +11,15 @@ const { t } = useI18n()
 const definition = findWidgetDefinition(props.widget.type)
 // The widget's code is loaded only when it is on the dashboard
 const WidgetBody = definition ? defineAsyncComponent(definition.component) : null
+// The menu (with UDropdownMenu and the modals) is loaded on the first click
+const WidgetActions = defineAsyncComponent(() => import('./WidgetActions.vue'))
+const menuUsed = ref(false)
+const menuOpen = ref(false)
+
+function openMenu() {
+  menuUsed.value = true
+  menuOpen.value = true
+}
 
 const error = ref<unknown>(null)
 
@@ -34,7 +43,7 @@ function retry() {
   >
     <header
       v-if="editMode"
-      class="widget-drag-handle flex h-9 shrink-0 cursor-move items-center gap-2 border-b border-default bg-elevated px-2 text-sm"
+      class="widget-drag-handle flex h-9 shrink-0 cursor-move items-center gap-2 border-b border-default bg-elevated ps-2 pe-10 text-sm"
     >
       <UIcon name="i-lucide-grip-vertical" class="size-4 text-dimmed" />
       <UIcon :name="definition?.icon ?? 'i-lucide-puzzle'" class="size-4 text-muted" />
@@ -42,6 +51,24 @@ function retry() {
         definition ? t(definition.name) : t('widgets.unknown.name')
       }}</span>
     </header>
+    <!-- F-WGT-03, F-WGT-04: in the header in edit mode, in the corner of the widget otherwise -->
+    <div class="absolute end-1.5 top-1.5 z-10">
+      <WidgetActions
+        v-if="menuUsed"
+        v-model:open="menuOpen"
+        :widget="widget"
+        :definition="definition"
+      />
+      <UButton
+        v-else
+        icon="i-lucide-ellipsis"
+        :aria-label="t('widgets.menu.open')"
+        color="neutral"
+        variant="ghost"
+        size="xs"
+        @click="openMenu"
+      />
+    </div>
     <div class="min-h-0 flex-1 overflow-auto p-3">
       <!-- F-WGT-06 -->
       <UEmpty
