@@ -88,6 +88,10 @@
     "todo": {
       "name": "Tasks",
       "description": "A list of things to do",
+      "add": "Add a task",
+      "empty": "No tasks",
+      "toggle": "Done",
+      "delete": "Delete the task",
       "settings": {
         "title": "Title",
         "titleHelp": "An empty title shows “Tasks”."

@@ -2052,8 +2052,8 @@ describe('useLocalTaskSource', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** W `widgets.todo` dopisz `add` („Dodaj zadanie” / „Add a task”), `empty` („Brak zadań” / „No tasks”), `toggle` („Ukończone” / „Done”) i `delete` („Usuń zadanie” / „Delete the task”).
-- [ ] **2. Czerwone testy** w `TaskList.test.ts` (`// @vitest-environment happy-dom`, pluginy `ui` i `i18n` jak w `TodoSettings.test.ts`):
+- [x] **1. Tłumaczenia.** W `widgets.todo` dopisz `add` („Dodaj zadanie” / „Add a task”), `empty` („Brak zadań” / „No tasks”), `toggle` („Ukończone” / „Done”) i `delete` („Usuń zadanie” / „Delete the task”).
+- [x] **2. Czerwone testy** w `TaskList.test.ts` (`// @vitest-environment happy-dom`, pluginy `ui` i `i18n` jak w `TodoSettings.test.ts`):
   - pusta lista pokazuje „No tasks”;
   - wiersze (`li`) mają teksty `['Mleko', 'Chleb']`, a tylko ukończony „Chleb” ma element z klasą `line-through`;
   - `'  Masło  '` i Enter w polu „Add a task” zgłaszają `add` z `'Masło'` i czyszczą pole;
@@ -2062,9 +2062,9 @@ describe('useLocalTaskSource', () => {
 
   Oczekiwany wynik: **FAIL**, bo `./TaskList.vue` nie istnieje.
 
-- [ ] **3. Implementacja** `TaskList.vue`. Układ (decyzja 2): kolumna na całą wysokość, lista w elemencie z `overflow-y-auto`, który zajmuje resztę miejsca, a `UInput` z ikoną plusa na dole. Checkbox dostaje `:model-value="item.done"` i `@update:model-value="emit('toggle', item.id)"`. Krzyżyk jest widoczny po najechaniu na wiersz (`group-hover:opacity-100`) i przy fokusie z klawiatury (`focus-visible:opacity-100`). Po dodaniu lista przewija się na dół, gdy pojawi się nowe zadanie.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (95 testów w rozszerzeniu)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): add task list with add, toggle and delete`.
+- [x] **3. Implementacja** `TaskList.vue`. Układ (decyzja 2): kolumna na całą wysokość, lista w elemencie z `overflow-y-auto`, który zajmuje resztę miejsca, a `UInput` z ikoną plusa na dole. Checkbox dostaje `:model-value="item.done"` i `@update:model-value="emit('toggle', item.id)"`. Krzyżyk jest widoczny po najechaniu na wiersz (`group-hover:opacity-100`) i przy fokusie z klawiatury (`focus-visible:opacity-100`). Po dodaniu lista przewija się na dół, gdy pojawi się nowe zadanie.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (95 testów w rozszerzeniu)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): add task list with add, toggle and delete`.
 
 **Pułapki (sprawdzone na prototypie):**
 

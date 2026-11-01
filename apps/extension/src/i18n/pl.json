@@ -88,6 +88,10 @@
     "todo": {
       "name": "Zadania",
       "description": "Lista rzeczy do zrobienia",
+      "add": "Dodaj zadanie",
+      "empty": "Brak zadań",
+      "toggle": "Ukończone",
+      "delete": "Usuń zadanie",
       "settings": {
         "title": "Tytuł",
         "titleHelp": "Pusty tytuł oznacza „Zadania”."
