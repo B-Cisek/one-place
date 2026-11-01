@@ -10,6 +10,7 @@ import { requireAuth } from './middleware/require-auth'
 import type { Logger } from 'pino'
 import { settingsRoutes } from './modules/settings/routes'
 import { contextsRoutes } from './modules/contexts/routes'
+import { todosRoutes } from './modules/todos/routes'
 import { widgetsRoutes } from './modules/widgets/routes'
 
 interface AppDeps {
@@ -47,6 +48,7 @@ export function createApp({ db, auth, allowedOrigins, logger }: AppDeps) {
     .route('/settings', settingsRoutes({ db, auth }))
     .route('/contexts', contextsRoutes({ db, auth }))
     .route('/widgets', widgetsRoutes({ db, auth }))
+    .route('/todos', todosRoutes({ db, auth }))
     .onError(handleError)
     .notFound(handleNotFound)
 }

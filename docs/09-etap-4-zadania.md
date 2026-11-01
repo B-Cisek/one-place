@@ -849,7 +849,7 @@ import { widgetTodosRoutes } from '../todos/routes'
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `test/todos.test.ts`. `setupWithTodo()` dokłada do `setup()` jedno zadanie Alicji:
+- [x] **1. Czerwone testy** w `test/todos.test.ts`. `setupWithTodo()` dokłada do `setup()` jedno zadanie Alicji:
   - `PATCH` bez tokenu daje 401;
   - `PATCH` z `{ done: true, text: ' Chleb ' }` daje 200, tekst `'Chleb'`, `done: true`, pozycję bez zmian i `version: 2`, a kolejny `PATCH` z samą pozycją zostawia tekst i `done` i daje `version: 3`;
   - `PATCH` Boba daje 404 `{ error: { code: 'NOT_FOUND', message: 'Task not found' } }`, a zadanie Alicji jest nieukończone;
@@ -860,10 +860,10 @@ import { widgetTodosRoutes } from '../todos/routes'
 
   Oczekiwany wynik: **FAIL siedmiu testów**. Tym razem także 401: trasy `/api/todos` jeszcze nie ma, więc żądanie dostaje 404 z `handleNotFound`.
 
-- [ ] **2. Serwis:** `updateTodo(db, userId, id, input)` i `deleteTodo(db, userId, id)`. Wzór jak `updateContext` i `deleteContext`: jeden `UPDATE … WHERE id AND user_id … RETURNING` z ``updatedAt: sql`now()` `` i `version + 1`, a brak wiersza to `todoNotFound()`.
-- [ ] **3. Trasy:** `todosRoutes({ db, auth })` z `.use(requireAuth(auth))`, `PATCH /:id` i `DELETE /:id`. W `app.ts` dopisz `.route('/todos', todosRoutes({ db, auth }))` za widgetami.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (97 testów w pakiecie API)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(api): add task update and delete`.
+- [x] **2. Serwis:** `updateTodo(db, userId, id, input)` i `deleteTodo(db, userId, id)`. Wzór jak `updateContext` i `deleteContext`: jeden `UPDATE … WHERE id AND user_id … RETURNING` z ``updatedAt: sql`now()` `` i `version + 1`, a brak wiersza to `todoNotFound()`.
+- [x] **3. Trasy:** `todosRoutes({ db, auth })` z `.use(requireAuth(auth))`, `PATCH /:id` i `DELETE /:id`. W `app.ts` dopisz `.route('/todos', todosRoutes({ db, auth }))` za widgetami.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (97 testów w pakiecie API)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(api): add task update and delete`.
 
 **Pułapki (sprawdzone na prototypie):**
 

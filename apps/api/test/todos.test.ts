@@ -5,6 +5,7 @@ import { createTestApp } from './create-test-app'
 import { contextInput, todoInput, widgetInput } from './fixtures'
 
 const widgetNotFound = { error: { code: 'NOT_FOUND', message: 'Widget not found' } }
+const todoNotFound = { error: { code: 'NOT_FOUND', message: 'Task not found' } }
 
 async function setup() {
   const { app, client } = await createTestApp()
@@ -166,5 +167,81 @@ describe('DELETE /api/widgets/:id', () => {
     await alice.delete(`/api/widgets/${widgetId}`)
     const { rows } = await client.query('select id from todo_items')
     expect(rows).toEqual([])
+  })
+})
+
+async function setupWithTodo() {
+  const result = await setup()
+  const todo = todoInput()
+  await result.alice.post(result.todosPath, todo)
+  return { ...result, todoId: todo.id }
+}
+
+describe('PATCH /api/todos/:id', () => {
+  it('returns 401 without a token', async () => {
+    const { app } = await createTestApp()
+    const res = await app.request(`/api/todos/${todoInput().id}`, { method: 'PATCH' })
+    expect(res.status).toBe(401)
+  })
+
+  it('changes the given fields and increments the version', async () => {
+    const { alice, todoId } = await setupWithTodo()
+    const res = await alice.patch(`/api/todos/${todoId}`, { done: true, text: ' Chleb ' })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({
+      text: 'Chleb',
+      done: true,
+      position: 'a0',
+      version: 2,
+    })
+    const moved = await alice.patch(`/api/todos/${todoId}`, { position: 'a5' })
+    expect(await moved.json()).toMatchObject({
+      text: 'Chleb',
+      done: true,
+      position: 'a5',
+      version: 3,
+    })
+  })
+
+  it("returns 404 for another user's task and leaves it unchanged", async () => {
+    const { alice, bob, todoId, todosPath } = await setupWithTodo()
+    const res = await bob.patch(`/api/todos/${todoId}`, { done: true })
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual(todoNotFound)
+    const [todo] = await (await alice.get(todosPath)).json()
+    expect(todo.done).toBe(false)
+  })
+
+  it('rejects invalid fields and an id that is not a UUID', async () => {
+    const { alice, todoId } = await setupWithTodo()
+    for (const body of [{ text: '' }, { done: 'yes' }, { position: '' }]) {
+      const res = await alice.patch(`/api/todos/${todoId}`, body)
+      expect(res.status).toBe(400)
+      expect((await res.json()).error.code).toBe('VALIDATION_ERROR')
+    }
+    expect((await alice.patch('/api/todos/42', { done: true })).status).toBe(400)
+  })
+})
+
+describe('DELETE /api/todos/:id', () => {
+  it('returns 401 without a token', async () => {
+    const { app } = await createTestApp()
+    const res = await app.request(`/api/todos/${todoInput().id}`, { method: 'DELETE' })
+    expect(res.status).toBe(401)
+  })
+
+  it('deletes the task', async () => {
+    const { alice, todoId, todosPath } = await setupWithTodo()
+    expect((await alice.delete(`/api/todos/${todoId}`)).status).toBe(204)
+    expect(await (await alice.get(todosPath)).json()).toEqual([])
+    expect((await alice.delete(`/api/todos/${todoId}`)).status).toBe(404)
+  })
+
+  it("returns 404 for another user's task and keeps it", async () => {
+    const { alice, bob, todoId, todosPath } = await setupWithTodo()
+    const res = await bob.delete(`/api/todos/${todoId}`)
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual(todoNotFound)
+    expect(await (await alice.get(todosPath)).json()).toHaveLength(1)
   })
 })

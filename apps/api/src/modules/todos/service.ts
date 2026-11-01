@@ -1,5 +1,10 @@
-import { type CreateTodoInput, MAX_TODOS_PER_WIDGET, type TodoDto } from '@one-place/shared'
-import { and, asc, eq } from 'drizzle-orm'
+import {
+  type CreateTodoInput,
+  MAX_TODOS_PER_WIDGET,
+  type TodoDto,
+  type UpdateTodoInput,
+} from '@one-place/shared'
+import { and, asc, eq, sql } from 'drizzle-orm'
 import type { Database } from '../../db/client'
 import { todoItems, widgets } from '../../db/schema'
 import { AppError } from '../../lib/errors'
@@ -73,4 +78,35 @@ export async function createTodo(
     .values({ ...input, userId, widgetId })
     .returning()
   return { todo: toTodoDto(row!), created: true }
+}
+
+function todoNotFound() {
+  return new AppError(404, 'NOT_FOUND', 'Task not found')
+}
+
+function ownTodo(userId: string, id: string) {
+  return and(eq(todoItems.id, id), eq(todoItems.userId, userId))
+}
+
+export async function updateTodo(
+  db: Database,
+  userId: string,
+  id: string,
+  input: UpdateTodoInput,
+): Promise<TodoDto> {
+  const [row] = await db
+    .update(todoItems)
+    .set({ ...input, updatedAt: sql`now()`, version: sql`${todoItems.version} + 1` })
+    .where(ownTodo(userId, id))
+    .returning()
+  if (!row) throw todoNotFound()
+  return toTodoDto(row)
+}
+
+export async function deleteTodo(db: Database, userId: string, id: string): Promise<void> {
+  const deleted = await db
+    .delete(todoItems)
+    .where(ownTodo(userId, id))
+    .returning({ id: todoItems.id })
+  if (deleted.length === 0) throw todoNotFound()
 }
