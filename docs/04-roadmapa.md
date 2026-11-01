@@ -87,6 +87,7 @@
 
 - API: moduł `todos` z sortowaniem po `position COLLATE "C"`, limit 500, sprawdzenie typu widgetu;
 - rozszerzenie: `useTodos()`, `TaskSource` z implementacją `local`, `TaskList.vue` (dodawanie, checkbox, edycja w miejscu, usuwanie, przeciąganie przez `vue-draggable-plus`), w `TodoSettings.vue` pole „Ukryj ukończone”.
+- wszystkie mutacje w aplikacji idą do API w jednej kolejce (`mutations.scope`, D17), więc zmiany zrobione offline docierają w kolejności wykonania.
 
 Z Etapu 3 są już gotowe `TodoConfigSchema` ze źródłem `{ type: 'local' }` w konfiguracji domyślnej oraz `TodoSettings.vue` z tytułem, więc Etap 4 dopisuje „Ukryj ukończone”, listę zadań i moduł `todos`.
 

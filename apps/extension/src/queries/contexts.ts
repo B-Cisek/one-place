@@ -8,17 +8,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { parseResponse } from 'hono/client'
 import { apiErrorInfo } from '@/api/api-error'
 import { apiClient } from '@/api/client'
-import { createContextKey, widgetsKey } from './keys'
+import { byPosition } from '@/lib/by-position'
+import { createContextKey, todosKey, widgetsKey } from './keys'
 import { changeOptimistically } from './optimistic'
 
 export const contextsKey = ['contexts'] as const
-
-// The same order as the API: byte order (COLLATE "C"), then the id. localeCompare() would put
-// 'Zz' after 'a0'.
-function byPosition(a: ContextDto, b: ContextDto) {
-  if (a.position !== b.position) return a.position < b.position ? -1 : 1
-  return a.id < b.id ? -1 : 1
-}
 
 // Adds the context or replaces the one with the same id, keeping the list sorted
 function withContext(list: ContextDto[], context: ContextDto) {
@@ -89,6 +83,12 @@ export function useDeleteContext() {
         list.filter((item) => item.id !== id),
       ),
     onError: (_error, _id, rollback) => rollback?.(),
-    onSuccess: (_data, id) => queryClient.removeQueries({ queryKey: widgetsKey(id) }),
+    onSuccess: (_data, id) => {
+      // The API deleted the widgets and their tasks, so their cache entries go too
+      for (const widget of queryClient.getQueryData<WidgetDto[]>(widgetsKey(id)) ?? []) {
+        queryClient.removeQueries({ queryKey: todosKey(widget.id) })
+      }
+      queryClient.removeQueries({ queryKey: widgetsKey(id) })
+    },
   })
 }

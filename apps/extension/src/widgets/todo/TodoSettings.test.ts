@@ -46,4 +46,17 @@ describe('TodoSettings', () => {
     expect(wrapper.emitted('save')).toBeUndefined()
     expect(wrapper.text()).toContain('at most 60 characters')
   })
+
+  it('saves "Hide completed" and keeps the title', async () => {
+    const wrapper = mount(TodoSettings, {
+      props: { widget: widget({ title: 'Zakupy' }) },
+      global: { plugins: [ui, i18n] },
+    })
+    await wrapper.get('[role="switch"]').trigger('click')
+    await wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.emitted('save')).toEqual([
+      [{ title: 'Zakupy', hideCompleted: true, source: { type: 'local' } }],
+    ])
+  })
 })

@@ -88,9 +88,18 @@
     "todo": {
       "name": "Tasks",
       "description": "A list of things to do",
+      "add": "Add a task",
+      "empty": "No tasks",
+      "toggle": "Done",
+      "edit": "Edit the task",
+      "delete": "Delete the task",
+      "drag": "Drag to change the order",
+      "loadError": "Could not load the tasks.",
+      "retry": "Try again",
       "settings": {
         "title": "Title",
-        "titleHelp": "An empty title shows “Tasks”."
+        "titleHelp": "An empty title shows “Tasks”.",
+        "hideCompleted": "Hide completed"
       }
     },
     "menu": {

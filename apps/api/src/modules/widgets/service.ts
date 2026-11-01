@@ -86,11 +86,11 @@ export async function createWidget(
   return { widget: toWidgetDto(row!), created: true }
 }
 
-function widgetNotFound() {
+export function widgetNotFound() {
   return new AppError(404, 'NOT_FOUND', 'Widget not found')
 }
 
-function ownWidget(userId: string, id: string) {
+export function ownWidget(userId: string, id: string) {
   return and(eq(widgets.id, id), eq(widgets.userId, userId))
 }
 

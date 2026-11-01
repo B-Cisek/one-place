@@ -64,6 +64,7 @@ one-place/
 │  │  │  ├─ assets/main.css       Tailwind (theme(static)) i Nuxt UI
 │  │  │  ├─ api/                  klient hc<AppType>, token, obsługa 401
 │  │  │  ├─ queries/              composables per zasób, klucze zapytań
+│  │  │  ├─ lib/                  positions.ts (indeks ułamkowy), by-position.ts (sortowanie jak w API)
 │  │  │  ├─ stores/               Pinia: ui.ts
 │  │  │  ├─ theme/                resolveTheme, applyTheme, cache motywu
 │  │  │  ├─ features/
@@ -73,6 +74,7 @@ one-place/
 │  │  │  │  ├─ dashboard/         ContextDashboard, DashboardGrid (podgląd), GridEditor (edycja), WidgetFrame, WidgetActions, layout.ts
 │  │  │  │  └─ widgets/           WidgetCatalog, use-add-widget.ts (katalog i dodawanie)
 │  │  │  ├─ widgets/              registry.ts, types.ts, config.ts (resolveConfig), todo/
+│  │  │  │  └─ todo/              TodoWidget, TodoSettings, TaskList (prezentacyjny), task-source.ts, local-task-source.ts
 │  │  │  └─ i18n/                 pl.json, en.json
 │  │  ├─ tests/e2e/               Playwright
 │  │  ├─ nuxt-ui.config.ts        opcje Nuxt UI wspólne dla buildu i testów komponentów
@@ -242,26 +244,26 @@ Kaskady: usunięcie użytkownika usuwa wszystko, usunięcie kontekstu usuwa jego
 
 Prefiks `/api`, JSON. Wszystkie endpointy poza `/api/auth/*` i `/api/health` wymagają sesji.
 
-| Metoda   | Ścieżka                 | Wejście                                       | Wynik                                      |
-| -------- | ----------------------- | --------------------------------------------- | ------------------------------------------ |
-| `*`      | `/auth/*`               | Better Auth                                   | sign-up, sign-in, sign-out, get-session    |
-| `GET`    | `/health`               |                                               | `{ status: 'ok' }`                         |
-| `GET`    | `/me`                   |                                               | `{ id, name, email }` (chroniony)          |
-| `GET`    | `/settings`             |                                               | `SettingsDto` (domyślne, gdy brak wiersza) |
-| `PATCH`  | `/settings`             | `{ theme?, locale? }`                         | `SettingsDto`                              |
-| `GET`    | `/contexts`             |                                               | `ContextDto[]` posortowane po `position`   |
-| `POST`   | `/contexts`             | `{ id, name, icon, position }`                | `ContextDto`                               |
-| `PATCH`  | `/contexts/:id`         | `{ name?, icon?, position?, themeOverride? }` | `ContextDto`                               |
-| `DELETE` | `/contexts/:id`         |                                               | `204`                                      |
-| `GET`    | `/contexts/:id/widgets` |                                               | `WidgetDto[]`                              |
-| `POST`   | `/contexts/:id/widgets` | `{ id, type, config, x, y, w, h }`            | `WidgetDto`                                |
-| `PUT`    | `/contexts/:id/layout`  | `LayoutItem[]` (`{ id, x, y, w, h }`)         | `WidgetDto[]`                              |
-| `PATCH`  | `/widgets/:id`          | `{ config }`                                  | `WidgetDto`                                |
-| `DELETE` | `/widgets/:id`          |                                               | `204`                                      |
-| `GET`    | `/widgets/:id/todos`    |                                               | `TodoDto[]` posortowane po `position`      |
-| `POST`   | `/widgets/:id/todos`    | `{ id, text, position }`                      | `TodoDto`                                  |
-| `PATCH`  | `/todos/:id`            | `{ text?, done?, position? }`                 | `TodoDto`                                  |
-| `DELETE` | `/todos/:id`            |                                               | `204`                                      |
+| Metoda   | Ścieżka                 | Wejście                                       | Wynik                                       |
+| -------- | ----------------------- | --------------------------------------------- | ------------------------------------------- |
+| `*`      | `/auth/*`               | Better Auth                                   | sign-up, sign-in, sign-out, get-session     |
+| `GET`    | `/health`               |                                               | `{ status: 'ok' }`                          |
+| `GET`    | `/me`                   |                                               | `{ id, name, email }` (chroniony)           |
+| `GET`    | `/settings`             |                                               | `SettingsDto` (domyślne, gdy brak wiersza)  |
+| `PATCH`  | `/settings`             | `{ theme?, locale? }`                         | `SettingsDto`                               |
+| `GET`    | `/contexts`             |                                               | `ContextDto[]` posortowane po `position`    |
+| `POST`   | `/contexts`             | `{ id, name, icon, position }`                | `ContextDto`                                |
+| `PATCH`  | `/contexts/:id`         | `{ name?, icon?, position?, themeOverride? }` | `ContextDto`                                |
+| `DELETE` | `/contexts/:id`         |                                               | `204`                                       |
+| `GET`    | `/contexts/:id/widgets` |                                               | `WidgetDto[]`                               |
+| `POST`   | `/contexts/:id/widgets` | `{ id, type, config, x, y, w, h }`            | `WidgetDto`                                 |
+| `PUT`    | `/contexts/:id/layout`  | `LayoutItem[]` (`{ id, x, y, w, h }`)         | `WidgetDto[]`                               |
+| `PATCH`  | `/widgets/:id`          | `{ config }`                                  | `WidgetDto`                                 |
+| `DELETE` | `/widgets/:id`          |                                               | `204`                                       |
+| `GET`    | `/widgets/:id/todos`    |                                               | `TodoDto[]` posortowane po `(position, id)` |
+| `POST`   | `/widgets/:id/todos`    | `{ id, text, position }`                      | `TodoDto`                                   |
+| `PATCH`  | `/todos/:id`            | `{ text?, done?, position? }`                 | `TodoDto`                                   |
+| `DELETE` | `/todos/:id`            |                                               | `204`                                       |
 
 ### Zasady
 
@@ -272,6 +274,7 @@ Prefiks `/api`, JSON. Wszystkie endpointy poza `/api/auth/*` i `/api/health` wym
 - **Układ zapisywany hurtowo.** `PUT /contexts/:id/layout` aktualizuje w jednej transakcji pozycje i rozmiary podanych widgetów. Każde ID musi należeć do tego kontekstu i użytkownika, w przeciwnym razie całe żądanie jest odrzucane (`400 LAYOUT_INVALID`). Widgety spoza listy pozostają bez zmian.
 - **Walidacja typu widgetu.** `POST /contexts/:id/widgets` sprawdza, czy `type` należy do `WIDGET_TYPES`, oraz waliduje `config` schematem z `widgetConfigSchemas` i uzupełnia go wartościami domyślnymi (klient wysyła `config: {}`). Rozmiar nie może być mniejszy niż `WIDGET_SIZES[type].min`, a widget musi się mieścić w 12 kolumnach. `PATCH /widgets/:id` zastępuje całą konfigurację, sprawdzaną schematem typu zapisanego w bazie. `POST /widgets/:id/todos` sprawdza, czy widget jest typu `todo`.
 - **Trasy widgetów kontekstu.** `/contexts/:id/widgets` i `/contexts/:id/layout` są w routerze zagnieżdżonym w `contextsRoutes` (`new Hono<AuthEnv>()` podłączony przez `.route('/', …)`), więc sesja jest sprawdzana raz. Osobny router z własnym `requireAuth` pod `/contexts` sprawdzałby ją dwa razy, bo wzorzec `/api/contexts/*` pasuje do obu. Cudzy albo nieistniejący kontekst daje w tych trasach 404 (osobne zapytanie o właściciela), a nie pustą listę.
+- **Trasy zadań.** `/widgets/:id/todos` (`GET`, `POST`) są w routerze zagnieżdżonym w `widgetsRoutes`, tak jak widgety w `contextsRoutes`. `/todos/:id` (`PATCH`, `DELETE`) to osobny router z własnym `requireAuth`, bo żaden inny router nie pasuje do tej ścieżki. Zadania widgetu innego typu niż `todo` dają `400 VALIDATION_ERROR` (widget istnieje, więc 404 byłoby nieprawdą), a cudzy albo nieistniejący widget i cudze zadanie dają 404. Lista zadań jest sortowana po `(position, id)`: kolumna `position` ma kolację `"C"`, a `id` rozstrzyga kolejność zadań z tą samą pozycją (dodanych na dwóch urządzeniach naraz). Zmiana zadania to jeden `UPDATE … WHERE id AND user_id … RETURNING`; `UpdateTodoSchema` nie ma `widgetId`, więc zadania nie da się przenieść do innego widgetu.
 - **Układ w jednej transakcji.** `PUT /contexts/:id/layout` sprawdza przynależność każdego widgetu w samym `UPDATE … WHERE id AND context_id AND user_id`. Gdy któryś `UPDATE` nie zmieni wiersza, transakcja jest wycofywana i nic nie zostaje zapisane.
 - **Konflikty: ostatni zapis wygrywa** (F-SYNC-06). Klient może wysyłać `version`, ale w MVP serwer go nie porównuje. Przejście na `409 VERSION_CONFLICT` jest w roadmapie.
 - **Limity** (F-CTX-08, F-WGT-07, F-TODO-08) są sprawdzane w serwisach i zwracają `422 LIMIT_EXCEEDED`.
@@ -355,9 +358,9 @@ Serwisy nie znają Hono, a trasy nie znają Drizzle. `createApp({ db })` przyjmu
 
 Kroki 2 i 3 dzieją się przed `mount`: `main.ts` czeka na `Promise.all([loadSession(), restoreCache(queryClient), uiStore.load()])`. Opcja `clientPersister` z `VueQueryPlugin` odtwarzałaby cache dopiero po zainstalowaniu pluginu, więc pierwszy render pokazałby szkielety.
 
-Startowy JS nowej karty liczymy jako sumę skryptu wejściowego i chunków z `modulepreload` (`pnpm size` po buildzie). Po Etapie 1: **325,6 kB**. Po Etapie 2: **473 kB**. Po Etapie 3: **490,6 kB** (budżet 550 kB). Leniwie w Etapie 3 ładują się: edytor siatki `GridEditor` z `grid-layout-plus` (około 140 kB, przy pierwszym włączeniu edycji), menu widgetu z modalami ustawień i usuwania (`WidgetActions`, około 25 kB, przy pierwszym kliknięciu), katalog widgetów, ustawienia Zadań i komponenty widgetów. Sam `newtab-*.js` ma około 200 kB, bo Vite wydziela kod wspólny z leniwymi komponentami (Vue, Nuxt UI) do osobnych chunków, które strona i tak pobiera przy starcie. Leniwie ładują się ekran logowania, formularz pierwszego kontekstu, okno zarządzania kontekstami (około 126 kB z `UModal`, `UPopover` i `vue-draggable-plus`) i panel ustawień.
+Startowy JS nowej karty liczymy jako sumę skryptu wejściowego i chunków z `modulepreload` (`pnpm size` po buildzie). Po Etapie 1: **325,6 kB**. Po Etapie 2: **473 kB**. Po Etapie 3: **490,6 kB**. Po Etapie 4: **492,1 kB** (budżet 550 kB). Leniwie w Etapie 3 ładują się: edytor siatki `GridEditor` z `grid-layout-plus` (około 140 kB, przy pierwszym włączeniu edycji), menu widgetu z modalami ustawień i usuwania (`WidgetActions`, około 25 kB, przy pierwszym kliknięciu), katalog widgetów, ustawienia Zadań i komponenty widgetów. Sam `newtab-*.js` ma około 200 kB, bo Vite wydziela kod wspólny z leniwymi komponentami (Vue, Nuxt UI) do osobnych chunków, które strona i tak pobiera przy starcie. W Etapie 4 lista zadań ładuje się razem z leniwym `TodoWidget` (około 22 kB z `TaskList`), ustawienia Zadań w `TodoSettings` (około 10 kB), a `vue-draggable-plus` (około 41 kB) to ten sam leniwy chunk co w oknie kontekstów. `byPosition` jest w osobnym pliku `lib/by-position.ts`, a nie w `lib/positions.ts`: zapytania kontekstów sortują przy starcie, a `positions.ts` importuje `fractional-indexing` (+3,6 kB startowego JS), potrzebny dopiero przy dodawaniu i przeciąganiu. Leniwie ładują się ekran logowania, formularz pierwszego kontekstu, okno zarządzania kontekstami (około 126 kB z `UModal`, `UPopover` i `vue-draggable-plus`) i panel ustawień.
 
-`performance.mark('dashboard-rendered')` w `DashboardScreen` (tylko gdy lista kontekstów jest w cache) mierzy wymaganie wydajnościowe. Po Etapie 2 pierwszy render z cache: mediana 22–26 ms na prototypie (około 80 ms przy `CPU 4x slowdown`) i 68 ms w Chromium headless w maszynie wirtualnej. Po Etapie 3 z 23 widgetami na pulpicie w Chromium headless w maszynie wirtualnej: mediana około 140 ms (115–188 ms), a przy `CPU 4x slowdown` około 600 ms. Prototyp z sześcioma widgetami miał 30 ms i 86 ms. Pełny pomiar we wszystkich scenariuszach dojdzie w Etapie 6.
+`performance.mark('dashboard-rendered')` w `DashboardScreen` (tylko gdy lista kontekstów jest w cache) mierzy wymaganie wydajnościowe. Po Etapie 2 pierwszy render z cache: mediana 22–26 ms na prototypie (około 80 ms przy `CPU 4x slowdown`) i 68 ms w Chromium headless w maszynie wirtualnej. Po Etapie 3 z 23 widgetami na pulpicie w Chromium headless w maszynie wirtualnej: mediana około 140 ms (115–188 ms), a przy `CPU 4x slowdown` około 600 ms. Prototyp z sześcioma widgetami miał 30 ms i 86 ms. Po Etapie 4 z jednym widgetem Zadania w Chromium headless w maszynie wirtualnej: mediana 93 ms przy 3 zadaniach i 94 ms przy 50 (pusty pulpit: około 95 ms), a przy 500 zadaniach mediana 172–192 ms z pojedynczymi pomiarami powyżej 200 ms, bo odtworzenie dużego cache z `chrome.storage.local` trwa dłużej. Prototyp z 500 zadaniami miał 59–73 ms. Pełny pomiar we wszystkich scenariuszach dojdzie w Etapie 6.
 
 ### Warstwa danych
 
@@ -374,10 +377,14 @@ Startowy JS nowej karty liczymy jako sumę skryptu wejściowego i chunków z `mo
 
 Mutacje są udostępniane przez composables w `src/queries/` (`useCreateContext()`, `useSaveLayout()`, `useAddTodo()`…). **Widgety i komponenty nigdy nie wołają API bezpośrednio.**
 
-Klucze używane przez więcej niż jeden plik (`widgetsKey(contextId)` i `createContextKey`, klucz mutacji tworzenia kontekstu) są w `queries/keys.ts`, żeby `contexts.ts` i `widgets.ts` nie importowały się nawzajem. Zależności między wpisami cache:
+Klucze używane przez więcej niż jeden plik (`widgetsKey(contextId)`, `todosKey(widgetId)` oraz klucze mutacji tworzenia kontekstu `createContextKey` i widgetu `createWidgetKey`) są w `queries/keys.ts`, żeby `contexts.ts`, `widgets.ts` i `todos.ts` nie importowały się nawzajem. Zależności między wpisami cache:
 
 - nowy kontekst dostaje w `onMutate` pustą listę widgetów w cache, a `useWidgets` jest wyłączone, dopóki mutacja tworzenia tego kontekstu czeka na API (`useMutationState` po `createContextKey`). Bez tego pulpit nowego kontekstu dostawał 404 zamiast pustej listy;
-- usunięcie kontekstu usuwa wpis jego widgetów (`removeQueries`), bo inaczej zostałby w `chrome.storage.local` do wylogowania;
+- nowy widget Zadania dostaje w `onMutate` pustą listę zadań w cache (tylko typ `todo`), a `useTodos` jest wyłączone, dopóki mutacja tworzenia tego widgetu czeka na API (`useMutationState` po `createWidgetKey`). Bez tego nowy widget dostawał 404, a offline pokazywał szkielety bez końca. Gdy tworzenie widgetu się nie uda, wpis zadań jest usuwany;
+- usunięcie kontekstu usuwa wpisy zadań jego widgetów (czytane z wpisu widgetów, więc przed nim), a potem wpis widgetów (`removeQueries`), bo inaczej zostałyby w `chrome.storage.local` do wylogowania. Usunięcie widgetu usuwa wpis jego zadań;
+- lista zadań w cache jest zawsze posortowana przez `byPosition` (`lib/by-position.ts`), tak samo jak w API, także po optymistycznym przesunięciu;
+- mutacje zadań mają wspólny `mutationKey` (`['todos', 'change']`). `onSuccess` dodania i zmiany zapisuje odpowiedź w cache tylko wtedy, gdy nie czeka żadna nowsza zmiana zadań (`isMutating(…) > 1`), bo jej optymistyczny stan jest nowszy niż ta odpowiedź (podwójne kliknięcie checkboxa nie miga);
+- zmiana zadania odrzucona z 404 (zadanie usunięte na innym urządzeniu) po cofnięciu unieważnia listę zadań widgetu, więc zadanie znika po odświeżeniu. `404` przy usuwaniu zadania to sukces;
 - odrzucony układ (`useSaveLayout` → `onError`) po cofnięciu unieważnia zapytanie widgetów, bo odrzucenie zwykle znaczy, że cache jest nieaktualny (np. widget usunięty na innym urządzeniu). Pozostałe mutacje widgetów tylko cofają zmianę.
 
 **Schemat mutacji optymistycznej (F-SYNC-04):**
@@ -406,6 +413,7 @@ Toast „Zmiana została cofnięta” pokazuje jeden słuchacz `MutationCache` (
 - `refetchOnWindowFocus: true` (F-SYNC-03); inne otwarte karty odświeżają dane przy powrocie do nich;
 - `retry: 3` z rosnącym odstępem dla zapytań i bez ponowień dla błędów 4xx;
 - `networkMode: 'online'`: offline mutacje są wstrzymywane i wznawiane po powrocie sieci (F-SYNC-05). Baner offline korzysta z `onlineManager`;
+- wszystkie mutacje mają domyślnie `scope: { id: 'api' }` (`createQueryClient`), więc idą do API po kolei, w kolejności wykonania, także po powrocie sieci. Zmiana optymistyczna (`onMutate`) działa od razu, a w kolejce czeka tylko żądanie (`isPaused`). Bez kolejki zmiana zadania mogła dotrzeć przed zapisem zadania albo widgetu i dostać 404. Kosztem jest to, że jedno zawieszone żądanie wstrzymuje następne, aż przeglądarka je przerwie;
 - `onlineManager.setOnline(navigator.onLine)` na starcie, przed utworzeniem klienta. TanStack Query v5 zakłada stan „online”, dopóki nie przyjdzie zdarzenie `offline`, więc karta otwarta bez sieci nie pokazałaby banera, a zmiana od razu by się cofnęła;
 - baner oznacza brak sieci w przeglądarce, a nie niedziałające API. Gdy nie odpowiada samo API, pulpit zostaje z danymi z cache, a nieudane zmiany cofają się z toastem.
 
@@ -455,26 +463,33 @@ interface WidgetDefinition {
 - `onErrorCaptured` z `return false`: komunikat błędu i przycisk „Spróbuj ponownie”, który ponownie montuje komponent (F-WGT-05). Bez `return false` błąd idzie dalej i wywraca cały pulpit;
 - nieznany typ (brak w rejestrze): placeholder z F-WGT-06; taki widget można usunąć.
 
-**Źródła danych.** Widget, którego dane mogą w przyszłości pochodzić z różnych miejsc, oddziela UI od źródła. Dla Zadań:
+**Źródła danych.** Widget, którego dane mogą w przyszłości pochodzić z różnych miejsc, oddziela UI od źródła. Dla Zadań (`widgets/todo/task-source.ts`):
 
 ```ts
+interface TaskItem {
+  id: string
+  text: string
+  done: boolean // bez position: kolejność to sprawa źródła
+}
+
 interface TaskSource {
-  items: Ref<TaskItem[]> // { id, text, done, position }
-  isLoading: Ref<boolean>
-  error: Ref<unknown>
-  capabilities: { reorder: boolean; dueDates: boolean }
+  items: Readonly<Ref<TaskItem[] | undefined>> // undefined do pierwszego wczytania
+  isError: Readonly<Ref<boolean>>
+  retry(): void
+  capabilities: { reorder: boolean }
   add(text: string): void
   toggle(id: string): void
   edit(id: string, text: string): void
   remove(id: string): void
-  move(id: string, beforeId: string | null, afterId: string | null): void
+  move(id: string, beforeId: string | null, afterId: string | null): void // ID nowych sąsiadów
 }
-function useTaskSource(config: TodoConfig, widgetId: string): TaskSource
+function useTaskSource(source: TodoConfig['source'], widgetId: string): TaskSource
 ```
 
-- `TaskList.vue` jest czysto prezentacyjny: dostaje `items` i `capabilities`, emituje `add`, `toggle`, `edit`, `remove`, `move`.
-- `TodoWidget.vue` łączy `useTaskSource()` z `TaskList`.
-- W MVP jedyną implementacją jest `local` oparta na `useTodos()`. Nowa pozycja to `generateKeyBetween(poprzednia, następna)`.
+- `useTaskSource` to composable wołany raz w `setup()`. Wybiera implementację wyczerpującym `switch (source.type)`, więc nowy wariant unii `source` bez implementacji to błąd TypeScriptu. Zmiana źródła w konfiguracji wymaga nowego widgetu.
+- `TaskList.vue` jest czysto prezentacyjny: dostaje `items` i `capabilities`, emituje `add`, `toggle`, `edit`, `remove`, `move` i nie importuje niczego z `src/queries/`. Przeciąga lokalną kopię listy (`vue-draggable-plus`, uchwyt `.task-drag-handle`, osobny od `.widget-drag-handle` ramki), a przy `capabilities.reorder: false` nie pokazuje uchwytów. Edycję w miejscu kończy pierwsze z Enter, Escape i `blur` (jedno `editingId`).
+- `TodoWidget.vue` łączy `useTaskSource()` z `TaskList`: szkielety do pierwszego wczytania, komunikat z „Spróbuj ponownie” przy błędzie bez danych w cache, a przy „Ukryj ukończone” (F-TODO-06) filtruje listę, zanim trafi do `TaskList`. Przeciąganie zgłasza więc sąsiadów z widocznej listy, a źródło szuka ich pozycji wśród wszystkich zadań.
+- W MVP jedyną implementacją jest `local` (`useLocalTaskSource`) oparta na `useTodos()` i mutacjach zadań. Nowe zadanie dostaje `positionAfterLast`, a przesunięcie `positionBetween(pozycja poprzedniego, pozycja następnego)` z `lib/positions.ts`, czyli jeden `PATCH`.
 - Przyszłe integracje (np. Todoist) idą **przez backend**: tokeny OAuth są przechowywane zaszyfrowane na serwerze, a backend tłumaczy dane zewnętrzne na `TaskItem`.
 
 **Dodanie nowego typu widgetu:**
@@ -543,6 +558,7 @@ pnpm dev                      # API (watch) + WXT dev, który uruchamia przeglą
 | D14 | Przełącznik kontekstów jako zakładki (`UTabs`) w nagłówku                       | menu rozwijane (`UDropdownMenu`)                             | menu dokłada ponad 100 kB startowego JS (pomiar z Etapu 2: +104 kB); zakładki przełączają jednym kliknięciem      |
 | D15 | Podgląd pulpitu na CSS grid, `grid-layout-plus` ładowany leniwie tylko w edycji | biblioteka w obu trybach                                     | biblioteka w pierwszym renderze to +139 kB startowego JS (ponad budżet); ten sam algorytm dosuwania w obu trybach |
 | D16 | Rejestr widgetów bez Zoda, schemat konfiguracji przy leniwym komponencie        | walidacja w ramce (`configSchema` w definicji), `zod/mini`   | ramka jest w pierwszym renderze: walidacja w niej to +93 kB, a `zod/mini` nadal +52 kB                            |
+| D17 | Wszystkie mutacje w jednej kolejce (`mutations.scope` w `QueryClient`)          | równoległe zapisy, blokada pola do zapisu widgetu i zadania  | równoległe zapisy po powrocie sieci dostawały 404 i gubiły zmiany; UI zostaje optymistyczne, kolejki nie widać    |
 
 ## Ryzyka
 

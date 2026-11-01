@@ -25,11 +25,11 @@ Kroki oznaczone jako **eksperyment** celowo pokazują błąd, zanim go naprawisz
 
 ## Wymagania wstępne
 
-- [ ] Etap 3 jest skończony, a `pnpm check` przechodzi (177 testów)
-- [ ] Postgres działa: `docker compose up -d`
-- [ ] Migracje z Etapów 1–3 są zastosowane: `pnpm --filter @one-place/api db:migrate`
+- [x] Etap 3 jest skończony, a `pnpm check` przechodzi (177 testów)
+- [x] Postgres działa: `docker compose up -d`
+- [x] Migracje z Etapów 1–3 są zastosowane: `pnpm --filter @one-place/api db:migrate`
 - [ ] `pnpm dev` uruchamia API i przeglądarkę z rozszerzeniem, a widget Zadania (zaślepka) da się dodać do pulpitu
-- [ ] `pnpm --filter @one-place/extension build && pnpm size` pokazuje około 490 kB
+- [x] `pnpm --filter @one-place/extension build && pnpm size` pokazuje około 490 kB
 
 ## Ograniczenia globalne
 
@@ -111,17 +111,17 @@ one-place/
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/todos.test.ts`:
+- [x] **1. Czerwone testy** w `src/todos.test.ts`:
   - `CreateTodoSchema` przyjmuje `{ id, text: '  Mleko  ', position: 'a0' }` i zwraca tekst `'Mleko'`;
   - tekst `'   '` i tekst z 501 znaków nie przechodzą, a 500 znaków przechodzi;
   - ID, które nie jest UUID, i pozycja `'a 0'` nie przechodzą;
   - `UpdateTodoSchema` przyjmuje samo `{ done: true }` i samo `{ text: ' Chleb ' }` (przycięte), a odrzuca `{ done: 'yes' }` i `{ text: '' }`;
   - `UpdateTodoSchema.parse({ widgetId: '…' })` daje `{}`.
-- [ ] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./todos` nie istnieje.
-- [ ] **3. Implementacja** `src/todos.ts`. `TodoDto` to zwykły interfejs, tak jak `WidgetDto`. W `src/index.ts` dopisz eksport.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (31 testów w `shared`)**.
-- [ ] **5. Eksperyment: kolejność sprawdzeń.** Zamień w `TodoTextSchema` kolejność na `z.string().min(1, …).trim().max(…)`. Oczekiwany wynik: test tekstu **FAIL**, bo `'   '` przechodzi i daje pusty tekst. Zod sprawdza długość, zanim przytnie tekst. Przywróć `.trim()` na początek.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add todo schemas`.
+- [x] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo moduł `./todos` nie istnieje.
+- [x] **3. Implementacja** `src/todos.ts`. `TodoDto` to zwykły interfejs, tak jak `WidgetDto`. W `src/index.ts` dopisz eksport.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (31 testów w `shared`)**.
+- [x] **5. Eksperyment: kolejność sprawdzeń.** Zamień w `TodoTextSchema` kolejność na `z.string().min(1, …).trim().max(…)`. Oczekiwany wynik: test tekstu **FAIL**, bo `'   '` przechodzi i daje pusty tekst. Zod sprawdza długość, zanim przytnie tekst. Przywróć `.trim()` na początek.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add todo schemas`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -261,17 +261,17 @@ export * from './todos'
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `test/migrations.test.ts`:
+- [x] **1. Czerwone testy** w `test/migrations.test.ts`:
   - na liście tabel jest `'todo_items'` (alfabetycznie między `'session'` a `'user'`);
   - test kolacji obejmuje wszystkie kolumny `position`: zmień jego nazwę na „compare positions byte by byte”, pytaj o `table_name, collation_name` wszystkich kolumn o nazwie `position` i oczekuj `contexts` i `todo_items` z kolacją `'C'`;
   - nowy test: klucze obce tabeli `todo_items` mają regułę `CASCADE` (`user_id` i `widget_id`).
 
   Oczekiwany wynik: **FAIL trzech testów**.
 
-- [ ] **2. Schemat** `schema/todos.ts` według tabeli z architektury: `widget_id` z kaskadą do `widgets.id`, `text` jako `varchar(500)`, `done` jako `boolean` z wartością domyślną `false`, `position` przez `fractionalIndex`, `...timestamps` i indeks na `(widget_id, position)`. Dopisz eksport w `schema/index.ts`.
-- [ ] **3. Migracja.** `pnpm --filter @one-place/api db:generate --name todo_items`. W pliku SQL znajdź `"position" text COLLATE "C"` i dwa `ON DELETE cascade`.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (78 testów w pakiecie API)**.
-- [ ] **5. Eksperyment: kolacja w Dockerze.** Postgres z `docker-compose.yml` ma domyślną kolację `en_US.utf8`. Porównaj dwa sortowania tych samych kluczy:
+- [x] **2. Schemat** `schema/todos.ts` według tabeli z architektury: `widget_id` z kaskadą do `widgets.id`, `text` jako `varchar(500)`, `done` jako `boolean` z wartością domyślną `false`, `position` przez `fractionalIndex`, `...timestamps` i indeks na `(widget_id, position)`. Dopisz eksport w `schema/index.ts`.
+- [x] **3. Migracja.** `pnpm --filter @one-place/api db:generate --name todo_items`. W pliku SQL znajdź `"position" text COLLATE "C"` i dwa `ON DELETE cascade`.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (78 testów w pakiecie API)**.
+- [x] **5. Eksperyment: kolacja w Dockerze.** Postgres z `docker-compose.yml` ma domyślną kolację `en_US.utf8`. Porównaj dwa sortowania tych samych kluczy:
 
   ```bash
   docker compose exec db psql -U one one_place -c "select string_agg(p, ' ' order by p) from unnest(array['a0','Zz','a1']) p"
@@ -280,8 +280,8 @@ export * from './todos'
 
   **Oczekiwany wynik:** `a0 a1 Zz` i `Zz a0 a1`. `fractional-indexing` daje `Zz` jako pozycję przed `a0`, czyli dla zadania przeciągniętego na samą górę. W domyślnej kolacji to zadanie byłoby na końcu listy. PGlite w testach zawsze sortuje bajtowo, więc żaden test API tego nie pokaże. Dlatego test migracji pyta o kolację kolumny, a nie o kolejność wyników.
 
-- [ ] **6. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c '\d todo_items'`. Kolumna `position` ma `Collation` równe `C`, a oba klucze obce mają `ON DELETE CASCADE`.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add todo_items table`.
+- [x] **6. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c '\d todo_items'`. Kolumna `position` ma `Collation` równe `C`, a oba klucze obce mają `ON DELETE CASCADE`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add todo_items table`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -436,8 +436,8 @@ CREATE INDEX "todo_items_widget_id_position_idx" ON "todo_items" USING btree ("w
 
 **Kroki:**
 
-- [ ] **1. Fabryka testowa.** W `test/fixtures.ts` dodaj `todoInput(overrides)`: nowy `randomUUID()`, tekst `'Mleko'`, pozycja `'a0'`.
-- [ ] **2. Czerwone testy** w `test/todos.test.ts`. `setup()` zakłada Alicję z kontekstem i widgetem Zadania oraz Boba i zwraca też `todosPath`. Pomocnik `insertNotesWidget(client, contextId)` wstawia przez SQL widget typu `'notes'` do kontekstu Alicji:
+- [x] **1. Fabryka testowa.** W `test/fixtures.ts` dodaj `todoInput(overrides)`: nowy `randomUUID()`, tekst `'Mleko'`, pozycja `'a0'`.
+- [x] **2. Czerwone testy** w `test/todos.test.ts`. `setup()` zakłada Alicję z kontekstem i widgetem Zadania oraz Boba i zwraca też `todosPath`. Pomocnik `insertNotesWidget(client, contextId)` wstawia przez SQL widget typu `'notes'` do kontekstu Alicji:
   - `GET` bez tokenu daje 401;
   - `GET` zwraca zadania w kolejności bajtowej pozycji (`'Zz'`, `'a0'`, `'a1'`, `'a1'`), a dwa zadania z tą samą pozycją `'a1'` w kolejności `id` (wyślij je w odwrotnej kolejności niż ich ID);
   - `GET` dla widgetu Alicji wysłany przez Boba daje 404 z treścią `{ error: { code: 'NOT_FOUND', message: 'Widget not found' } }`;
@@ -453,12 +453,12 @@ CREATE INDEX "todo_items_widget_id_position_idx" ON "todo_items" USING btree ("w
 
   Oczekiwany wynik: **FAIL dziesięciu testów**. 401 i usuwanie z widgetem przechodzą już teraz. Zastanów się dlaczego, zanim przejdziesz dalej.
 
-- [ ] **3. Serwis** `modules/todos/service.ts`: `listTodos(db, userId, widgetId)` i `createTodo(db, userId, widgetId, input)`. Właściciela i typ widgetu sprawdza wspólna funkcja `assertTodoWidget`, która korzysta z `ownWidget` i `widgetNotFound` z serwisu widgetów (wyeksportuj je). Kolejność w `createTodo`: istniejące ID, widget, limit, `insert`. Listę sortuj po `(position, id)`.
-- [ ] **4. Trasy.** `widgetTodosRoutes({ db })` w `modules/todos/routes.ts` zwraca `new Hono<AuthEnv>()` z `GET` i `POST` `/:id/todos`. `widgetsRoutes` podłącza go na końcu łańcucha: `.route('/', widgetTodosRoutes({ db }))`. To ten sam wzór co `contextWidgetsRoutes` w `contextsRoutes`.
-- [ ] **5. Zielone testy.** Oczekiwany wynik: **PASS (90 testów w pakiecie API)**.
-- [ ] **6. Eksperyment: bez sprawdzenia typu.** Zakomentuj w `assertTodoWidget` warunek `widget.type !== 'todo'`. Oczekiwany wynik: dwa testy widgetu `'notes'` **FAIL**: `GET` zwraca `200 []`, a `POST` dodaje zadanie do widgetu, który nie ma listy zadań. Przywróć warunek.
-- [ ] **7. Eksperyment: równe pozycje.** Usuń `asc(todoItems.id)` z `orderBy`. Oczekiwany wynik: test kolejności **FAIL**, bo zadania z tą samą pozycją wracają w kolejności wstawienia. Rozszerzenie sortuje w cache po `(position, id)` (zadanie 5), więc bez `id` w API lista po odświeżeniu potrafiłaby zamienić dwa zadania miejscami. Przywróć sortowanie.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add task list and idempotent create`.
+- [x] **3. Serwis** `modules/todos/service.ts`: `listTodos(db, userId, widgetId)` i `createTodo(db, userId, widgetId, input)`. Właściciela i typ widgetu sprawdza wspólna funkcja `assertTodoWidget`, która korzysta z `ownWidget` i `widgetNotFound` z serwisu widgetów (wyeksportuj je). Kolejność w `createTodo`: istniejące ID, widget, limit, `insert`. Listę sortuj po `(position, id)`.
+- [x] **4. Trasy.** `widgetTodosRoutes({ db })` w `modules/todos/routes.ts` zwraca `new Hono<AuthEnv>()` z `GET` i `POST` `/:id/todos`. `widgetsRoutes` podłącza go na końcu łańcucha: `.route('/', widgetTodosRoutes({ db }))`. To ten sam wzór co `contextWidgetsRoutes` w `contextsRoutes`.
+- [x] **5. Zielone testy.** Oczekiwany wynik: **PASS (90 testów w pakiecie API)**.
+- [x] **6. Eksperyment: bez sprawdzenia typu.** Zakomentuj w `assertTodoWidget` warunek `widget.type !== 'todo'`. Oczekiwany wynik: dwa testy widgetu `'notes'` **FAIL**: `GET` zwraca `200 []`, a `POST` dodaje zadanie do widgetu, który nie ma listy zadań. Przywróć warunek.
+- [x] **7. Eksperyment: równe pozycje.** Usuń `asc(todoItems.id)` z `orderBy`. Oczekiwany wynik: test kolejności **FAIL**, bo zadania z tą samą pozycją wracają w kolejności wstawienia. Rozszerzenie sortuje w cache po `(position, id)` (zadanie 5), więc bez `id` w API lista po odświeżeniu potrafiłaby zamienić dwa zadania miejscami. Przywróć sortowanie.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): add task list and idempotent create`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -849,7 +849,7 @@ import { widgetTodosRoutes } from '../todos/routes'
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `test/todos.test.ts`. `setupWithTodo()` dokłada do `setup()` jedno zadanie Alicji:
+- [x] **1. Czerwone testy** w `test/todos.test.ts`. `setupWithTodo()` dokłada do `setup()` jedno zadanie Alicji:
   - `PATCH` bez tokenu daje 401;
   - `PATCH` z `{ done: true, text: ' Chleb ' }` daje 200, tekst `'Chleb'`, `done: true`, pozycję bez zmian i `version: 2`, a kolejny `PATCH` z samą pozycją zostawia tekst i `done` i daje `version: 3`;
   - `PATCH` Boba daje 404 `{ error: { code: 'NOT_FOUND', message: 'Task not found' } }`, a zadanie Alicji jest nieukończone;
@@ -860,10 +860,10 @@ import { widgetTodosRoutes } from '../todos/routes'
 
   Oczekiwany wynik: **FAIL siedmiu testów**. Tym razem także 401: trasy `/api/todos` jeszcze nie ma, więc żądanie dostaje 404 z `handleNotFound`.
 
-- [ ] **2. Serwis:** `updateTodo(db, userId, id, input)` i `deleteTodo(db, userId, id)`. Wzór jak `updateContext` i `deleteContext`: jeden `UPDATE … WHERE id AND user_id … RETURNING` z ``updatedAt: sql`now()` `` i `version + 1`, a brak wiersza to `todoNotFound()`.
-- [ ] **3. Trasy:** `todosRoutes({ db, auth })` z `.use(requireAuth(auth))`, `PATCH /:id` i `DELETE /:id`. W `app.ts` dopisz `.route('/todos', todosRoutes({ db, auth }))` za widgetami.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (97 testów w pakiecie API)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(api): add task update and delete`.
+- [x] **2. Serwis:** `updateTodo(db, userId, id, input)` i `deleteTodo(db, userId, id)`. Wzór jak `updateContext` i `deleteContext`: jeden `UPDATE … WHERE id AND user_id … RETURNING` z ``updatedAt: sql`now()` `` i `version + 1`, a brak wiersza to `todoNotFound()`.
+- [x] **3. Trasy:** `todosRoutes({ db, auth })` z `.use(requireAuth(auth))`, `PATCH /:id` i `DELETE /:id`. W `app.ts` dopisz `.route('/todos', todosRoutes({ db, auth }))` za widgetami.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (97 testów w pakiecie API)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(api): add task update and delete`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1085,17 +1085,17 @@ import { todosRoutes } from './modules/todos/routes'
 
 **Kroki:**
 
-- [ ] **1. Przeniesienie.** `git mv apps/extension/src/features/contexts/positions.ts apps/extension/src/lib/positions.ts` i tak samo test. Popraw importy w `use-add-context.ts` i `ManageContexts.vue` na `@/lib/positions`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**. Refaktoryzacja nie zmienia zachowania, więc testy nie mogą się zmienić.
-- [ ] **2. Czerwone testy:**
+- [x] **1. Przeniesienie.** `git mv apps/extension/src/features/contexts/positions.ts apps/extension/src/lib/positions.ts` i tak samo test. Popraw importy w `use-add-context.ts` i `ManageContexts.vue` na `@/lib/positions`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**. Refaktoryzacja nie zmienia zachowania, więc testy nie mogą się zmienić.
+- [x] **2. Czerwone testy:**
   - w `lib/positions.test.ts`: `positionBetween(null, null)` to `'a0'`; `positionBetween(null, 'a0')` jest mniejsze od `'a0'`, `positionBetween('a1', null)` większe od `'a1'`, a `positionBetween('a0', 'a1')` leży między nimi; przy równych sąsiadach `positionBetween('a1', 'a1')` jest większe od `'a1'` i nie rzuca;
   - w nowym `lib/by-position.test.ts`: lista `[{ id: '2', position: 'a0' }, { id: '3', position: 'Zz' }, { id: '1', position: 'a0' }]` posortowana przez `byPosition` daje ID `['3', '1', '2']`.
 
   Oczekiwany wynik: **FAIL**, bo obu funkcji nie ma w `lib/`.
 
-- [ ] **3. Implementacja.** `positionBetween(before, after)` przejmuje ciało `positionAt` (z obsługą równych sąsiadów), a `positionAt` tylko wybiera sąsiadów z listy i woła `positionBetween`. Funkcję `byPosition` przenieś z `queries/contexts.ts` do `lib/by-position.ts` (typ parametrów: `{ id: string; position: string }`) i zaimportuj ją w `contexts.ts`.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (77 testów w rozszerzeniu)**.
-- [ ] **5. Eksperyment: `byPosition` w `positions.ts`.** Przenieś na chwilę `byPosition` do `lib/positions.ts` i importuj ją stamtąd w `queries/contexts.ts`. Zbuduj i uruchom `pnpm size`. **Oczekiwany wynik:** startowy JS rośnie o około 3,5 kB. `queries/contexts.ts` jest na ścieżce startowej, a `positions.ts` importuje `fractional-indexing`, który przy starcie nie jest potrzebny: klucze generuje się dopiero przy dodawaniu i przeciąganiu. Przywróć osobny plik.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `refactor(extension): move position helpers to lib`.
+- [x] **3. Implementacja.** `positionBetween(before, after)` przejmuje ciało `positionAt` (z obsługą równych sąsiadów), a `positionAt` tylko wybiera sąsiadów z listy i woła `positionBetween`. Funkcję `byPosition` przenieś z `queries/contexts.ts` do `lib/by-position.ts` (typ parametrów: `{ id: string; position: string }`) i zaimportuj ją w `contexts.ts`.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (77 testów w rozszerzeniu)**.
+- [x] **5. Eksperyment: `byPosition` w `positions.ts`.** Przenieś na chwilę `byPosition` do `lib/positions.ts` i importuj ją stamtąd w `queries/contexts.ts`. Zbuduj i uruchom `pnpm size`. **Oczekiwany wynik:** startowy JS rośnie o około 3,5 kB. `queries/contexts.ts` jest na ścieżce startowej, a `positions.ts` importuje `fractional-indexing`, który przy starcie nie jest potrzebny: klucze generuje się dopiero przy dodawaniu i przeciąganiu. Przywróć osobny plik.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `refactor(extension): move position helpers to lib`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1242,8 +1242,8 @@ import { byPosition } from '@/lib/by-position'
 
 **Kroki:**
 
-- [ ] **1. Klucze.** W `keys.ts` dopisz `createWidgetKey = ['widgets', 'create'] as const` i `todosKey(widgetId)` zwracające `['todos', widgetId] as const`.
-- [ ] **2. Czerwone testy** w `queries/todos.test.ts`. Mock `@/api/client` podmienia trasy zadań oraz `$post` widgetów, `$delete` widgetu i `$delete` kontekstu. Cache zaczyna od `[milk (a0), bread (a1)]` pod `todosKey('tasks')`:
+- [x] **1. Klucze.** W `keys.ts` dopisz `createWidgetKey = ['widgets', 'create'] as const` i `todosKey(widgetId)` zwracające `['todos', widgetId] as const`.
+- [x] **2. Czerwone testy** w `queries/todos.test.ts`. Mock `@/api/client` podmienia trasy zadań oraz `$post` widgetów, `$delete` widgetu i `$delete` kontekstu. Cache zaczyna od `[milk (a0), bread (a1)]` pod `todosKey('tasks')`:
   - `useAddTodo` pokazuje nowe zadanie od razu na końcu listy z `done: false` i `version: 1`, a po odpowiedzi podmienia je na zapisane;
   - `useAddTodo` usuwa nowe zadanie, gdy API odpowie 422;
   - `useUpdateTodo` z pozycją `'Zz'` od razu przestawia zadanie na początek listy, a po odpowiedzi ma `version: 2`;
@@ -1255,11 +1255,11 @@ import { byPosition } from '@/lib/by-position'
 
   Oczekiwany wynik: **FAIL**, bo moduł `./todos` nie istnieje.
 
-- [ ] **3. Implementacja** `queries/todos.ts`. Lista w cache jest zawsze posortowana: pomocnik `withTodo(list, todo)` podmienia albo dopisuje zadanie i sortuje przez `byPosition`, tak jak `withContext` w `contexts.ts`. `useTodos` czeka na zapis widgetu przez `useMutationState` z `createWidgetKey`, tak jak `useWidgets` czeka na zapis kontekstu.
-- [ ] **4. Zależności w cache.** W `widgets.ts`: `useCreateWidget` dostaje `mutationKey: createWidgetKey`, w `onMutate` wpisuje `[]` pod `todosKey(input.id)` dla widgetu typu `todo`, a w `onError` usuwa ten wpis; `useDeleteWidget` w `onSuccess` usuwa `todosKey(id)`. W `contexts.ts`: `useDeleteContext` w `onSuccess` usuwa zadania każdego widgetu z `widgetsKey(id)`, zanim usunie sam wpis widgetów.
-- [ ] **5. Zielone testy.** Oczekiwany wynik: **PASS (85 testów w rozszerzeniu)**.
-- [ ] **6. Eksperyment: zadania nowego widgetu.** Usuń na chwilę z `useTodos` opcję `enabled`. Oczekiwany wynik: test `useTodos` **FAIL**, bo `GET` wychodzi od razu. W przeglądarce oznaczałoby to 404 i komunikat błędu w widgecie, który dopiero powstał. Przywróć `enabled` i usuń z kolei wpis `[]` z `onMutate` w `useCreateWidget`: ten sam test **FAIL**, bo czeka na `[]`, którego nie ma, czyli widget dodany offline pokazywałby szkielety. Przywróć wpis. Na koniec usuń `removeQueries` z `useDeleteWidget`: test sprzątania **FAIL**.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add todo queries with optimistic mutations`.
+- [x] **3. Implementacja** `queries/todos.ts`. Lista w cache jest zawsze posortowana: pomocnik `withTodo(list, todo)` podmienia albo dopisuje zadanie i sortuje przez `byPosition`, tak jak `withContext` w `contexts.ts`. `useTodos` czeka na zapis widgetu przez `useMutationState` z `createWidgetKey`, tak jak `useWidgets` czeka na zapis kontekstu.
+- [x] **4. Zależności w cache.** W `widgets.ts`: `useCreateWidget` dostaje `mutationKey: createWidgetKey`, w `onMutate` wpisuje `[]` pod `todosKey(input.id)` dla widgetu typu `todo`, a w `onError` usuwa ten wpis; `useDeleteWidget` w `onSuccess` usuwa `todosKey(id)`. W `contexts.ts`: `useDeleteContext` w `onSuccess` usuwa zadania każdego widgetu z `widgetsKey(id)`, zanim usunie sam wpis widgetów.
+- [x] **5. Zielone testy.** Oczekiwany wynik: **PASS (85 testów w rozszerzeniu)**.
+- [x] **6. Eksperyment: zadania nowego widgetu.** Usuń na chwilę z `useTodos` opcję `enabled`. Oczekiwany wynik: test `useTodos` **FAIL**, bo `GET` wychodzi od razu. W przeglądarce oznaczałoby to 404 i komunikat błędu w widgecie, który dopiero powstał. Przywróć `enabled` i usuń z kolei wpis `[]` z `onMutate` w `useCreateWidget`: ten sam test **FAIL**, bo czeka na `[]`, którego nie ma, czyli widget dodany offline pokazywałby szkielety. Przywróć wpis. Na koniec usuń `removeQueries` z `useDeleteWidget`: test sprzątania **FAIL**.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add todo queries with optimistic mutations`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1666,11 +1666,11 @@ describe('cache of deleted widgets', () => {
 
 **Kroki:**
 
-- [ ] **1. Czerwony test kolejki.** W `todos.test.ts` zmień `beforeEach` na `queryClient = createQueryClient()`, żeby testy miały ustawienia aplikacji. Dopisz test: `add.mutate(…butter…)` z odpowiedzią `deferred`, zaraz potem `remove.mutate({ id: 'butter', … })`. Usunięcie ma czekać w kolejce: `await vi.waitFor(() => expect(remove.isPaused.value).toBe(true))`, `api.delete` nie zostało wywołane, a po odpowiedzi na `POST` zostaje wywołane raz. Oczekiwany wynik: **FAIL** (`isPaused` nigdy nie staje się `true`).
-- [ ] **2. Kolejka.** W `createQueryClient` dopisz `mutations: { scope: { id: 'api' } }`. Oczekiwany wynik: test kolejki **PASS**.
-- [ ] **3. Czerwony test ostatniej zmiany.** Szybkie podwójne kliknięcie checkboxa: `mutate({ id: 'milk', …, done: true })`, zaraz potem `done: false`, obie odpowiedzi `deferred`. Po odpowiedzi na pierwsze (`done: true`) cache ma nadal pokazywać `done: false`, a po odpowiedzi na drugie `version: 3`. Oczekiwany wynik: **FAIL**, bo `onSuccess` pierwszej mutacji zapisuje `done: true`.
-- [ ] **4. Ostatnia zmiana zapisuje.** Trzy mutacje zadań dostają wspólne `mutationKey: todoChangeKey` (`['todos', 'change']`). Funkcja `hasLaterChanges(queryClient)` sprawdza, czy `isMutating({ mutationKey: todoChangeKey }) > 1`, a `onSuccess` w `useAddTodo` i `useUpdateTodo` nic nie zapisuje, gdy tak jest. Oczekiwany wynik: **PASS (87 testów w rozszerzeniu)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): send changes to the API one after another`.
+- [x] **1. Czerwony test kolejki.** W `todos.test.ts` zmień `beforeEach` na `queryClient = createQueryClient()`, żeby testy miały ustawienia aplikacji. Dopisz test: `add.mutate(…butter…)` z odpowiedzią `deferred`, zaraz potem `remove.mutate({ id: 'butter', … })`. Usunięcie ma czekać w kolejce: `await vi.waitFor(() => expect(remove.isPaused.value).toBe(true))`, `api.delete` nie zostało wywołane, a po odpowiedzi na `POST` zostaje wywołane raz. Oczekiwany wynik: **FAIL** (`isPaused` nigdy nie staje się `true`).
+- [x] **2. Kolejka.** W `createQueryClient` dopisz `mutations: { scope: { id: 'api' } }`. Oczekiwany wynik: test kolejki **PASS**.
+- [x] **3. Czerwony test ostatniej zmiany.** Szybkie podwójne kliknięcie checkboxa: `mutate({ id: 'milk', …, done: true })`, zaraz potem `done: false`, obie odpowiedzi `deferred`. Po odpowiedzi na pierwsze (`done: true`) cache ma nadal pokazywać `done: false`, a po odpowiedzi na drugie `version: 3`. Oczekiwany wynik: **FAIL**, bo `onSuccess` pierwszej mutacji zapisuje `done: true`.
+- [x] **4. Ostatnia zmiana zapisuje.** Trzy mutacje zadań dostają wspólne `mutationKey: todoChangeKey` (`['todos', 'change']`). Funkcja `hasLaterChanges(queryClient)` sprawdza, czy `isMutating({ mutationKey: todoChangeKey }) > 1`, a `onSuccess` w `useAddTodo` i `useUpdateTodo` nic nie zapisuje, gdy tak jest. Oczekiwany wynik: **PASS (87 testów w rozszerzeniu)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): send changes to the API one after another`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1841,18 +1841,18 @@ describe('order of changes', () => {
 
 **Kroki:**
 
-- [ ] **1. Interfejs** w `task-source.ts`: `TaskItem` to `{ id, text, done }`. `TaskSource` ma `items` (`Readonly<Ref<TaskItem[] | undefined>>`), `isError`, `retry()`, `capabilities: { reorder: boolean }` i metody `add(text)`, `toggle(id)`, `edit(id, text)`, `remove(id)`, `move(id, beforeId, afterId)`. `useTaskSource(source, widgetId)` wybiera implementację przez `switch (source.type)`.
-- [ ] **2. Czerwone testy** w `local-task-source.test.ts`. `vi.mock('@/queries/todos', …)` zwraca z `useTodos` stałą listę `milk (a0)`, `bread (a1, done)`, `butter (a2)`, a mutacje to `vi.fn()`:
+- [x] **1. Interfejs** w `task-source.ts`: `TaskItem` to `{ id, text, done }`. `TaskSource` ma `items` (`Readonly<Ref<TaskItem[] | undefined>>`), `isError`, `retry()`, `capabilities: { reorder: boolean }` i metody `add(text)`, `toggle(id)`, `edit(id, text)`, `remove(id)`, `move(id, beforeId, afterId)`. `useTaskSource(source, widgetId)` wybiera implementację przez `switch (source.type)`.
+- [x] **2. Czerwone testy** w `local-task-source.test.ts`. `vi.mock('@/queries/todos', …)` zwraca z `useTodos` stałą listę `milk (a0)`, `bread (a1, done)`, `butter (a2)`, a mutacje to `vi.fn()`:
   - `add('Jajka')` woła mutację dodania z `widgetId`, tekstem, wygenerowanym ID i pozycją większą od `'a2'`;
   - `toggle('milk')` woła zmianę z `done: true`, a `toggle('bread')` z `done: false`;
   - `move('butter', 'milk', 'bread')` daje pozycję między `'a0'` a `'a1'`, a `move('butter', null, 'milk')` mniejszą od `'a0'`.
 
   Oczekiwany wynik: **FAIL**, bo `./local-task-source` nie istnieje.
 
-- [ ] **3. Implementacja** `local-task-source.ts`. `items` to wprost `data` z `useTodos` (`TodoDto` ma wszystkie pola `TaskItem`), `isError` z zapytania, `retry` woła `refetch`, `reorder: true`. Nowe ID z `v7` z pakietu `uuid`, jak w `useAddWidget`.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (90 testów w rozszerzeniu)**.
-- [ ] **5. Eksperyment: nowe źródło w unii.** W `packages/shared/src/widgets.ts` dopisz na chwilę do unii `source` drugi wariant: `z.object({ type: z.literal('todoist') })`. Uruchom `pnpm --filter @one-place/extension typecheck`. **Oczekiwany wynik:** błąd `TS2366: Function lacks ending return statement` w `useTaskSource`. TypeScript pilnuje, żeby każdy typ źródła miał implementację. Usuń dopisany wariant.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add task source with the local implementation`.
+- [x] **3. Implementacja** `local-task-source.ts`. `items` to wprost `data` z `useTodos` (`TodoDto` ma wszystkie pola `TaskItem`), `isError` z zapytania, `retry` woła `refetch`, `reorder: true`. Nowe ID z `v7` z pakietu `uuid`, jak w `useAddWidget`.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (90 testów w rozszerzeniu)**.
+- [x] **5. Eksperyment: nowe źródło w unii.** W `packages/shared/src/widgets.ts` dopisz na chwilę do unii `source` drugi wariant: `z.object({ type: z.literal('todoist') })`. Uruchom `pnpm --filter @one-place/extension typecheck`. **Oczekiwany wynik:** błąd `TS2366: Function lacks ending return statement` w `useTaskSource`. TypeScript pilnuje, żeby każdy typ źródła miał implementację. Usuń dopisany wariant.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add task source with the local implementation`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2052,8 +2052,8 @@ describe('useLocalTaskSource', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** W `widgets.todo` dopisz `add` („Dodaj zadanie” / „Add a task”), `empty` („Brak zadań” / „No tasks”), `toggle` („Ukończone” / „Done”) i `delete` („Usuń zadanie” / „Delete the task”).
-- [ ] **2. Czerwone testy** w `TaskList.test.ts` (`// @vitest-environment happy-dom`, pluginy `ui` i `i18n` jak w `TodoSettings.test.ts`):
+- [x] **1. Tłumaczenia.** W `widgets.todo` dopisz `add` („Dodaj zadanie” / „Add a task”), `empty` („Brak zadań” / „No tasks”), `toggle` („Ukończone” / „Done”) i `delete` („Usuń zadanie” / „Delete the task”).
+- [x] **2. Czerwone testy** w `TaskList.test.ts` (`// @vitest-environment happy-dom`, pluginy `ui` i `i18n` jak w `TodoSettings.test.ts`):
   - pusta lista pokazuje „No tasks”;
   - wiersze (`li`) mają teksty `['Mleko', 'Chleb']`, a tylko ukończony „Chleb” ma element z klasą `line-through`;
   - `'  Masło  '` i Enter w polu „Add a task” zgłaszają `add` z `'Masło'` i czyszczą pole;
@@ -2062,9 +2062,9 @@ describe('useLocalTaskSource', () => {
 
   Oczekiwany wynik: **FAIL**, bo `./TaskList.vue` nie istnieje.
 
-- [ ] **3. Implementacja** `TaskList.vue`. Układ (decyzja 2): kolumna na całą wysokość, lista w elemencie z `overflow-y-auto`, który zajmuje resztę miejsca, a `UInput` z ikoną plusa na dole. Checkbox dostaje `:model-value="item.done"` i `@update:model-value="emit('toggle', item.id)"`. Krzyżyk jest widoczny po najechaniu na wiersz (`group-hover:opacity-100`) i przy fokusie z klawiatury (`focus-visible:opacity-100`). Po dodaniu lista przewija się na dół, gdy pojawi się nowe zadanie.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (95 testów w rozszerzeniu)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): add task list with add, toggle and delete`.
+- [x] **3. Implementacja** `TaskList.vue`. Układ (decyzja 2): kolumna na całą wysokość, lista w elemencie z `overflow-y-auto`, który zajmuje resztę miejsca, a `UInput` z ikoną plusa na dole. Checkbox dostaje `:model-value="item.done"` i `@update:model-value="emit('toggle', item.id)"`. Krzyżyk jest widoczny po najechaniu na wiersz (`group-hover:opacity-100`) i przy fokusie z klawiatury (`focus-visible:opacity-100`). Po dodaniu lista przewija się na dół, gdy pojawi się nowe zadanie.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (95 testów w rozszerzeniu)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): add task list with add, toggle and delete`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2295,8 +2295,8 @@ describe('TaskList', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** `widgets.todo.edit`: „Edytuj zadanie” / „Edit the task”.
-- [ ] **2. Czerwone testy** w nowym `describe('editing in place')`. Pomocnik `startEditing(wrapper, text)` klika tekst „Mleko” i wpisuje `text` w pole „Edit the task”:
+- [x] **1. Tłumaczenia.** `widgets.todo.edit`: „Edytuj zadanie” / „Edit the task”.
+- [x] **2. Czerwone testy** w nowym `describe('editing in place')`. Pomocnik `startEditing(wrapper, text)` klika tekst „Mleko” i wpisuje `text` w pole „Edit the task”:
   - Enter, a zaraz potem `blur` zgłaszają `edit` z `['milk', 'Mleko 2%']` **jeden raz**, a pole znika;
   - sam `blur` zapisuje;
   - Escape, a zaraz potem `blur` nie zgłaszają `edit`, a wiersz pokazuje „Mleko”;
@@ -2304,10 +2304,10 @@ describe('TaskList', () => {
 
   W dwóch pierwszych scenariuszach z „zaraz potem” wywołaj `void input.trigger('keydown', …)` bez `await`, a dopiero potem `await input.trigger('blur')`. Oczekiwany wynik: **FAIL**, bo tekst nie jest jeszcze klikalny.
 
-- [ ] **3. Eksperyment: najprostsza wersja.** Tekst zadania to `<button>`, który ustawia `editingId` i `editText`. Pole `UInput` z `autofocus` ma trzy obsługi: `@keydown.enter="finishEdit(item.id, true)"`, `@keydown.esc="finishEdit(item.id, false)"` i `@blur="finishEdit(item.id, true)"`. `finishEdit(id, save)` ustawia `editingId = null` i przy `save` zgłasza `edit`, jeśli przycięty tekst nie jest pusty i różni się od starego. **Oczekiwany wynik:** testy Entera i Escape **FAIL**: Enter zgłasza `edit` dwa razy, a Escape raz. Wyjaśnienie jest niżej, otwórz je przed krokiem 4.
-- [ ] **4. Poprawka.** `finishEdit(save)` nie dostaje ID z szablonu, tylko czyta `editingId`. Gdy jest `null`, edycja już się skończyła i funkcja nic nie robi. W przeciwnym razie najpierw czyści `editingId`, potem ewentualnie zgłasza `edit`. Oczekiwany wynik: **PASS (99 testów w rozszerzeniu)**.
-- [ ] **5. Eksperyment: test z `await`.** Wróć na chwilę do wersji z kroku 3 i w obu testach zamień `void input.trigger('keydown', …)` na `await input.trigger('keydown', …)`. **Oczekiwany wynik:** testy **przechodzą**, choć kod ma błąd. Przywróć poprawkę i `void`.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): edit a task in place`.
+- [x] **3. Eksperyment: najprostsza wersja.** Tekst zadania to `<button>`, który ustawia `editingId` i `editText`. Pole `UInput` z `autofocus` ma trzy obsługi: `@keydown.enter="finishEdit(item.id, true)"`, `@keydown.esc="finishEdit(item.id, false)"` i `@blur="finishEdit(item.id, true)"`. `finishEdit(id, save)` ustawia `editingId = null` i przy `save` zgłasza `edit`, jeśli przycięty tekst nie jest pusty i różni się od starego. **Oczekiwany wynik:** testy Entera i Escape **FAIL**: Enter zgłasza `edit` dwa razy, a Escape raz. Wyjaśnienie jest niżej, otwórz je przed krokiem 4.
+- [x] **4. Poprawka.** `finishEdit(save)` nie dostaje ID z szablonu, tylko czyta `editingId`. Gdy jest `null`, edycja już się skończyła i funkcja nic nie robi. W przeciwnym razie najpierw czyści `editingId`, potem ewentualnie zgłasza `edit`. Oczekiwany wynik: **PASS (99 testów w rozszerzeniu)**.
+- [x] **5. Eksperyment: test z `await`.** Wróć na chwilę do wersji z kroku 3 i w obu testach zamień `void input.trigger('keydown', …)` na `await input.trigger('keydown', …)`. **Oczekiwany wynik:** testy **przechodzą**, choć kod ma błąd. Przywróć poprawkę i `void`.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): edit a task in place`.
 
 <details>
 <summary>Wyjaśnienie eksperymentów (otwórz po kroku 3)</summary>
@@ -2477,16 +2477,16 @@ describe('editing in place', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** `widgets.todo.drag`: „Przeciągnij, aby zmienić kolejność” / „Drag to change the order”.
-- [ ] **2. Czerwone testy** w nowym `describe('moving')`. `mountList` dostaje drugi parametr `reorder = true`. Pomocnik `drop(wrapper, order, newIndex)` robi to, co `VueDraggable` po upuszczeniu: `draggable.vm.$emit('update:modelValue', order)`, potem `draggable.vm.$emit('update', { newIndex })`:
+- [x] **1. Tłumaczenia.** `widgets.todo.drag`: „Przeciągnij, aby zmienić kolejność” / „Drag to change the order”.
+- [x] **2. Czerwone testy** w nowym `describe('moving')`. `mountList` dostaje drugi parametr `reorder = true`. Pomocnik `drop(wrapper, order, newIndex)` robi to, co `VueDraggable` po upuszczeniu: `draggable.vm.$emit('update:modelValue', order)`, potem `draggable.vm.$emit('update', { newIndex })`:
   - przy liście `milk, bread, butter` upuszczenie „butter” na indeks 1 (`[milk, butter, bread]`) zgłasza `['butter', 'milk', 'bread']`, a potem na indeks 0 (`[butter, milk, bread]`) zgłasza `['butter', null, 'milk']`;
   - przy `reorder: false` nie ma elementu z etykietą „Drag to change the order”.
 
   Oczekiwany wynik: **FAIL**, bo w liście nie ma `VueDraggable`.
 
-- [ ] **3. Implementacja.** Lokalna kopia `rows` odświeżana przez `watch` na `props.items` (jak `items` w `ManageContexts.vue`). Element z `ref="list"` zostaje, a `<ul>` w nim zastępuje `<VueDraggable v-model="rows" tag="ul" handle=".task-drag-handle" :disabled="!capabilities.reorder" :animation="150" @update="onMove">`. `v-for` idzie po `rows`. Na początku wiersza `UIcon` z `i-lucide-grip-vertical`, klasą `task-drag-handle` i `v-if="capabilities.reorder"`. `onMove` czyta nowy indeks i zgłasza ID sąsiadów z `rows` albo `null` na brzegach.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (101 testów w rozszerzeniu)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): reorder tasks by dragging`.
+- [x] **3. Implementacja.** Lokalna kopia `rows` odświeżana przez `watch` na `props.items` (jak `items` w `ManageContexts.vue`). Element z `ref="list"` zostaje, a `<ul>` w nim zastępuje `<VueDraggable v-model="rows" tag="ul" handle=".task-drag-handle" :disabled="!capabilities.reorder" :animation="150" @update="onMove">`. `v-for` idzie po `rows`. Na początku wiersza `UIcon` z `i-lucide-grip-vertical`, klasą `task-drag-handle` i `v-if="capabilities.reorder"`. `onMove` czyta nowy indeks i zgłasza ID sąsiadów z `rows` albo `null` na brzegach.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (101 testów w rozszerzeniu)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): reorder tasks by dragging`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2756,25 +2756,25 @@ describe('moving', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** `widgets.todo.loadError` („Nie udało się wczytać zadań.” / „Could not load the tasks.”) i `widgets.todo.retry` („Spróbuj ponownie” / „Try again”).
-- [ ] **2. Czerwone testy** w `TodoWidget.test.ts`. `vi.mock('./task-source', …)` zwraca z `useTaskSource` obiekt z `items` (współdzielony `ref`, ustawiany w `beforeEach` na „Mleko” i ukończony „Chleb”), `isError: ref(false)`, `retry` i `capabilities`:
+- [x] **1. Tłumaczenia.** `widgets.todo.loadError` („Nie udało się wczytać zadań.” / „Could not load the tasks.”) i `widgets.todo.retry` („Spróbuj ponownie” / „Try again”).
+- [x] **2. Czerwone testy** w `TodoWidget.test.ts`. `vi.mock('./task-source', …)` zwraca z `useTaskSource` obiekt z `items` (współdzielony `ref`, ustawiany w `beforeEach` na „Mleko” i ukończony „Chleb”), `isError: ref(false)`, `retry` i `capabilities`:
   - widget z tytułem „Zakupy” pokazuje go w `h2` i oba zadania;
   - przy `hideCompleted: true` i pustym tytule `h2` to „Tasks”, a lista ma tylko „Mleko”;
   - przy `items` równym `undefined` nie ma wierszy, a są trzy szkielety (`.animate-pulse`).
 
   Oczekiwany wynik: **FAIL wszystkich trzech testów**, bo zaślepka pokazuje tylko tytuł.
 
-- [ ] **3. Implementacja** `TodoWidget.vue`: `config` jak w zaślepce, `source = useTaskSource(config.value.source, props.widget.id)`, `visible` jako `computed` z filtrem przy `hideCompleted`. Szablon: kolumna z `h2` (z `pe-6`, żeby tytuł nie wchodził pod przycisk menu ramki), potem szkielety albo `UEmpty` z błędem, gdy `visible` jest `undefined`, a w przeciwnym razie `TaskList`, którego zdarzenia idą prosto do metod źródła.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (104 testy w rozszerzeniu)**.
-- [ ] **5. Eksperyment: `ref` w obiekcie.** Zamień w szablonie `v-if="source.isError.value"` na `v-if="source.isError"`. Uruchom typecheck i testy. **Oczekiwany wynik:** typecheck przechodzi, a test szkieletów **FAIL**: widget w trakcie wczytywania pokazuje „Could not load the tasks.”. Vue rozpakowuje w szablonie tylko `ref` z najwyższego poziomu. `source.isError` to obiekt `ref`, który zawsze jest prawdziwy. Przywróć `.value`.
-- [ ] **6. W przeglądarce** (zbuduj paczkę i załaduj `.output/chrome-mv3`), z otwartym DevTools → Network:
+- [x] **3. Implementacja** `TodoWidget.vue`: `config` jak w zaślepce, `source = useTaskSource(config.value.source, props.widget.id)`, `visible` jako `computed` z filtrem przy `hideCompleted`. Szablon: kolumna z `h2` (z `pe-6`, żeby tytuł nie wchodził pod przycisk menu ramki), potem szkielety albo `UEmpty` z błędem, gdy `visible` jest `undefined`, a w przeciwnym razie `TaskList`, którego zdarzenia idą prosto do metod źródła.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (104 testy w rozszerzeniu)**.
+- [x] **5. Eksperyment: `ref` w obiekcie.** Zamień w szablonie `v-if="source.isError.value"` na `v-if="source.isError"`. Uruchom typecheck i testy. **Oczekiwany wynik:** typecheck przechodzi, a test szkieletów **FAIL**: widget w trakcie wczytywania pokazuje „Could not load the tasks.”. Vue rozpakowuje w szablonie tylko `ref` z najwyższego poziomu. `source.isError` to obiekt `ref`, który zawsze jest prawdziwy. Przywróć `.value`.
+- [x] **6. W przeglądarce** (zbuduj paczkę i załaduj `.output/chrome-mv3`), z otwartym DevTools → Network:
   - dodaj widget Zadania: od razu widać „Brak zadań” i pole „Dodaj zadanie”, bez szkieletów, a `GET /widgets/:id/todos` wychodzi dopiero po `POST` widgetu;
   - dodaj „Mleko”, „Chleb” i „Masło”, odhacz „Chleb”, zmień „Mleko” na „Mleko 2%” Enterem (**jeden** `PATCH`), zacznij edytować „Masło”, wpisz coś i naciśnij Escape (**żadnego** `PATCH`), usuń „Masło” krzyżykiem;
   - przeładuj kartę: „Mleko 2%” i odhaczony „Chleb” są na swoich miejscach (scenariusz akceptacyjny 2);
   - przeciągnij zadanie za uchwyt w inne miejsce: jeden `PATCH` z samą pozycją, a kolejność zostaje po przeładowaniu (scenariusz 3);
   - włącz „Edytuj pulpit” i przeciągnij zadanie w widgecie: zadanie się przesuwa, a widget stoi w miejscu;
   - dodaj kilkanaście zadań: lista przewija się do każdego nowego, a pole zostaje na dole.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): show the task list in the todo widget`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): show the task list in the todo widget`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2971,12 +2971,12 @@ describe('TodoWidget', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** `widgets.todo.settings.hideCompleted`: „Ukryj ukończone” / „Hide completed”.
-- [ ] **2. Czerwony test** w `TodoSettings.test.ts`: dla konfiguracji `{ title: 'Zakupy' }` kliknięcie przełącznika (`[role="switch"]`) i wysłanie formularza zgłaszają `save` z `{ title: 'Zakupy', hideCompleted: true, source: { type: 'local' } }`. Oczekiwany wynik: **FAIL**, bo przełącznika nie ma.
-- [ ] **3. Implementacja.** `state` dostaje `hideCompleted: config.hideCompleted`, a pod polem tytułu `UFormField name="hideCompleted"` z `USwitch` i etykietą. Usuń komentarz „Stage 3 has only the title”.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (105 testów w rozszerzeniu)**. Pierwszy test z Etapu 3 („keeps the other fields of the config”) dalej przechodzi: `hideCompleted: true` z konfiguracji trafia teraz do `state` i wraca w zapisie.
-- [ ] **5. W przeglądarce:** odhacz jedno zadanie, włącz „Ukryj ukończone” i zapisz: ukończone znikają. Odhacz kolejne: znika od razu. Wyłącz opcję: wszystkie wracają na swoje miejsca.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add "Hide completed" to the todo settings`.
+- [x] **1. Tłumaczenia.** `widgets.todo.settings.hideCompleted`: „Ukryj ukończone” / „Hide completed”.
+- [x] **2. Czerwony test** w `TodoSettings.test.ts`: dla konfiguracji `{ title: 'Zakupy' }` kliknięcie przełącznika (`[role="switch"]`) i wysłanie formularza zgłaszają `save` z `{ title: 'Zakupy', hideCompleted: true, source: { type: 'local' } }`. Oczekiwany wynik: **FAIL**, bo przełącznika nie ma.
+- [x] **3. Implementacja.** `state` dostaje `hideCompleted: config.hideCompleted`, a pod polem tytułu `UFormField name="hideCompleted"` z `USwitch` i etykietą. Usuń komentarz „Stage 3 has only the title”.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (105 testów w rozszerzeniu)**. Pierwszy test z Etapu 3 („keeps the other fields of the config”) dalej przechodzi: `hideCompleted: true` z konfiguracji trafia teraz do `state` i wraca w zapisie.
+- [x] **5. W przeglądarce:** odhacz jedno zadanie, włącz „Ukryj ukończone” i zapisz: ukończone znikają. Odhacz kolejne: znika od razu. Wyłącz opcję: wszystkie wracają na swoje miejsca.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add "Hide completed" to the todo settings`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -3084,15 +3084,15 @@ it('saves "Hide completed" and keeps the title', async () => {
 
 **Kroki:**
 
-- [ ] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 492 kB** (budżet 550 kB). W liście plików z buildu osobno: `TodoWidget` (około 22 kB), `TodoSettings` (około 10 kB) i `vue-draggable-plus` (około 41 kB, ten sam chunk co w oknie kontekstów).
-- [ ] **2. Czas pierwszego renderu.** Zbuduj, załaduj `.output/chrome-mv3`, dodaj do widgetu kilkadziesiąt zadań i odczekaj sekundę. Otwórz nową kartę i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Powtórz kilka razy. Na prototypie, z jednym widgetem i 500 zadaniami, w Chromium headless: 59–73 ms. Wymaganie to poniżej 200 ms.
-- [ ] **3. Kolejka offline.** W zbudowanej paczce utwórz nowy kontekst i odczekaj chwilę. DevTools → Network → „Offline”. Dodaj widget Zadania, dodaj „X” i je odhacz, dodaj „Y” i je usuń. Wyłącz tryb Offline. **Oczekiwany wynik:** żądania w kolejności `POST /widgets`, `POST /todos`, `PATCH`, `POST /todos`, `DELETE`, wszystkie 2xx, bez toastów. Po przeładowaniu jest odhaczone „X” i nie ma „Y”.
-- [ ] **4. Eksperyment: bez kolejki.** Zakomentuj `scope` w `createQueryClient`, zbuduj i powtórz krok 3 w nowym kontekście. **Oczekiwany wynik:** `POST /todos` wychodzi przed `POST /widgets` i dostaje 404, `PATCH` i `DELETE` też dostają 404, a dwa toasty mówią, że zmiana została cofnięta. Po przeładowaniu nie ma „X”, a usunięte „Y” jest na liście. Kolejność żądań może się różnić między próbami. Przywróć `scope` i zbuduj ponownie.
-- [ ] **5. Eksperyment: kolacja w Dockerze.** Zmień na chwilę kolację kolumny: `docker compose exec db psql -U one one_place -c 'alter table todo_items alter column position type text collate "default"'`. Przeciągnij ostatnie zadanie na samą górę listy i przeładuj kartę. **Oczekiwany wynik:** zadanie jest na dole. Dostało pozycję zaczynającą się wielką literą (np. `Zz`), a `en_US.utf8` stawia ją za `a0`. Przywróć: `… alter column position type text collate "C"` i przeładuj: zadanie wraca na górę.
+- [x] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 492 kB** (budżet 550 kB). W liście plików z buildu osobno: `TodoWidget` (około 22 kB), `TodoSettings` (około 10 kB) i `vue-draggable-plus` (około 41 kB, ten sam chunk co w oknie kontekstów).
+- [x] **2. Czas pierwszego renderu.** Zbuduj, załaduj `.output/chrome-mv3`, dodaj do widgetu kilkadziesiąt zadań i odczekaj sekundę. Otwórz nową kartę i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Powtórz kilka razy. Na prototypie, z jednym widgetem i 500 zadaniami, w Chromium headless: 59–73 ms. Wymaganie to poniżej 200 ms.
+- [x] **3. Kolejka offline.** W zbudowanej paczce utwórz nowy kontekst i odczekaj chwilę. DevTools → Network → „Offline”. Dodaj widget Zadania, dodaj „X” i je odhacz, dodaj „Y” i je usuń. Wyłącz tryb Offline. **Oczekiwany wynik:** żądania w kolejności `POST /widgets`, `POST /todos`, `PATCH`, `POST /todos`, `DELETE`, wszystkie 2xx, bez toastów. Po przeładowaniu jest odhaczone „X” i nie ma „Y”.
+- [x] **4. Eksperyment: bez kolejki.** Zakomentuj `scope` w `createQueryClient`, zbuduj i powtórz krok 3 w nowym kontekście. **Oczekiwany wynik:** `POST /todos` wychodzi przed `POST /widgets` i dostaje 404, `PATCH` i `DELETE` też dostają 404, a dwa toasty mówią, że zmiana została cofnięta. Po przeładowaniu nie ma „X”, a usunięte „Y” jest na liście. Kolejność żądań może się różnić między próbami. Przywróć `scope` i zbuduj ponownie.
+- [x] **5. Eksperyment: kolacja w Dockerze.** Zmień na chwilę kolację kolumny: `docker compose exec db psql -U one one_place -c 'alter table todo_items alter column position type text collate "default"'`. Przeciągnij ostatnie zadanie na samą górę listy i przeładuj kartę. **Oczekiwany wynik:** zadanie jest na dole. Dostało pozycję zaczynającą się wielką literą (np. `Zz`), a `en_US.utf8` stawia ją za `a0`. Przywróć: `… alter column position type text collate "C"` i przeładuj: zadanie wraca na górę.
 - [ ] **6. Eksperyment: zadanie usunięte na innym urządzeniu.** Usuń zadanie w bazie: `docker compose exec db psql -U one one_place -c "delete from todo_items where text = 'Chleb'"`. Bez przełączania karty odhacz „Chleb”. **Oczekiwany wynik:** `PATCH` z 404, toast „Ten element został już usunięty, np. na innym urządzeniu.”, a „Chleb” zostaje na liście, dopóki nie przejdziesz na inną kartę i z powrotem.
-- [ ] **7. Czerwony test.** W `todos.test.ts` dodaj test: `useUpdateTodo` z odpowiedzią 404 `NOT_FOUND` odrzuca mutację, a `queryClient.getQueryState(key)?.isInvalidated` jest `true`. Oczekiwany wynik: **FAIL**.
-- [ ] **8. Poprawka.** W `onError` mutacji `useUpdateTodo` po cofnięciu wywołaj `invalidateQueries` dla `todosKey(widgetId)`, gdy `apiErrorInfo(error)?.status === 404`. Oczekiwany wynik: **PASS (106 testów w rozszerzeniu)**. Zbuduj i powtórz krok 6 z innym zadaniem: po `PATCH` z 404 wychodzi `GET`, a zadanie znika.
-- [ ] **9. Limit 500.** Uzupełnij widget Zadania do 499 zadań (wpisz swój e-mail; polecenie dotyczy wszystkich widgetów Zadania tego konta):
+- [x] **7. Czerwony test.** W `todos.test.ts` dodaj test: `useUpdateTodo` z odpowiedzią 404 `NOT_FOUND` odrzuca mutację, a `queryClient.getQueryState(key)?.isInvalidated` jest `true`. Oczekiwany wynik: **FAIL**.
+- [x] **8. Poprawka.** W `onError` mutacji `useUpdateTodo` po cofnięciu wywołaj `invalidateQueries` dla `todosKey(widgetId)`, gdy `apiErrorInfo(error)?.status === 404`. Oczekiwany wynik: **PASS (106 testów w rozszerzeniu)**. Zbuduj i powtórz krok 6 z innym zadaniem: po `PATCH` z 404 wychodzi `GET`, a zadanie znika.
+- [x] **9. Limit 500.** Uzupełnij widget Zadania do 499 zadań (wpisz swój e-mail; polecenie dotyczy wszystkich widgetów Zadania tego konta):
 
   ```bash
   docker compose exec db psql -U one one_place -c "insert into todo_items (id, user_id, widget_id, text, position) select gen_random_uuid(), w.user_id, w.id, 'Task ' || n, 'b' || lpad(n::text, 3, '0') from widgets w join \"user\" u on u.id = w.user_id cross join lateral generate_series(1, 499 - (select count(*)::int from todo_items t where t.widget_id = w.id)) n where w.type = 'todo' and u.email = 'twoj@email.pl'"
@@ -3100,8 +3100,8 @@ it('saves "Hide completed" and keeps the title', async () => {
 
   Przejdź na inną kartę i wróć, potem dodaj dwa zadania. **Oczekiwany wynik:** pierwsze zostaje, drugie pojawia się i znika, a toast mówi „Osiągnięto limit. Usuń coś, zanim dodasz kolejny element.”. Na koniec usuń zadania testowe: `delete from todo_items t using "user" u where u.id = t.user_id and u.email = 'twoj@email.pl' and t.text like 'Task %'`.
 
-- [ ] **10. Prywatność.** W zbudowanej paczce przejdź przez kroki 3–9 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
-- [ ] **11.** `pnpm format && pnpm check`, potem commit: `fix(extension): refetch tasks after a change of a deleted task`.
+- [x] **10. Prywatność.** W zbudowanej paczce przejdź przez kroki 3–9 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
+- [x] **11.** `pnpm format && pnpm check`, potem commit: `fix(extension): refetch tasks after a change of a deleted task`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -3160,7 +3160,7 @@ describe('useUpdateTodo after a task was deleted on another device', () => {
 
 **Kroki:**
 
-- [ ] **1. Architektura.** W [03-architektura.md](03-architektura.md):
+- [x] **1. Architektura.** W [03-architektura.md](03-architektura.md):
   - w „Struktura repozytorium”: `src/lib/` (`positions.ts`, `by-position.ts`) i pliki widgetu Zadania (`task-source.ts`, `local-task-source.ts`, `TaskList.vue`);
   - w „API” (zasady): trasy `/widgets/:id/todos` są w routerze zagnieżdżonym w `widgetsRoutes`, a `/todos/:id` w osobnym routerze z własnym `requireAuth`; zadania widgetu innego typu dają `400 VALIDATION_ERROR`, a cudzy widget albo zadanie 404; lista zadań jest sortowana po `(position, id)`;
   - w „Start nowej karty”: startowy JS po Etapie 4 (Twój pomiar, na prototypie około 492 kB), leniwe części (`TodoWidget` z listą, `TodoSettings`, `vue-draggable-plus`) i uwaga, że `byPosition` jest w osobnym pliku, żeby `fractional-indexing` nie trafiał na ścieżkę startową;
@@ -3168,15 +3168,15 @@ describe('useUpdateTodo after a task was deleted on another device', () => {
   - w „Zachowanie sieciowe”: wszystkie mutacje mają `scope: { id: 'api' }`, więc idą do API po kolei, w kolejności wykonania, także po powrocie sieci; jedno zawieszone żądanie wstrzymuje następne;
   - w „System widgetów” (źródła danych): `TaskSource` w wersji z decyzji 5 (`items` z `undefined` do pierwszego wczytania, `isError`, `retry`, `capabilities.reorder`, `move` z ID sąsiadów), `TaskItem` bez `position`, filtr „Ukryj ukończone” w `TodoWidget`;
   - w rejestrze decyzji: wspólna kolejka mutacji (odrzucone: równoległe zapisy z 404 po powrocie sieci, blokada pola do zapisu widgetu i zadania).
-- [ ] **2. Roadmapa.** Przy Etapie 4 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza.
-- [ ] **3. Specyfikacja.** W [02-specyfikacja.md](02-specyfikacja.md) w F-SYNC-05 dopisz, że zmiany czekające na sieć są wysyłane w kolejności, w jakiej zostały zrobione. Sprawdź, czy F-TODO-01 … F-TODO-08 zgadzają się z tym, co powstało.
-- [ ] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-4-widget-zadania):
-  - [ ] wszystkie operacje na zadaniach (dodawanie, odhaczanie, edycja, usuwanie, przeciąganie) działają optymistycznie i przetrwają przeładowanie (zadania 12 i 13);
-  - [ ] `TaskList` ma testy komponentu niezależne od API (`TaskList.test.ts`, zadania 9–11);
-  - [ ] testy API sprawdzają 401 bez sesji, 404 dla cudzego widgetu i zadania, 400 dla niepoprawnych danych i widgetu innego typu oraz 422 przy limicie (`todos.test.ts`);
-  - [ ] kolumna `position` w `todo_items` ma kolację `"C"` (test migracji i krok 5 zadania 14);
-  - [ ] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
-- [ ] **5.** `pnpm check` (oczekiwany wynik: 31 + 97 + 106 = **234 testy**), potem commit: `docs: add stage 4 results`.
+- [x] **2. Roadmapa.** Przy Etapie 4 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza.
+- [x] **3. Specyfikacja.** W [02-specyfikacja.md](02-specyfikacja.md) w F-SYNC-05 dopisz, że zmiany czekające na sieć są wysyłane w kolejności, w jakiej zostały zrobione. Sprawdź, czy F-TODO-01 … F-TODO-08 zgadzają się z tym, co powstało.
+- [x] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-4-widget-zadania):
+  - [x] wszystkie operacje na zadaniach (dodawanie, odhaczanie, edycja, usuwanie, przeciąganie) działają optymistycznie i przetrwają przeładowanie (zadania 12 i 13);
+  - [x] `TaskList` ma testy komponentu niezależne od API (`TaskList.test.ts`, zadania 9–11);
+  - [x] testy API sprawdzają 401 bez sesji, 404 dla cudzego widgetu i zadania, 400 dla niepoprawnych danych i widgetu innego typu oraz 422 przy limicie (`todos.test.ts`);
+  - [x] kolumna `position` w `todo_items` ma kolację `"C"` (test migracji i krok 5 zadania 14);
+  - [x] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
+- [x] **5.** `pnpm check` (oczekiwany wynik: 31 + 97 + 106 = **234 testy**), potem commit: `docs: add stage 4 results`.
 
 ---
 

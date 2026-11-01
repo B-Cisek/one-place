@@ -8,3 +8,10 @@ export const createContextKey = ['contexts', 'create'] as const
 export function widgetsKey(contextId: string) {
   return ['widgets', contextId] as const
 }
+
+// Lets useTodos() find widgets that are in the cache but not saved by the API yet
+export const createWidgetKey = ['widgets', 'create'] as const
+
+export function todosKey(widgetId: string) {
+  return ['todos', widgetId] as const
+}

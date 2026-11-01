@@ -94,15 +94,15 @@ Lista akcentów w MVP: `blue`, `indigo`, `violet`, `pink`, `rose`, `orange`, `am
 
 ### Synchronizacja i cache (SYNC)
 
-| ID        | Wymaganie                                                                                                                                   |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| F-SYNC-01 | Jeśli istnieje lokalny cache, pulpit jest widoczny od razu po otwarciu karty, a dane odświeżają się w tle.                                  |
-| F-SYNC-02 | Bez cache (pierwsze uruchomienie, po wylogowaniu) do czasu pobrania danych widoczne są szkielety (skeleton) zamiast spinnera.               |
-| F-SYNC-03 | Powrót do karty (fokus okna) odświeża dane.                                                                                                 |
-| F-SYNC-04 | Zmiany są optymistyczne: UI aktualizuje się od razu. Gdy serwer odrzuci zmianę, zostaje ona cofnięta, a użytkownik widzi komunikat (toast). |
-| F-SYNC-05 | Bez sieci widoczny jest baner „Offline, pokazuję zapisane dane”. Zmiany czekają na powrót sieci, dopóki karta jest otwarta.                 |
-| F-SYNC-06 | Konflikty między urządzeniami rozstrzyga reguła „ostatni zapis wygrywa” na poziomie rekordu.                                                |
-| F-SYNC-07 | Po aktualizacji rozszerzenia, która zmienia kształt danych w cache, stary cache jest odrzucany i dane pobierane od nowa.                    |
+| ID        | Wymaganie                                                                                                                                                                          |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F-SYNC-01 | Jeśli istnieje lokalny cache, pulpit jest widoczny od razu po otwarciu karty, a dane odświeżają się w tle.                                                                         |
+| F-SYNC-02 | Bez cache (pierwsze uruchomienie, po wylogowaniu) do czasu pobrania danych widoczne są szkielety (skeleton) zamiast spinnera.                                                      |
+| F-SYNC-03 | Powrót do karty (fokus okna) odświeża dane.                                                                                                                                        |
+| F-SYNC-04 | Zmiany są optymistyczne: UI aktualizuje się od razu. Gdy serwer odrzuci zmianę, zostaje ona cofnięta, a użytkownik widzi komunikat (toast).                                        |
+| F-SYNC-05 | Bez sieci widoczny jest baner „Offline, pokazuję zapisane dane”. Zmiany czekają na powrót sieci, dopóki karta jest otwarta, i są wysyłane w kolejności, w jakiej zostały zrobione. |
+| F-SYNC-06 | Konflikty między urządzeniami rozstrzyga reguła „ostatni zapis wygrywa” na poziomie rekordu.                                                                                       |
+| F-SYNC-07 | Po aktualizacji rozszerzenia, która zmienia kształt danych w cache, stary cache jest odrzucany i dane pobierane od nowa.                                                           |
 
 **Znane ograniczenie MVP:** zmiana wykonana offline przepada, jeśli karta zostanie zamknięta przed powrotem sieci.
 

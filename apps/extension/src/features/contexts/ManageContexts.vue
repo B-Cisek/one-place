@@ -7,7 +7,7 @@ import { useContexts, useDeleteContext, useUpdateContext } from '@/queries/conte
 import { useWidgets } from '@/queries/widgets'
 import ContextForm from './ContextForm.vue'
 import ContextRow from './ContextRow.vue'
-import { positionAt } from './positions'
+import { positionAt } from '@/lib/positions'
 import { useAddContext } from './use-add-context'
 
 const { t } = useI18n()
