@@ -70,6 +70,7 @@
     "delete": {
       "title": "Usunąć kontekst „{name}”?",
       "description": "Kontekst zniknie na wszystkich urządzeniach. Tej operacji nie można cofnąć.",
+      "widgets": "Kontekst nie ma widgetów. | Usunie też 1 widget. | Usunie też {count} widgety. | Usunie też {count} widgetów.",
       "confirm": "Usuń",
       "cancel": "Anuluj"
     }

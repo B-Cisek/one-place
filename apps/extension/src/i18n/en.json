@@ -70,6 +70,7 @@
     "delete": {
       "title": "Delete the context “{name}”?",
       "description": "The context will disappear on all devices. This cannot be undone.",
+      "widgets": "The context has no widgets. | Its widget will be deleted too. | Its {count} widgets will be deleted too.",
       "confirm": "Delete",
       "cancel": "Cancel"
     }

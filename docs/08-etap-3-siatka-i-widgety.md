@@ -3970,18 +3970,18 @@ function retry() {
 
 **Kroki:**
 
-- [ ] **1. Teksty.** W `contexts.delete` dodaj klucz `widgets` z czterema formami po polsku: `"Kontekst nie ma widgetów. | Usunie też 1 widget. | Usunie też {count} widgety. | Usunie też {count} widgetów."` i trzema po angielsku: `"The context has no widgets. | Its widget will be deleted too. | Its {count} widgets will be deleted too."`.
-- [ ] **2. Czerwone testy** w `src/i18n/plural.test.ts`:
+- [x] **1. Teksty.** W `contexts.delete` dodaj klucz `widgets` z czterema formami po polsku: `"Kontekst nie ma widgetów. | Usunie też 1 widget. | Usunie też {count} widgety. | Usunie też {count} widgetów."` i trzema po angielsku: `"The context has no widgets. | Its widget will be deleted too. | Its {count} widgets will be deleted too."`.
+- [x] **2. Czerwone testy** w `src/i18n/plural.test.ts`:
   - `polishPluralIndex` dla `0, 1, 2, 4, 5, 11, 12, 14, 21, 22, 25, 104, 112` daje `0, 1, 2, 2, 3, 3, 3, 3, 3, 2, 3, 2, 3`;
   - `i18n.global.t('contexts.delete.widgets', 3, { locale: 'pl' })` to `'Usunie też 3 widgety.'`, dla 5 `'Usunie też 5 widgetów.'`, a po angielsku dla 3 `'Its 3 widgets will be deleted too.'`.
 
   Oczekiwany wynik: **FAIL**, bo moduł `./plural` nie istnieje.
 
-- [ ] **3. Eksperyment: domyślna reguła.** Utwórz `plural.ts` z funkcją, ale nie podłączaj jej jeszcze do `createI18n`. Uruchom testy. **Oczekiwany wynik:** test funkcji przechodzi, a test komunikatów **FAIL** z `'Usunie też 5 widgety.'`. Dla 3 wynik był poprawny przypadkiem.
-- [ ] **4. Poprawka.** W `i18n/index.ts` dodaj `pluralRules: { pl: polishPluralIndex }`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**.
-- [ ] **5. Modal.** W `ManageContexts.vue`: `useWidgets(() => toDelete.value?.id ?? null)` i `computed` z opisem, który przed stałym tekstem dokłada `t('contexts.delete.widgets', count)`, gdy liczba jest znana.
-- [ ] **6. Sprawdzenie ręczne** (`pnpm dev`): drugi kontekst z pięcioma widgetami (dodaj je w nim przez katalog), przełącz się z powrotem na pierwszy i przeładuj kartę. Otwórz „Konteksty” i kliknij usuwanie drugiego: po chwili „Usunie też 5 widgetów.” (lista została pobrana teraz). Anuluj i otwórz usuwanie aktywnego kontekstu z trzema widgetami: od razu „Usunie też 3 widgety.” z cache.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): show the widget count before deleting a context`.
+- [x] **3. Eksperyment: domyślna reguła.** Utwórz `plural.ts` z funkcją, ale nie podłączaj jej jeszcze do `createI18n`. Uruchom testy. **Oczekiwany wynik:** test funkcji przechodzi, a test komunikatów **FAIL** z `'Usunie też 5 widgety.'`. Dla 3 wynik był poprawny przypadkiem.
+- [x] **4. Poprawka.** W `i18n/index.ts` dodaj `pluralRules: { pl: polishPluralIndex }`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**.
+- [x] **5. Modal.** W `ManageContexts.vue`: `useWidgets(() => toDelete.value?.id ?? null)` i `computed` z opisem, który przed stałym tekstem dokłada `t('contexts.delete.widgets', count)`, gdy liczba jest znana.
+- [x] **6. Sprawdzenie ręczne** (`pnpm dev`): drugi kontekst z pięcioma widgetami (dodaj je w nim przez katalog), przełącz się z powrotem na pierwszy i przeładuj kartę. Otwórz „Konteksty” i kliknij usuwanie drugiego: po chwili „Usunie też 5 widgetów.” (lista została pobrana teraz). Anuluj i otwórz usuwanie aktywnego kontekstu z trzema widgetami: od razu „Usunie też 3 widgety.” z cache.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): show the widget count before deleting a context`.
 
 **Pułapki (sprawdzone na prototypie):**
 

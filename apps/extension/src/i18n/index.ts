@@ -2,6 +2,7 @@ import { createI18n } from 'vue-i18n'
 import en from './en.json'
 import type { Locale } from '@one-place/shared'
 import { detectLocale } from './locale'
+import { polishPluralIndex } from './plural'
 import pl from './pl.json'
 
 export type MessageSchema = typeof pl
@@ -11,4 +12,6 @@ export const i18n = createI18n<[MessageSchema], Locale>({
   locale: detectLocale(navigator.language),
   fallbackLocale: 'en',
   messages: { pl, en },
+  // English uses the default rule (none | one | many)
+  pluralRules: { pl: polishPluralIndex },
 })
