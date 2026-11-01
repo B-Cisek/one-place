@@ -3310,19 +3310,19 @@ Teksty: w `dashboard` klucze `"edit": "Edytuj pulpit"`, `"done": "Gotowe"`, `"ad
 
 **Kroki:**
 
-- [ ] **1. Edytor.** `GridEditor.vue`: lokalna tablica `layout` z elementami `{ i, x, y, w, h, minW, minH }` budowana z `compactLayout(widgets)` i odświeżana przez `watch` po każdej zmianie propsa `widgets`. `GridLayout` z `v-model:layout`, `col-num` 12, `row-height` i `margin` z `grid.ts`, `vertical-compact`, `is-draggable`, `is-resizable`. W każdym `GridItem` z `drag-allow-from=".widget-drag-handle"` jest `WidgetFrame` w trybie edycji.
-- [ ] **2. Podłączenie.** `DashboardGrid` dostaje propsy `contextId` i `editMode` oraz leniwy `GridEditor` (`defineAsyncComponent`) między widokiem jednokolumnowym a podglądem: `v-else-if="editMode"`. `ContextDashboard` przekazuje `context.id` i `ui.editMode`.
-- [ ] **3. Eksperyment: zapis każdego zgłoszenia.** Dodaj zapis wprost: `@layout-updated` woła `useDebounceFn` (500 ms), który wysyła **cały** układ przez `useSaveLayout`. Zbuduj albo uruchom `pnpm dev`, wejdź w tryb edycji na pulpicie z widgetem i patrz w DevTools → Network, niczego nie dotykając. **Oczekiwany wynik:** `PUT /api/contexts/<id>/layout` mniej więcej dwa razy na sekundę, bez końca. Zastanów się, co zamyka pętlę, zanim otworzysz wyjaśnienie.
-- [ ] **4. Poprawka.** W funkcji zapisu porównaj układ z cache: `changedLayout(props.widgets, …)` i wysyłaj tylko niepustą różnicę. Powtórz krok 3: zero żądań bez ruchu.
-- [ ] **5. Sprawdzenie ręczne** (`pnpm dev`, na pulpicie widgety z zadania 10):
+- [x] **1. Edytor.** `GridEditor.vue`: lokalna tablica `layout` z elementami `{ i, x, y, w, h, minW, minH }` budowana z `compactLayout(widgets)` i odświeżana przez `watch` po każdej zmianie propsa `widgets`. `GridLayout` z `v-model:layout`, `col-num` 12, `row-height` i `margin` z `grid.ts`, `vertical-compact`, `is-draggable`, `is-resizable`. W każdym `GridItem` z `drag-allow-from=".widget-drag-handle"` jest `WidgetFrame` w trybie edycji.
+- [x] **2. Podłączenie.** `DashboardGrid` dostaje propsy `contextId` i `editMode` oraz leniwy `GridEditor` (`defineAsyncComponent`) między widokiem jednokolumnowym a podglądem: `v-else-if="editMode"`. `ContextDashboard` przekazuje `context.id` i `ui.editMode`.
+- [x] **3. Eksperyment: zapis każdego zgłoszenia.** Dodaj zapis wprost: `@layout-updated` woła `useDebounceFn` (500 ms), który wysyła **cały** układ przez `useSaveLayout`. Zbuduj albo uruchom `pnpm dev`, wejdź w tryb edycji na pulpicie z widgetem i patrz w DevTools → Network, niczego nie dotykając. **Oczekiwany wynik:** `PUT /api/contexts/<id>/layout` mniej więcej dwa razy na sekundę, bez końca. Zastanów się, co zamyka pętlę, zanim otworzysz wyjaśnienie.
+- [x] **4. Poprawka.** W funkcji zapisu porównaj układ z cache: `changedLayout(props.widgets, …)` i wysyłaj tylko niepustą różnicę. Powtórz krok 3: zero żądań bez ruchu.
+- [x] **5. Sprawdzenie ręczne** (`pnpm dev`, na pulpicie widgety z zadania 10):
   - włącz i wyłącz edycję kilka razy: widgety nie przesuwają się ani o piksel; pierwsze włączenie wysyła jeden `PUT` z widgetem „Pod spodem” (`y: 6` zamiast `10`), kolejne nic;
   - przeciągnij widget za nagłówek w prawo: jeden `PUT` z nowym `x`; przeciąganie za treść widgetu nic nie robi;
   - zmniejsz widget uchwytem w prawym dolnym rogu: nie da się zejść poniżej 3×3;
   - podczas przeciągania miejsce docelowe ma kolor akcentu, a nie czerwony;
   - kliknij „Gotowe”, przeładuj kartę: układ zostaje, karta jest w podglądzie.
-- [ ] **6. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 489 kB**, a w liście plików z buildu osobny `GridEditor-….js` (około 140 kB).
-- [ ] **7. Ocena R4.** Zapisz w notatkach do zadania 16, co widzisz: wersja biblioteki, data ostatniego wydania i aktywność repozytorium (`npm view grid-layout-plus time`), działanie z bieżącym Vue, ostrzeżenia w konsoli, rozmiar chunka i zachowanie w trybie edycji. Na prototypie: 1.1.1 (październik 2025), 2.0 w becie, commity z października 2026, Vue 3.5.43 bez ostrzeżeń.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): edit the layout with grid-layout-plus`.
+- [x] **6. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 489 kB**, a w liście plików z buildu osobny `GridEditor-….js` (około 140 kB).
+- [x] **7. Ocena R4.** Zapisz w notatkach do zadania 16, co widzisz: wersja biblioteki, data ostatniego wydania i aktywność repozytorium (`npm view grid-layout-plus time`), działanie z bieżącym Vue, ostrzeżenia w konsoli, rozmiar chunka i zachowanie w trybie edycji. Na prototypie: 1.1.1 (październik 2025), 2.0 w becie, commity z października 2026, Vue 3.5.43 bez ostrzeżeń.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): edit the layout with grid-layout-plus`.
 
 **Pułapki (sprawdzone na prototypie):**
 

@@ -2,11 +2,13 @@
 import type { ContextDto } from '@one-place/shared'
 import { useI18n } from 'vue-i18n'
 import { useWidgets } from '@/queries/widgets'
+import { useUiStore } from '@/stores/ui'
 import DashboardGrid from './DashboardGrid.vue'
 
 const props = defineProps<{ context: ContextDto }>()
 const emit = defineEmits<{ addWidget: [] }>()
 const { t } = useI18n()
+const ui = useUiStore()
 const { data: widgets, isError, refetch } = useWidgets(() => props.context.id)
 </script>
 
@@ -36,5 +38,5 @@ const { data: widgets, isError, refetch } = useWidgets(() => props.context.id)
     ]"
     class="mt-16"
   />
-  <DashboardGrid v-else :widgets="widgets" />
+  <DashboardGrid v-else :context-id="context.id" :widgets="widgets" :edit-mode="ui.editMode" />
 </template>

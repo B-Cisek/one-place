@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { GRID_COLUMNS, type WidgetDto } from '@one-place/shared'
-import { computed } from 'vue'
+import { computed, defineAsyncComponent } from 'vue'
 import { GRID_GAP, ROW_HEIGHT, widgetHeight } from './grid'
 import { columnOrder, compactLayout } from './layout'
 import { useNarrowScreen } from './use-narrow-screen'
 import WidgetFrame from './WidgetFrame.vue'
 
-const props = defineProps<{ widgets: WidgetDto[] }>()
+const props = defineProps<{ contextId: string; widgets: WidgetDto[]; editMode: boolean }>()
+
+// grid-layout-plus adds about 140 kB, needed only in edit mode
+const GridEditor = defineAsyncComponent(() => import('./GridEditor.vue'))
 
 // F-GRID-05: one column, in the reading order of the grid
 const narrow = useNarrowScreen()
@@ -27,6 +30,7 @@ const column = computed(() => columnOrder(layout.value))
       <WidgetFrame :widget="widget" :edit-mode="false" />
     </div>
   </div>
+  <GridEditor v-else-if="editMode" :context-id="contextId" :widgets="widgets" />
   <!-- The same geometry as grid-layout-plus: GRID_GAP around and between the cells -->
   <div
     v-else
