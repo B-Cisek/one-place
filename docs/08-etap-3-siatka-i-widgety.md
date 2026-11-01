@@ -2031,17 +2031,17 @@ export function columnOrder<T extends Placed>(items: T[]): T[] {
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy:**
+- [x] **1. Czerwone testy:**
   - `src/widgets/config.test.ts`: `resolveConfig(TodoConfigSchema, { title: ' Zakupy ' })` daje pełną konfigurację z tytułem `'Zakupy'`; `{ title: 123, hideCompleted: true }` daje domyślny tytuł i `hideCompleted: true`, a `console.warn` jest wołany raz; `null` i `'oops'` dają konfigurację domyślną;
   - `src/widgets/registry.test.ts`: `findWidgetDefinition('todo')` ma typ `todo` i rozmiary z `WIDGET_SIZES`, a `findWidgetDefinition('notes')` to `null`.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **2. Implementacja.** `types.ts` z interfejsem `WidgetDefinition` (bez schematu konfiguracji, wyjaśnienie w kroku 5). `registry.ts` z wpisem `todo`: klucze i18n, ikona `i-lucide-list-checks`, rozmiary z `WIDGET_SIZES` i `component: () => import('./todo/TodoWidget.vue')`. `config.ts` z `resolveConfig`. `TodoWidget.vue` pokazuje tytuł z konfiguracji albo nazwę typu. W `pl.json` i `en.json` dodaj grupę `widgets.todo` (`name`, `description`). Oczekiwany wynik: **PASS (65 testów w rozszerzeniu)**.
-- [ ] **3. Eksperyment: rejestr na ścieżce startowej.** Rejestr trafi do startowego JS razem z ramką widgetu (zadanie 9). Sprawdź to już teraz: dodaj na chwilę w `DashboardScreen.vue` import `findWidgetDefinition` i `console.log(findWidgetDefinition('todo'))`, zbuduj rozszerzenie i uruchom `pnpm size`. **Oczekiwany wynik: około 566 kB, czyli +93 kB i ponad budżet.** Rejestr nie importuje Zoda, a komponent Zadań jest leniwy. Zastanów się, skąd Zod na ścieżce startowej, zanim otworzysz wyjaśnienie.
-- [ ] **4. Poprawka.** Przenieś z `packages/shared/src/widgets.ts` do nowego `widget-types.ts` wszystko, co nie potrzebuje Zoda: `WIDGET_TYPES`, `GRID_COLUMNS`, `MAX_WIDGETS_PER_CONTEXT`, `WidgetType`, `WidgetSize`, `WIDGET_SIZES`, `isWidgetType` i `WidgetDto`. `widgets.ts` importuje je z `./widget-types`, a `index.ts` eksportuje oba pliki. W `widgets.test.ts` zmień import `WIDGET_TYPES`. Zbuduj i powtórz pomiar: **około 474 kB.** Usuń tymczasowy import z `DashboardScreen.vue`.
-- [ ] **5. Dlaczego definicja nie ma schematu.** Architektura zakładała pola `configSchema` i `defaultConfig` w definicji oraz walidację w ramce. Każde z nich przyniosłoby do startowego JS te same 93 kB, bo ramka jest w pierwszym renderze. Schemat przychodzi więc z leniwym komponentem widgetu, który sam woła `resolveConfig`. Na prototypie wariant z `zod/mini` kosztował nadal około 52 kB.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget registry with the todo placeholder`.
+- [x] **2. Implementacja.** `types.ts` z interfejsem `WidgetDefinition` (bez schematu konfiguracji, wyjaśnienie w kroku 5). `registry.ts` z wpisem `todo`: klucze i18n, ikona `i-lucide-list-checks`, rozmiary z `WIDGET_SIZES` i `component: () => import('./todo/TodoWidget.vue')`. `config.ts` z `resolveConfig`. `TodoWidget.vue` pokazuje tytuł z konfiguracji albo nazwę typu. W `pl.json` i `en.json` dodaj grupę `widgets.todo` (`name`, `description`). Oczekiwany wynik: **PASS (65 testów w rozszerzeniu)**.
+- [x] **3. Eksperyment: rejestr na ścieżce startowej.** Rejestr trafi do startowego JS razem z ramką widgetu (zadanie 9). Sprawdź to już teraz: dodaj na chwilę w `DashboardScreen.vue` import `findWidgetDefinition` i `console.log(findWidgetDefinition('todo'))`, zbuduj rozszerzenie i uruchom `pnpm size`. **Oczekiwany wynik: około 566 kB, czyli +93 kB i ponad budżet.** Rejestr nie importuje Zoda, a komponent Zadań jest leniwy. Zastanów się, skąd Zod na ścieżce startowej, zanim otworzysz wyjaśnienie.
+- [x] **4. Poprawka.** Przenieś z `packages/shared/src/widgets.ts` do nowego `widget-types.ts` wszystko, co nie potrzebuje Zoda: `WIDGET_TYPES`, `GRID_COLUMNS`, `MAX_WIDGETS_PER_CONTEXT`, `WidgetType`, `WidgetSize`, `WIDGET_SIZES`, `isWidgetType` i `WidgetDto`. `widgets.ts` importuje je z `./widget-types`, a `index.ts` eksportuje oba pliki. W `widgets.test.ts` zmień import `WIDGET_TYPES`. Zbuduj i powtórz pomiar: **około 474 kB.** Usuń tymczasowy import z `DashboardScreen.vue`.
+- [x] **5. Dlaczego definicja nie ma schematu.** Architektura zakładała pola `configSchema` i `defaultConfig` w definicji oraz walidację w ramce. Każde z nich przyniosłoby do startowego JS te same 93 kB, bo ramka jest w pierwszym renderze. Schemat przychodzi więc z leniwym komponentem widgetu, który sam woła `resolveConfig`. Na prototypie wariant z `zod/mini` kosztował nadal około 52 kB.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget registry with the todo placeholder`.
 
 **Pułapki (sprawdzone na prototypie):**
 

@@ -80,6 +80,12 @@
     "retry": "Spróbuj ponownie",
     "offline": "Offline, pokazuję zapisane dane"
   },
+  "widgets": {
+    "todo": {
+      "name": "Zadania",
+      "description": "Lista rzeczy do zrobienia"
+    }
+  },
   "settings": {
     "title": "Ustawienia",
     "language": {

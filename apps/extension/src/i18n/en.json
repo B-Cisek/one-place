@@ -80,6 +80,12 @@
     "retry": "Try again",
     "offline": "Offline, showing saved data"
   },
+  "widgets": {
+    "todo": {
+      "name": "Tasks",
+      "description": "A list of things to do"
+    }
+  },
   "settings": {
     "title": "Settings",
     "language": {
