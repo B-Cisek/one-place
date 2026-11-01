@@ -10,7 +10,7 @@ import { parseResponse } from 'hono/client'
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import { apiErrorInfo } from '@/api/api-error'
 import { apiClient } from '@/api/client'
-import { createContextKey, widgetsKey } from './keys'
+import { createContextKey, createWidgetKey, todosKey, widgetsKey } from './keys'
 import { changeOptimistically } from './optimistic'
 
 interface WidgetRef {
@@ -54,18 +54,27 @@ export function useWidgets(contextId: MaybeRefOrGetter<string | null>) {
 export function useCreateWidget() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: createWidgetKey,
     mutationFn: ({ contextId, ...input }: CreateWidgetInput & { contextId: string }) =>
       parseResponse(
         apiClient.api.contexts[':id'].widgets.$post({ param: { id: contextId }, json: input }),
       ),
-    onMutate: ({ contextId, ...input }) => {
+    onMutate: async ({ contextId, ...input }) => {
       const now = new Date().toISOString()
       const draft: WidgetDto = { ...input, contextId, createdAt: now, updatedAt: now, version: 1 }
-      return changeOptimistically<WidgetDto[]>(queryClient, widgetsKey(contextId), (list) =>
-        withWidget(list, draft),
+      const rollback = await changeOptimistically<WidgetDto[]>(
+        queryClient,
+        widgetsKey(contextId),
+        (list) => withWidget(list, draft),
       )
+      // A new todo widget has no tasks. It shows that at once, also offline.
+      if (input.type === 'todo') queryClient.setQueryData(todosKey(input.id), [])
+      return rollback
     },
-    onError: (_error, _input, rollback) => rollback?.(),
+    onError: (_error, input, rollback) => {
+      rollback?.()
+      queryClient.removeQueries({ queryKey: todosKey(input.id) })
+    },
     onSuccess: (saved) =>
       queryClient.setQueryData<WidgetDto[]>(widgetsKey(saved.contextId), (list = []) =>
         withWidget(list, saved),
@@ -106,6 +115,8 @@ export function useDeleteWidget() {
         list.filter((item) => item.id !== id),
       ),
     onError: (_error, _input, rollback) => rollback?.(),
+    // Otherwise the tasks would stay in chrome.storage.local until sign-out
+    onSuccess: (_data, { id }) => queryClient.removeQueries({ queryKey: todosKey(id) }),
   })
 }
 

@@ -1242,8 +1242,8 @@ import { byPosition } from '@/lib/by-position'
 
 **Kroki:**
 
-- [ ] **1. Klucze.** W `keys.ts` dopisz `createWidgetKey = ['widgets', 'create'] as const` i `todosKey(widgetId)` zwracające `['todos', widgetId] as const`.
-- [ ] **2. Czerwone testy** w `queries/todos.test.ts`. Mock `@/api/client` podmienia trasy zadań oraz `$post` widgetów, `$delete` widgetu i `$delete` kontekstu. Cache zaczyna od `[milk (a0), bread (a1)]` pod `todosKey('tasks')`:
+- [x] **1. Klucze.** W `keys.ts` dopisz `createWidgetKey = ['widgets', 'create'] as const` i `todosKey(widgetId)` zwracające `['todos', widgetId] as const`.
+- [x] **2. Czerwone testy** w `queries/todos.test.ts`. Mock `@/api/client` podmienia trasy zadań oraz `$post` widgetów, `$delete` widgetu i `$delete` kontekstu. Cache zaczyna od `[milk (a0), bread (a1)]` pod `todosKey('tasks')`:
   - `useAddTodo` pokazuje nowe zadanie od razu na końcu listy z `done: false` i `version: 1`, a po odpowiedzi podmienia je na zapisane;
   - `useAddTodo` usuwa nowe zadanie, gdy API odpowie 422;
   - `useUpdateTodo` z pozycją `'Zz'` od razu przestawia zadanie na początek listy, a po odpowiedzi ma `version: 2`;
@@ -1255,11 +1255,11 @@ import { byPosition } from '@/lib/by-position'
 
   Oczekiwany wynik: **FAIL**, bo moduł `./todos` nie istnieje.
 
-- [ ] **3. Implementacja** `queries/todos.ts`. Lista w cache jest zawsze posortowana: pomocnik `withTodo(list, todo)` podmienia albo dopisuje zadanie i sortuje przez `byPosition`, tak jak `withContext` w `contexts.ts`. `useTodos` czeka na zapis widgetu przez `useMutationState` z `createWidgetKey`, tak jak `useWidgets` czeka na zapis kontekstu.
-- [ ] **4. Zależności w cache.** W `widgets.ts`: `useCreateWidget` dostaje `mutationKey: createWidgetKey`, w `onMutate` wpisuje `[]` pod `todosKey(input.id)` dla widgetu typu `todo`, a w `onError` usuwa ten wpis; `useDeleteWidget` w `onSuccess` usuwa `todosKey(id)`. W `contexts.ts`: `useDeleteContext` w `onSuccess` usuwa zadania każdego widgetu z `widgetsKey(id)`, zanim usunie sam wpis widgetów.
-- [ ] **5. Zielone testy.** Oczekiwany wynik: **PASS (85 testów w rozszerzeniu)**.
-- [ ] **6. Eksperyment: zadania nowego widgetu.** Usuń na chwilę z `useTodos` opcję `enabled`. Oczekiwany wynik: test `useTodos` **FAIL**, bo `GET` wychodzi od razu. W przeglądarce oznaczałoby to 404 i komunikat błędu w widgecie, który dopiero powstał. Przywróć `enabled` i usuń z kolei wpis `[]` z `onMutate` w `useCreateWidget`: ten sam test **FAIL**, bo czeka na `[]`, którego nie ma, czyli widget dodany offline pokazywałby szkielety. Przywróć wpis. Na koniec usuń `removeQueries` z `useDeleteWidget`: test sprzątania **FAIL**.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add todo queries with optimistic mutations`.
+- [x] **3. Implementacja** `queries/todos.ts`. Lista w cache jest zawsze posortowana: pomocnik `withTodo(list, todo)` podmienia albo dopisuje zadanie i sortuje przez `byPosition`, tak jak `withContext` w `contexts.ts`. `useTodos` czeka na zapis widgetu przez `useMutationState` z `createWidgetKey`, tak jak `useWidgets` czeka na zapis kontekstu.
+- [x] **4. Zależności w cache.** W `widgets.ts`: `useCreateWidget` dostaje `mutationKey: createWidgetKey`, w `onMutate` wpisuje `[]` pod `todosKey(input.id)` dla widgetu typu `todo`, a w `onError` usuwa ten wpis; `useDeleteWidget` w `onSuccess` usuwa `todosKey(id)`. W `contexts.ts`: `useDeleteContext` w `onSuccess` usuwa zadania każdego widgetu z `widgetsKey(id)`, zanim usunie sam wpis widgetów.
+- [x] **5. Zielone testy.** Oczekiwany wynik: **PASS (85 testów w rozszerzeniu)**.
+- [x] **6. Eksperyment: zadania nowego widgetu.** Usuń na chwilę z `useTodos` opcję `enabled`. Oczekiwany wynik: test `useTodos` **FAIL**, bo `GET` wychodzi od razu. W przeglądarce oznaczałoby to 404 i komunikat błędu w widgecie, który dopiero powstał. Przywróć `enabled` i usuń z kolei wpis `[]` z `onMutate` w `useCreateWidget`: ten sam test **FAIL**, bo czeka na `[]`, którego nie ma, czyli widget dodany offline pokazywałby szkielety. Przywróć wpis. Na koniec usuń `removeQueries` z `useDeleteWidget`: test sprzątania **FAIL**.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add todo queries with optimistic mutations`.
 
 **Pułapki (sprawdzone na prototypie):**
 

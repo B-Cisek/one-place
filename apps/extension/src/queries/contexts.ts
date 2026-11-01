@@ -9,7 +9,7 @@ import { parseResponse } from 'hono/client'
 import { apiErrorInfo } from '@/api/api-error'
 import { apiClient } from '@/api/client'
 import { byPosition } from '@/lib/by-position'
-import { createContextKey, widgetsKey } from './keys'
+import { createContextKey, todosKey, widgetsKey } from './keys'
 import { changeOptimistically } from './optimistic'
 
 export const contextsKey = ['contexts'] as const
@@ -83,6 +83,12 @@ export function useDeleteContext() {
         list.filter((item) => item.id !== id),
       ),
     onError: (_error, _id, rollback) => rollback?.(),
-    onSuccess: (_data, id) => queryClient.removeQueries({ queryKey: widgetsKey(id) }),
+    onSuccess: (_data, id) => {
+      // The API deleted the widgets and their tasks, so their cache entries go too
+      for (const widget of queryClient.getQueryData<WidgetDto[]>(widgetsKey(id)) ?? []) {
+        queryClient.removeQueries({ queryKey: todosKey(widget.id) })
+      }
+      queryClient.removeQueries({ queryKey: widgetsKey(id) })
+    },
   })
 }
