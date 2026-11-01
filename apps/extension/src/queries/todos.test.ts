@@ -119,6 +119,17 @@ describe('useUpdateTodo', () => {
   })
 })
 
+describe('useUpdateTodo after a task was deleted on another device', () => {
+  it('fetches the tasks again, so the deleted one disappears', async () => {
+    api.patch.mockResolvedValue(
+      jsonResponse(404, { error: { code: 'NOT_FOUND', message: 'Task not found' } }),
+    )
+    const { mutateAsync } = withQueryClient(queryClient, useUpdateTodo)
+    await expect(mutateAsync({ id: 'bread', widgetId: 'tasks', done: false })).rejects.toThrow()
+    expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)
+  })
+})
+
 describe('useDeleteTodo', () => {
   it('treats a task deleted on another device as deleted', async () => {
     api.delete.mockResolvedValue(

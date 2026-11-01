@@ -3084,14 +3084,14 @@ it('saves "Hide completed" and keeps the title', async () => {
 
 **Kroki:**
 
-- [ ] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 492 kB** (budżet 550 kB). W liście plików z buildu osobno: `TodoWidget` (około 22 kB), `TodoSettings` (około 10 kB) i `vue-draggable-plus` (około 41 kB, ten sam chunk co w oknie kontekstów).
+- [x] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 492 kB** (budżet 550 kB). W liście plików z buildu osobno: `TodoWidget` (około 22 kB), `TodoSettings` (około 10 kB) i `vue-draggable-plus` (około 41 kB, ten sam chunk co w oknie kontekstów).
 - [ ] **2. Czas pierwszego renderu.** Zbuduj, załaduj `.output/chrome-mv3`, dodaj do widgetu kilkadziesiąt zadań i odczekaj sekundę. Otwórz nową kartę i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Powtórz kilka razy. Na prototypie, z jednym widgetem i 500 zadaniami, w Chromium headless: 59–73 ms. Wymaganie to poniżej 200 ms.
 - [ ] **3. Kolejka offline.** W zbudowanej paczce utwórz nowy kontekst i odczekaj chwilę. DevTools → Network → „Offline”. Dodaj widget Zadania, dodaj „X” i je odhacz, dodaj „Y” i je usuń. Wyłącz tryb Offline. **Oczekiwany wynik:** żądania w kolejności `POST /widgets`, `POST /todos`, `PATCH`, `POST /todos`, `DELETE`, wszystkie 2xx, bez toastów. Po przeładowaniu jest odhaczone „X” i nie ma „Y”.
 - [ ] **4. Eksperyment: bez kolejki.** Zakomentuj `scope` w `createQueryClient`, zbuduj i powtórz krok 3 w nowym kontekście. **Oczekiwany wynik:** `POST /todos` wychodzi przed `POST /widgets` i dostaje 404, `PATCH` i `DELETE` też dostają 404, a dwa toasty mówią, że zmiana została cofnięta. Po przeładowaniu nie ma „X”, a usunięte „Y” jest na liście. Kolejność żądań może się różnić między próbami. Przywróć `scope` i zbuduj ponownie.
 - [ ] **5. Eksperyment: kolacja w Dockerze.** Zmień na chwilę kolację kolumny: `docker compose exec db psql -U one one_place -c 'alter table todo_items alter column position type text collate "default"'`. Przeciągnij ostatnie zadanie na samą górę listy i przeładuj kartę. **Oczekiwany wynik:** zadanie jest na dole. Dostało pozycję zaczynającą się wielką literą (np. `Zz`), a `en_US.utf8` stawia ją za `a0`. Przywróć: `… alter column position type text collate "C"` i przeładuj: zadanie wraca na górę.
 - [ ] **6. Eksperyment: zadanie usunięte na innym urządzeniu.** Usuń zadanie w bazie: `docker compose exec db psql -U one one_place -c "delete from todo_items where text = 'Chleb'"`. Bez przełączania karty odhacz „Chleb”. **Oczekiwany wynik:** `PATCH` z 404, toast „Ten element został już usunięty, np. na innym urządzeniu.”, a „Chleb” zostaje na liście, dopóki nie przejdziesz na inną kartę i z powrotem.
-- [ ] **7. Czerwony test.** W `todos.test.ts` dodaj test: `useUpdateTodo` z odpowiedzią 404 `NOT_FOUND` odrzuca mutację, a `queryClient.getQueryState(key)?.isInvalidated` jest `true`. Oczekiwany wynik: **FAIL**.
-- [ ] **8. Poprawka.** W `onError` mutacji `useUpdateTodo` po cofnięciu wywołaj `invalidateQueries` dla `todosKey(widgetId)`, gdy `apiErrorInfo(error)?.status === 404`. Oczekiwany wynik: **PASS (106 testów w rozszerzeniu)**. Zbuduj i powtórz krok 6 z innym zadaniem: po `PATCH` z 404 wychodzi `GET`, a zadanie znika.
+- [x] **7. Czerwony test.** W `todos.test.ts` dodaj test: `useUpdateTodo` z odpowiedzią 404 `NOT_FOUND` odrzuca mutację, a `queryClient.getQueryState(key)?.isInvalidated` jest `true`. Oczekiwany wynik: **FAIL**.
+- [x] **8. Poprawka.** W `onError` mutacji `useUpdateTodo` po cofnięciu wywołaj `invalidateQueries` dla `todosKey(widgetId)`, gdy `apiErrorInfo(error)?.status === 404`. Oczekiwany wynik: **PASS (106 testów w rozszerzeniu)**. Zbuduj i powtórz krok 6 z innym zadaniem: po `PATCH` z 404 wychodzi `GET`, a zadanie znika.
 - [ ] **9. Limit 500.** Uzupełnij widget Zadania do 499 zadań (wpisz swój e-mail; polecenie dotyczy wszystkich widgetów Zadania tego konta):
 
   ```bash
@@ -3101,7 +3101,7 @@ it('saves "Hide completed" and keeps the title', async () => {
   Przejdź na inną kartę i wróć, potem dodaj dwa zadania. **Oczekiwany wynik:** pierwsze zostaje, drugie pojawia się i znika, a toast mówi „Osiągnięto limit. Usuń coś, zanim dodasz kolejny element.”. Na koniec usuń zadania testowe: `delete from todo_items t using "user" u where u.id = t.user_id and u.email = 'twoj@email.pl' and t.text like 'Task %'`.
 
 - [ ] **10. Prywatność.** W zbudowanej paczce przejdź przez kroki 3–9 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
-- [ ] **11.** `pnpm format && pnpm check`, potem commit: `fix(extension): refetch tasks after a change of a deleted task`.
+- [x] **11.** `pnpm format && pnpm check`, potem commit: `fix(extension): refetch tasks after a change of a deleted task`.
 
 **Pułapki (sprawdzone na prototypie):**
 

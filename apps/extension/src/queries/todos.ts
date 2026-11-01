@@ -99,7 +99,14 @@ export function useUpdateTodo() {
         const current = list.find((item) => item.id === id)
         return current ? withTodo(list, { ...current, ...changes }) : list
       }),
-    onError: (_error, _input, rollback) => rollback?.(),
+    onError: (error, { widgetId }, rollback) => {
+      rollback?.()
+      // The task was deleted, e.g. on another device. The rollback brought it back, so the tasks
+      // are fetched again to show what the API has.
+      if (apiErrorInfo(error)?.status === 404) {
+        void queryClient.invalidateQueries({ queryKey: todosKey(widgetId) })
+      }
+    },
     onSuccess: (saved) => {
       if (hasLaterChanges(queryClient)) return
       queryClient.setQueryData<TodoDto[]>(todosKey(saved.widgetId), (list = []) =>
