@@ -1,8 +1,10 @@
 import {
   type CreateWidgetSchema,
   isWidgetType,
+  type LayoutItem,
   MAX_WIDGETS_PER_CONTEXT,
   type UpdateWidgetInput,
+  WIDGET_SIZES,
   widgetConfigSchemas,
   type WidgetDto,
 } from '@one-place/shared'
@@ -132,4 +134,42 @@ export async function deleteWidget(db: Database, userId: string, id: string): Pr
     .where(ownWidget(userId, id))
     .returning({ id: widgets.id })
   if (deleted.length === 0) throw widgetNotFound()
+}
+
+function layoutInvalid(message: string) {
+  return new AppError(400, 'LAYOUT_INVALID', message)
+}
+
+function isTooSmall(type: string, item: LayoutItem): boolean {
+  if (!isWidgetType(type)) return false
+  const { min } = WIDGET_SIZES[type]
+  return item.w < min.w || item.h < min.h
+}
+
+// F-GRID-04: one request saves the whole drag or resize. Widgets missing from the list keep
+// their place. One invalid item rejects the whole layout, so the transaction undoes the
+// updates made before it.
+export async function saveLayout(
+  db: Database,
+  userId: string,
+  contextId: string,
+  items: LayoutItem[],
+): Promise<WidgetDto[]> {
+  await assertOwnContext(db, userId, contextId)
+  await db.transaction(async (tx) => {
+    for (const { id, ...rect } of items) {
+      const [row] = await tx
+        .update(widgets)
+        .set({ ...rect, updatedAt: sql`now()`, version: sql`${widgets.version} + 1` })
+        .where(
+          and(eq(widgets.id, id), eq(widgets.contextId, contextId), eq(widgets.userId, userId)),
+        )
+        .returning({ type: widgets.type })
+      if (!row) throw layoutInvalid(`Widget ${id} does not belong to this context`)
+      if (isTooSmall(row.type, { id, ...rect })) {
+        throw layoutInvalid(`Widget ${id} is smaller than the minimum size of its type`)
+      }
+    }
+  })
+  return listWidgets(db, userId, contextId)
 }

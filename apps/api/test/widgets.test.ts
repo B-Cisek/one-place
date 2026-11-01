@@ -196,3 +196,78 @@ describe('DELETE /api/widgets/:id', () => {
     expect(await (await alice.get(`/api/contexts/${contextId}/widgets`)).json()).toHaveLength(1)
   })
 })
+
+describe('PUT /api/contexts/:id/layout', () => {
+  async function setupWithTwoWidgets() {
+    const result = await setup()
+    const first = widgetInput({ x: 0, y: 0 })
+    const second = widgetInput({ x: 4, y: 0 })
+    await result.alice.post(`/api/contexts/${result.contextId}/widgets`, first)
+    await result.alice.post(`/api/contexts/${result.contextId}/widgets`, second)
+    return { ...result, first, second }
+  }
+
+  function layoutPath(contextId: string) {
+    return `/api/contexts/${contextId}/layout`
+  }
+
+  it('returns 401 without a token', async () => {
+    const { app } = await createTestApp()
+    const res = await app.request(layoutPath(contextInput().id), { method: 'PUT' })
+    expect(res.status).toBe(401)
+  })
+
+  it('moves and resizes the given widgets and keeps the others', async () => {
+    const { alice, contextId, first, second } = await setupWithTwoWidgets()
+    const res = await alice.put(layoutPath(contextId), [{ id: first.id, x: 0, y: 6, w: 6, h: 4 }])
+    expect(res.status).toBe(200)
+    const byId = Object.fromEntries(
+      (await res.json()).map((widget: { id: string }) => [widget.id, widget]),
+    )
+    expect(byId[first.id]).toMatchObject({ x: 0, y: 6, w: 6, h: 4, version: 2 })
+    expect(byId[second.id]).toMatchObject({ x: 4, y: 0, w: 4, h: 6, version: 1 })
+  })
+
+  it("returns 404 for another user's context", async () => {
+    const { bob, contextId, first } = await setupWithTwoWidgets()
+    const res = await bob.put(layoutPath(contextId), [{ id: first.id, x: 0, y: 0, w: 4, h: 6 }])
+    expect(res.status).toBe(404)
+    expect(await res.json()).toEqual(contextNotFound)
+  })
+
+  it('changes nothing when one widget is from another context', async () => {
+    const { alice, contextId, first } = await setupWithTwoWidgets()
+    const other = contextInput()
+    await alice.post('/api/contexts', other)
+    const stranger = widgetInput()
+    await alice.post(`/api/contexts/${other.id}/widgets`, stranger)
+    const res = await alice.put(layoutPath(contextId), [
+      { id: first.id, x: 0, y: 6, w: 4, h: 6 },
+      { id: stranger.id, x: 4, y: 6, w: 4, h: 6 },
+    ])
+    expect(res.status).toBe(400)
+    expect((await res.json()).error.code).toBe('LAYOUT_INVALID')
+    const widgets = await (await alice.get(`/api/contexts/${contextId}/widgets`)).json()
+    expect(widgets.find((widget: { id: string }) => widget.id === first.id)).toMatchObject({
+      y: 0,
+      version: 1,
+    })
+  })
+
+  it('rejects a widget smaller than the minimum size of its type', async () => {
+    const { alice, contextId, first } = await setupWithTwoWidgets()
+    const res = await alice.put(layoutPath(contextId), [{ id: first.id, x: 0, y: 0, w: 2, h: 6 }])
+    expect(res.status).toBe(400)
+    expect((await res.json()).error.code).toBe('LAYOUT_INVALID')
+  })
+
+  it('rejects the same widget twice and widgets outside the grid', async () => {
+    const { alice, contextId, first } = await setupWithTwoWidgets()
+    const item = { id: first.id, x: 0, y: 0, w: 4, h: 6 }
+    for (const layout of [[item, { ...item, y: 6 }], [{ ...item, x: 10 }]]) {
+      const res = await alice.put(layoutPath(contextId), layout)
+      expect(res.status).toBe(400)
+      expect((await res.json()).error.code).toBe('VALIDATION_ERROR')
+    }
+  })
+})

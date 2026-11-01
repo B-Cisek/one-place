@@ -52,6 +52,7 @@ export function asUser(app: AppType, token: string) {
     get: (path: string) => send('GET', path),
     post: (path: string, body: unknown) => send('POST', path, body),
     patch: (path: string, body: unknown) => send('PATCH', path, body),
+    put: (path: string, body: unknown) => send('PUT', path, body),
     delete: (path: string) => send('DELETE', path),
   }
 }

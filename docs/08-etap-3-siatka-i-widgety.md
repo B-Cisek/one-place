@@ -1,4 +1,4 @@
-x# 08. Etap 3: Siatka i system widgetów (plan nauki)
+xx# 08. Etap 3: Siatka i system widgetów (plan nauki)
 
 Ten plik prowadzi przez [Etap 3 z roadmapy](04-roadmapa.md#etap-3-siatka-i-system-widgetów). Format jest taki sam jak w [planie Etapu 2](07-etap-2-konteksty.md): każde zadanie mówi, **co** zrobić, **dlaczego** i **jak sprawdzić**, że działa. Gotowy kod jest schowany w zwijanych blokach „Rozwiązanie”.
 
@@ -1216,8 +1216,8 @@ import { widgetsRoutes } from './modules/widgets/routes'
 
 **Kroki:**
 
-- [ ] **1. Pomocnik.** Dodaj `put` do obiektu zwracanego przez `asUser` w `test/auth-helpers.ts`.
-- [ ] **2. Czerwone testy** (nowy blok z pomocnikiem `setupWithTwoWidgets()`: widgety w `(0, 0)` i `(4, 0)`):
+- [x] **1. Pomocnik.** Dodaj `put` do obiektu zwracanego przez `asUser` w `test/auth-helpers.ts`.
+- [x] **2. Czerwone testy** (nowy blok z pomocnikiem `setupWithTwoWidgets()`: widgety w `(0, 0)` i `(4, 0)`):
   - `PUT` bez tokenu daje 401;
   - `PUT [{ id: pierwszy, x: 0, y: 6, w: 6, h: 4 }]` daje 200 i listę wszystkich widgetów: pierwszy ma nowe pole i `version: 2`, drugi stare pole i `version: 1`;
   - `PUT` Boba do kontekstu Alicji daje 404 z `Context not found`;
@@ -1227,10 +1227,10 @@ import { widgetsRoutes } from './modules/widgets/routes'
 
   Oczekiwany wynik: **FAIL pięciu testów** (401 przechodzi z tego samego powodu co w zadaniu 3).
 
-- [ ] **3. Implementacja.** `saveLayout`: sprawdzenie kontekstu, potem w `db.transaction(async (tx) => …)` dla każdego elementu `update` z warunkiem `id`, `context_id` i `user_id` oraz `returning({ type })`. Brak wiersza albo za mały rozmiar to wyjątek `LAYOUT_INVALID`. Na końcu `listWidgets`. Trasa: `.put('/:id/layout', validate('param', …), validate('json', LayoutSchema), …)` w `contextWidgetsRoutes`.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (77 testów w pakiecie API)**.
-- [ ] **5. Eksperyment: bez transakcji.** Zamień na chwilę `db.transaction(async (tx) => { … })` na wywołanie tej samej pętli z `db` zamiast `tx`. Oczekiwany wynik: test „changes nothing…” **FAIL** z `"y": 6, "version": 2`. Pierwszy widget został zapisany, zanim drugi element zgłosił błąd. Przywróć transakcję.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(api): save the widget layout in a transaction`.
+- [x] **3. Implementacja.** `saveLayout`: sprawdzenie kontekstu, potem w `db.transaction(async (tx) => …)` dla każdego elementu `update` z warunkiem `id`, `context_id` i `user_id` oraz `returning({ type })`. Brak wiersza albo za mały rozmiar to wyjątek `LAYOUT_INVALID`. Na końcu `listWidgets`. Trasa: `.put('/:id/layout', validate('param', …), validate('json', LayoutSchema), …)` w `contextWidgetsRoutes`.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (77 testów w pakiecie API)**.
+- [x] **5. Eksperyment: bez transakcji.** Zamień na chwilę `db.transaction(async (tx) => { … })` na wywołanie tej samej pętli z `db` zamiast `tx`. Oczekiwany wynik: test „changes nothing…” **FAIL** z `"y": 6, "version": 2`. Pierwszy widget został zapisany, zanim drugi element zgłosił błąd. Przywróć transakcję.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(api): save the widget layout in a transaction`.
 
 **Pułapki (sprawdzone na prototypie):**
 
