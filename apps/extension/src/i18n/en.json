@@ -93,6 +93,7 @@
       "toggle": "Done",
       "edit": "Edit the task",
       "delete": "Delete the task",
+      "drag": "Drag to change the order",
       "settings": {
         "title": "Title",
         "titleHelp": "An empty title shows “Tasks”."

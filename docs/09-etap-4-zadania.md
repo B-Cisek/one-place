@@ -2477,16 +2477,16 @@ describe('editing in place', () => {
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** `widgets.todo.drag`: „Przeciągnij, aby zmienić kolejność” / „Drag to change the order”.
-- [ ] **2. Czerwone testy** w nowym `describe('moving')`. `mountList` dostaje drugi parametr `reorder = true`. Pomocnik `drop(wrapper, order, newIndex)` robi to, co `VueDraggable` po upuszczeniu: `draggable.vm.$emit('update:modelValue', order)`, potem `draggable.vm.$emit('update', { newIndex })`:
+- [x] **1. Tłumaczenia.** `widgets.todo.drag`: „Przeciągnij, aby zmienić kolejność” / „Drag to change the order”.
+- [x] **2. Czerwone testy** w nowym `describe('moving')`. `mountList` dostaje drugi parametr `reorder = true`. Pomocnik `drop(wrapper, order, newIndex)` robi to, co `VueDraggable` po upuszczeniu: `draggable.vm.$emit('update:modelValue', order)`, potem `draggable.vm.$emit('update', { newIndex })`:
   - przy liście `milk, bread, butter` upuszczenie „butter” na indeks 1 (`[milk, butter, bread]`) zgłasza `['butter', 'milk', 'bread']`, a potem na indeks 0 (`[butter, milk, bread]`) zgłasza `['butter', null, 'milk']`;
   - przy `reorder: false` nie ma elementu z etykietą „Drag to change the order”.
 
   Oczekiwany wynik: **FAIL**, bo w liście nie ma `VueDraggable`.
 
-- [ ] **3. Implementacja.** Lokalna kopia `rows` odświeżana przez `watch` na `props.items` (jak `items` w `ManageContexts.vue`). Element z `ref="list"` zostaje, a `<ul>` w nim zastępuje `<VueDraggable v-model="rows" tag="ul" handle=".task-drag-handle" :disabled="!capabilities.reorder" :animation="150" @update="onMove">`. `v-for` idzie po `rows`. Na początku wiersza `UIcon` z `i-lucide-grip-vertical`, klasą `task-drag-handle` i `v-if="capabilities.reorder"`. `onMove` czyta nowy indeks i zgłasza ID sąsiadów z `rows` albo `null` na brzegach.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (101 testów w rozszerzeniu)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): reorder tasks by dragging`.
+- [x] **3. Implementacja.** Lokalna kopia `rows` odświeżana przez `watch` na `props.items` (jak `items` w `ManageContexts.vue`). Element z `ref="list"` zostaje, a `<ul>` w nim zastępuje `<VueDraggable v-model="rows" tag="ul" handle=".task-drag-handle" :disabled="!capabilities.reorder" :animation="150" @update="onMove">`. `v-for` idzie po `rows`. Na początku wiersza `UIcon` z `i-lucide-grip-vertical`, klasą `task-drag-handle` i `v-if="capabilities.reorder"`. `onMove` czyta nowy indeks i zgłasza ID sąsiadów z `rows` albo `null` na brzegach.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (101 testów w rozszerzeniu)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): reorder tasks by dragging`.
 
 **Pułapki (sprawdzone na prototypie):**
 

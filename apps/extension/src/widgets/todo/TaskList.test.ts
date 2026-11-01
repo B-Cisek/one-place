@@ -2,6 +2,7 @@
 import ui from '@nuxt/ui/vue-plugin'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { VueDraggable } from 'vue-draggable-plus'
 import { i18n } from '@/i18n'
 import TaskList from './TaskList.vue'
 import type { TaskItem } from './task-source'
@@ -10,9 +11,9 @@ const milk: TaskItem = { id: 'milk', text: 'Mleko', done: false }
 const bread: TaskItem = { id: 'bread', text: 'Chleb', done: true }
 
 // happy-dom reports navigator.language as en-US, so the texts are English
-function mountList(items: TaskItem[] = [milk, bread]) {
+function mountList(items: TaskItem[] = [milk, bread], reorder = true) {
   return mount(TaskList, {
-    props: { items, capabilities: { reorder: true } },
+    props: { items, capabilities: { reorder } },
     global: { plugins: [ui, i18n] },
   })
 }
@@ -100,6 +101,38 @@ describe('TaskList', () => {
       await (await startEditing(wrapper, '   ')).trigger('keydown', { key: 'Enter' })
       await (await startEditing(wrapper, 'Mleko')).trigger('keydown', { key: 'Enter' })
       expect(wrapper.emitted('edit')).toBeUndefined()
+    })
+  })
+
+  describe('moving', () => {
+    const butter: TaskItem = { id: 'butter', text: 'Masło', done: false }
+
+    // happy-dom cannot drag, so the test does what VueDraggable does after a drop:
+    // it reorders the list and reports the new index of the moved item
+    async function drop(
+      wrapper: ReturnType<typeof mountList>,
+      order: TaskItem[],
+      newIndex: number,
+    ) {
+      const draggable = wrapper.getComponent(VueDraggable)
+      draggable.vm.$emit('update:modelValue', order)
+      draggable.vm.$emit('update', { newIndex })
+      await wrapper.vm.$nextTick()
+    }
+
+    it('reports the moved task with its new neighbours', async () => {
+      const wrapper = mountList([milk, bread, butter])
+      await drop(wrapper, [milk, butter, bread], 1)
+      await drop(wrapper, [butter, milk, bread], 0)
+      expect(wrapper.emitted('move')).toEqual([
+        ['butter', 'milk', 'bread'],
+        ['butter', null, 'milk'],
+      ])
+    })
+
+    it('has no drag handles when the source cannot reorder', () => {
+      const wrapper = mountList([milk, bread], false)
+      expect(wrapper.find('[aria-label="Drag to change the order"]').exists()).toBe(false)
     })
   })
 })

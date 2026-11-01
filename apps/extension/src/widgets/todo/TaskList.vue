@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { TODO_TEXT_MAX_LENGTH } from '@one-place/shared'
 import { nextTick, ref, useTemplateRef, watch } from 'vue'
+import { type DraggableEvent, VueDraggable } from 'vue-draggable-plus'
 import { useI18n } from 'vue-i18n'
 import type { TaskItem, TaskSource } from './task-source'
 
@@ -16,6 +17,23 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+// VueDraggable reorders this copy while dragging. The cache changes only after the drop.
+const rows = ref<TaskItem[]>([])
+watch(
+  () => props.items,
+  (items) => (rows.value = [...items]),
+  { immediate: true },
+)
+
+// F-TODO-05: `rows` is already in the new order. The source gets the new neighbours, because
+// the list may not show every task (hidden completed ones).
+function onMove(event: DraggableEvent<TaskItem>) {
+  const index = event.newIndex
+  const moved = index === undefined ? undefined : rows.value[index]
+  if (index === undefined || !moved) return
+  emit('move', moved.id, rows.value[index - 1]?.id ?? null, rows.value[index + 1]?.id ?? null)
+}
 
 const newText = ref('')
 const list = useTemplateRef('list')
@@ -68,12 +86,25 @@ watch(
     <!-- F-TODO-07 -->
     <p v-if="items.length === 0" class="flex-1 text-sm text-muted">{{ t('widgets.todo.empty') }}</p>
     <div v-else ref="list" class="-mx-1 min-h-0 flex-1 overflow-y-auto">
-      <ul>
+      <VueDraggable
+        v-model="rows"
+        tag="ul"
+        handle=".task-drag-handle"
+        :disabled="!capabilities.reorder"
+        :animation="150"
+        @update="onMove"
+      >
         <li
-          v-for="item in items"
+          v-for="item in rows"
           :key="item.id"
-          class="group flex items-center gap-2 rounded-md px-1 py-1 hover:bg-elevated"
+          class="group flex items-center gap-1.5 rounded-md px-1 py-1 hover:bg-elevated"
         >
+          <UIcon
+            v-if="capabilities.reorder"
+            name="i-lucide-grip-vertical"
+            class="task-drag-handle size-4 shrink-0 cursor-grab text-dimmed opacity-0 group-hover:opacity-100"
+            :aria-label="t('widgets.todo.drag')"
+          />
           <!-- F-TODO-02 -->
           <UCheckbox
             :model-value="item.done"
@@ -112,7 +143,7 @@ watch(
             @click="emit('remove', item.id)"
           />
         </li>
-      </ul>
+      </VueDraggable>
     </div>
     <UInput
       v-model="newText"

@@ -93,6 +93,7 @@
       "toggle": "Ukończone",
       "edit": "Edytuj zadanie",
       "delete": "Usuń zadanie",
+      "drag": "Przeciągnij, aby zmienić kolejność",
       "settings": {
         "title": "Tytuł",
         "titleHelp": "Pusty tytuł oznacza „Zadania”."
