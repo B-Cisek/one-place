@@ -70,6 +70,7 @@
     "delete": {
       "title": "Delete the context “{name}”?",
       "description": "The context will disappear on all devices. This cannot be undone.",
+      "widgets": "The context has no widgets. | Its widget will be deleted too. | Its {count} widgets will be deleted too.",
       "confirm": "Delete",
       "cancel": "Cancel"
     }
@@ -78,7 +79,46 @@
     "empty": "Your widgets will appear here.",
     "loadError": "Could not load your data.",
     "retry": "Try again",
-    "offline": "Offline, showing saved data"
+    "offline": "Offline, showing saved data",
+    "edit": "Edit dashboard",
+    "done": "Done",
+    "addWidget": "Add widget"
+  },
+  "widgets": {
+    "todo": {
+      "name": "Tasks",
+      "description": "A list of things to do",
+      "settings": {
+        "title": "Title",
+        "titleHelp": "An empty title shows “Tasks”."
+      }
+    },
+    "menu": {
+      "open": "Widget options",
+      "settings": "Settings",
+      "delete": "Delete"
+    },
+    "settings": {
+      "title": "Widget settings",
+      "save": "Save"
+    },
+    "delete": {
+      "title": "Delete the widget “{name}”?",
+      "description": "The widget and its data will disappear on all devices. This cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "unknown": {
+      "name": "Unknown widget",
+      "title": "This widget needs a newer version of the extension"
+    },
+    "error": {
+      "title": "This widget stopped working",
+      "retry": "Try again"
+    },
+    "catalog": {
+      "title": "Add widget"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -102,6 +142,7 @@
     "passwordTooShort": "Password must be at least 8 characters long",
     "passwordTooLong": "Password can be at most 128 characters long",
     "contextNameRequired": "Enter a context name",
-    "contextNameTooLong": "Name can be at most 40 characters long"
+    "contextNameTooLong": "Name can be at most 40 characters long",
+    "widgetTitleTooLong": "Title can be at most 60 characters long"
   }
 }

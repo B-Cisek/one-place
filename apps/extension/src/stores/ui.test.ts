@@ -30,4 +30,12 @@ describe('ui store', () => {
     await nextTab.load()
     expect(nextTab.activeContextId).toBeNull()
   })
+
+  // F-GRID-02: a new tab always opens in preview mode
+  it('does not remember edit mode', async () => {
+    storeInNewTab().editMode = true
+    const nextTab = storeInNewTab()
+    await nextTab.load()
+    expect(nextTab.editMode).toBe(false)
+  })
 })

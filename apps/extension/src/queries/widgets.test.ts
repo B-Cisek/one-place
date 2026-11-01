@@ -2,20 +2,32 @@ import type { WidgetDto } from '@one-place/shared'
 import { QueryClient } from '@tanstack/vue-query'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { deferred, jsonResponse, withQueryClient } from './testing'
+import { contextsKey, useCreateContext } from './contexts'
+import { widgetsKey } from './keys'
 import {
   useCreateWidget,
   useDeleteWidget,
   useSaveLayout,
   useUpdateWidgetConfig,
-  widgetsKey,
+  useWidgets,
 } from './widgets'
 
-const api = vi.hoisted(() => ({ post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() }))
+const api = vi.hoisted(() => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  patch: vi.fn(),
+  delete: vi.fn(),
+  createContext: vi.fn(),
+}))
 
 vi.mock('@/api/client', () => ({
   apiClient: {
     api: {
-      contexts: { ':id': { widgets: { $post: api.post }, layout: { $put: api.put } } },
+      contexts: {
+        $post: api.createContext,
+        ':id': { widgets: { $get: api.get, $post: api.post }, layout: { $put: api.put } },
+      },
       widgets: { ':id': { $patch: api.patch, $delete: api.delete } },
     },
   },
@@ -98,6 +110,9 @@ describe('useSaveLayout', () => {
     response.resolve(jsonResponse(400, { error: { code: 'LAYOUT_INVALID', message: 'Invalid' } }))
     await expect(saving).rejects.toThrow()
     expect(cached()).toEqual([tasks, shopping])
+    // The layout was rejected because the cache is out of date (e.g. a widget deleted on another
+    // device), so the widgets are fetched again
+    expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)
   })
 })
 
@@ -125,5 +140,25 @@ describe('useDeleteWidget', () => {
     const { mutateAsync } = withQueryClient(queryClient, useDeleteWidget)
     await mutateAsync({ id: 'tasks', contextId: 'work' })
     expect(cached()).toEqual([shopping])
+  })
+})
+
+describe('useWidgets', () => {
+  it('waits with the widgets of a new context until the API saves the context', async () => {
+    const saved = deferred<Response>()
+    api.createContext.mockReturnValue(saved.promise)
+    api.get.mockResolvedValue(jsonResponse(200, []))
+    queryClient.setQueryData(contextsKey, [])
+    const input = { id: 'hobby', name: 'Hobby', icon: 'i-lucide-music', position: 'a0' } as const
+    const { mutate } = withQueryClient(queryClient, useCreateContext)
+
+    mutate(input)
+    // The dashboard of the new context opens at once, like after useAddContext()
+    const { data } = withQueryClient(queryClient, () => useWidgets('hobby'))
+    await vi.waitFor(() => expect(data.value).toEqual([]))
+    expect(api.get).not.toHaveBeenCalled()
+
+    saved.resolve(jsonResponse(201, { ...input, createdAt: 'now', updatedAt: 'now', version: 1 }))
+    await vi.waitFor(() => expect(api.get).toHaveBeenCalledOnce())
   })
 })

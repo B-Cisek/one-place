@@ -1,25 +1,13 @@
 import { z } from 'zod'
+import {
+  GRID_COLUMNS,
+  MAX_WIDGETS_PER_CONTEXT,
+  WIDGET_SIZES,
+  WIDGET_TYPES,
+  type WidgetType,
+} from './widget-types'
 
-export const WIDGET_TYPES = ['todo'] as const
-export const GRID_COLUMNS = 12
-export const MAX_WIDGETS_PER_CONTEXT = 50
 export const TODO_TITLE_MAX_LENGTH = 60
-
-export type WidgetType = (typeof WIDGET_TYPES)[number]
-
-export interface WidgetSize {
-  w: number
-  h: number
-}
-
-// In grid units. The API checks the minimum, the extension uses both when adding and resizing.
-export const WIDGET_SIZES: Record<WidgetType, { min: WidgetSize; default: WidgetSize }> = {
-  todo: { min: { w: 3, h: 3 }, default: { w: 4, h: 6 } },
-}
-
-export function isWidgetType(type: string): type is WidgetType {
-  return (WIDGET_TYPES as readonly string[]).includes(type)
-}
 
 export const TodoConfigSchema = z.object({
   title: z.string().trim().max(TODO_TITLE_MAX_LENGTH, 'validation.widgetTitleTooLong').default(''),
@@ -95,18 +83,3 @@ export const UpdateWidgetSchema = z.object({ config: z.record(z.string(), z.unkn
 export type CreateWidgetInput = z.input<typeof CreateWidgetSchema>
 export type LayoutItem = z.infer<typeof LayoutItemSchema>
 export type UpdateWidgetInput = z.infer<typeof UpdateWidgetSchema>
-
-export interface WidgetDto<TConfig = unknown> {
-  id: string
-  contextId: string
-  // A string, not WidgetType: a newer version of the extension may have added a type (F-WGT-06)
-  type: string
-  config: TConfig
-  x: number
-  y: number
-  w: number
-  h: number
-  createdAt: string
-  updatedAt: string
-  version: number
-}

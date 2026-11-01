@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { ContextDto } from '@one-place/shared'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { VueDraggable, type DraggableEvent } from 'vue-draggable-plus'
 import { useI18n } from 'vue-i18n'
 import { useContexts, useDeleteContext, useUpdateContext } from '@/queries/contexts'
+import { useWidgets } from '@/queries/widgets'
 import ContextForm from './ContextForm.vue'
 import ContextRow from './ContextRow.vue'
 import { positionAt } from './positions'
@@ -27,6 +28,15 @@ function onMove(event: DraggableEvent<ContextDto>) {
 }
 
 const toDelete = ref<ContextDto | null>(null)
+
+// F-CTX-07: the widgets of a context that was never opened on this device are fetched now.
+// Until they arrive (or offline) the modal shows the description without the count.
+const { data: widgetsToDelete } = useWidgets(() => toDelete.value?.id ?? null)
+const deleteDescription = computed(() => {
+  const count = widgetsToDelete.value?.length
+  const description = t('contexts.delete.description')
+  return count === undefined ? description : `${t('contexts.delete.widgets', count)} ${description}`
+})
 
 function onDeleteModalOpen(open: boolean) {
   if (!open) toDelete.value = null
@@ -61,7 +71,7 @@ function confirmDelete() {
     <UModal
       :open="toDelete !== null"
       :title="t('contexts.delete.title', { name: toDelete?.name ?? '' })"
-      :description="t('contexts.delete.description')"
+      :description="deleteDescription"
       @update:open="onDeleteModalOpen"
     >
       <template #footer>

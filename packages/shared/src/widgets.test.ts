@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import {
-  CreateWidgetSchema,
-  LayoutSchema,
-  TodoConfigSchema,
-  WIDGET_TYPES,
-  widgetConfigSchemas,
-} from './widgets'
+import { WIDGET_TYPES } from './widget-types'
+import { CreateWidgetSchema, LayoutSchema, TodoConfigSchema, widgetConfigSchemas } from './widgets'
 
 const validWidget = {
   id: '0199d5a6-6c6e-7cc4-8a4b-3c1f1f2a9b10',

@@ -3,7 +3,7 @@ import { QueryClient } from '@tanstack/vue-query'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { contextsKey, useCreateContext, useDeleteContext, useUpdateContext } from './contexts'
 import { deferred, jsonResponse, withQueryClient } from './testing'
-import { widgetsKey } from './widgets'
+import { widgetsKey } from './keys'
 
 const api = vi.hoisted(() => ({ post: vi.fn(), patch: vi.fn(), delete: vi.fn() }))
 

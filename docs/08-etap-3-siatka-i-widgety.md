@@ -38,7 +38,7 @@ Obowiązują ograniczenia z [Etapu 0](05-implementacja-poczatkowa.md#ograniczeni
 | Pakiet               | Wersja | Gdzie              | Uwagi                                                             |
 | -------------------- | ------ | ------------------ | ----------------------------------------------------------------- |
 | `grid-layout-plus`   | `^1.1` | rozszerzenie       | siatka w trybie edycji, ładowana leniwie; wersja 2.0 jest w becie |
-| `@vueuse/core`       | `^14`  | rozszerzenie       | `useBreakpoints` i `useDebounceFn`                                |
+| `@vueuse/core`       | `^14`  | rozszerzenie       | `useBreakpoints`                                                  |
 | `@vue/test-utils`    | `^2.5` | rozszerzenie (dev) | testy komponentów                                                 |
 | `happy-dom`          | `^21`  | rozszerzenie (dev) | DOM w testach komponentów                                         |
 | `@vitejs/plugin-vue` | `^6`   | rozszerzenie (dev) | pliki `.vue` w Vitest                                             |
@@ -1829,8 +1829,8 @@ it('forgets the cached widgets of the deleted context', async () => {
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/extension add grid-layout-plus@^1.1`. Komponentu siatki jeszcze nie piszesz, ale test zgodności skorzysta z jej algorytmu.
-- [ ] **2. Czerwone testy** w `src/features/dashboard/layout.test.ts` (pomocnik `rect(id, x, y, w = 4, h = 2)`):
+- [x] **1. Zależność.** `pnpm --filter @one-place/extension add grid-layout-plus@^1.1`. Komponentu siatki jeszcze nie piszesz, ale test zgodności skorzysta z jej algorytmu.
+- [x] **2. Czerwone testy** w `src/features/dashboard/layout.test.ts` (pomocnik `rect(id, x, y, w = 4, h = 2)`):
   - widget pod przerwą po usuniętym widgecie przesuwa się w górę: `b` z `y: 5` trafia na `y: 2`;
   - widget, nad którym nic nie ma, trafia na `y: 0`;
   - dwa widgety w tym samym miejscu (dodane jednocześnie na dwóch urządzeniach) się rozsuwają: `a` zostaje na `y: 0`, `b` trafia na `y: 2`, a wynik zachowuje kolejność wejścia;
@@ -1841,9 +1841,9 @@ it('forgets the cached widgets of the deleted context', async () => {
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **3. Implementacja** `src/features/dashboard/layout.ts`. Przeczytaj wcześniej `compact` i `compactItem` w `node_modules/grid-layout-plus/src/helpers/common.ts`. Oczekiwany wynik: **PASS (60 testów w rozszerzeniu)**.
-- [ ] **4. Sprawdź test zgodności.** Zamień na chwilę kolejność sortowania na „najpierw kolumna, potem wiersz”. Oczekiwany wynik: **FAIL** testu zgodności i testu kolejności w kolumnie. Przywróć.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): add layout helpers for the grid`.
+- [x] **3. Implementacja** `src/features/dashboard/layout.ts`. Przeczytaj wcześniej `compact` i `compactItem` w `node_modules/grid-layout-plus/src/helpers/common.ts`. Oczekiwany wynik: **PASS (60 testów w rozszerzeniu)**.
+- [x] **4. Sprawdź test zgodności.** Zamień na chwilę kolejność sortowania na „najpierw kolumna, potem wiersz”. Oczekiwany wynik: **FAIL** testu zgodności i testu kolejności w kolumnie. Przywróć.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `feat(extension): add layout helpers for the grid`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2031,17 +2031,17 @@ export function columnOrder<T extends Placed>(items: T[]): T[] {
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy:**
+- [x] **1. Czerwone testy:**
   - `src/widgets/config.test.ts`: `resolveConfig(TodoConfigSchema, { title: ' Zakupy ' })` daje pełną konfigurację z tytułem `'Zakupy'`; `{ title: 123, hideCompleted: true }` daje domyślny tytuł i `hideCompleted: true`, a `console.warn` jest wołany raz; `null` i `'oops'` dają konfigurację domyślną;
   - `src/widgets/registry.test.ts`: `findWidgetDefinition('todo')` ma typ `todo` i rozmiary z `WIDGET_SIZES`, a `findWidgetDefinition('notes')` to `null`.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **2. Implementacja.** `types.ts` z interfejsem `WidgetDefinition` (bez schematu konfiguracji, wyjaśnienie w kroku 5). `registry.ts` z wpisem `todo`: klucze i18n, ikona `i-lucide-list-checks`, rozmiary z `WIDGET_SIZES` i `component: () => import('./todo/TodoWidget.vue')`. `config.ts` z `resolveConfig`. `TodoWidget.vue` pokazuje tytuł z konfiguracji albo nazwę typu. W `pl.json` i `en.json` dodaj grupę `widgets.todo` (`name`, `description`). Oczekiwany wynik: **PASS (65 testów w rozszerzeniu)**.
-- [ ] **3. Eksperyment: rejestr na ścieżce startowej.** Rejestr trafi do startowego JS razem z ramką widgetu (zadanie 9). Sprawdź to już teraz: dodaj na chwilę w `DashboardScreen.vue` import `findWidgetDefinition` i `console.log(findWidgetDefinition('todo'))`, zbuduj rozszerzenie i uruchom `pnpm size`. **Oczekiwany wynik: około 566 kB, czyli +93 kB i ponad budżet.** Rejestr nie importuje Zoda, a komponent Zadań jest leniwy. Zastanów się, skąd Zod na ścieżce startowej, zanim otworzysz wyjaśnienie.
-- [ ] **4. Poprawka.** Przenieś z `packages/shared/src/widgets.ts` do nowego `widget-types.ts` wszystko, co nie potrzebuje Zoda: `WIDGET_TYPES`, `GRID_COLUMNS`, `MAX_WIDGETS_PER_CONTEXT`, `WidgetType`, `WidgetSize`, `WIDGET_SIZES`, `isWidgetType` i `WidgetDto`. `widgets.ts` importuje je z `./widget-types`, a `index.ts` eksportuje oba pliki. W `widgets.test.ts` zmień import `WIDGET_TYPES`. Zbuduj i powtórz pomiar: **około 474 kB.** Usuń tymczasowy import z `DashboardScreen.vue`.
-- [ ] **5. Dlaczego definicja nie ma schematu.** Architektura zakładała pola `configSchema` i `defaultConfig` w definicji oraz walidację w ramce. Każde z nich przyniosłoby do startowego JS te same 93 kB, bo ramka jest w pierwszym renderze. Schemat przychodzi więc z leniwym komponentem widgetu, który sam woła `resolveConfig`. Na prototypie wariant z `zod/mini` kosztował nadal około 52 kB.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget registry with the todo placeholder`.
+- [x] **2. Implementacja.** `types.ts` z interfejsem `WidgetDefinition` (bez schematu konfiguracji, wyjaśnienie w kroku 5). `registry.ts` z wpisem `todo`: klucze i18n, ikona `i-lucide-list-checks`, rozmiary z `WIDGET_SIZES` i `component: () => import('./todo/TodoWidget.vue')`. `config.ts` z `resolveConfig`. `TodoWidget.vue` pokazuje tytuł z konfiguracji albo nazwę typu. W `pl.json` i `en.json` dodaj grupę `widgets.todo` (`name`, `description`). Oczekiwany wynik: **PASS (65 testów w rozszerzeniu)**.
+- [x] **3. Eksperyment: rejestr na ścieżce startowej.** Rejestr trafi do startowego JS razem z ramką widgetu (zadanie 9). Sprawdź to już teraz: dodaj na chwilę w `DashboardScreen.vue` import `findWidgetDefinition` i `console.log(findWidgetDefinition('todo'))`, zbuduj rozszerzenie i uruchom `pnpm size`. **Oczekiwany wynik: około 566 kB, czyli +93 kB i ponad budżet.** Rejestr nie importuje Zoda, a komponent Zadań jest leniwy. Zastanów się, skąd Zod na ścieżce startowej, zanim otworzysz wyjaśnienie.
+- [x] **4. Poprawka.** Przenieś z `packages/shared/src/widgets.ts` do nowego `widget-types.ts` wszystko, co nie potrzebuje Zoda: `WIDGET_TYPES`, `GRID_COLUMNS`, `MAX_WIDGETS_PER_CONTEXT`, `WidgetType`, `WidgetSize`, `WIDGET_SIZES`, `isWidgetType` i `WidgetDto`. `widgets.ts` importuje je z `./widget-types`, a `index.ts` eksportuje oba pliki. W `widgets.test.ts` zmień import `WIDGET_TYPES`. Zbuduj i powtórz pomiar: **około 474 kB.** Usuń tymczasowy import z `DashboardScreen.vue`.
+- [x] **5. Dlaczego definicja nie ma schematu.** Architektura zakładała pola `configSchema` i `defaultConfig` w definicji oraz walidację w ramce. Każde z nich przyniosłoby do startowego JS te same 93 kB, bo ramka jest w pierwszym renderze. Schemat przychodzi więc z leniwym komponentem widgetu, który sam woła `resolveConfig`. Na prototypie wariant z `zod/mini` kosztował nadal około 52 kB.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget registry with the todo placeholder`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2336,17 +2336,17 @@ Teksty: `"widgets": { "todo": { "name": "Zadania", "description": "Lista rzeczy 
 
 **Kroki:**
 
-- [ ] **1. Zależności.** `pnpm --filter @one-place/extension add -D @vue/test-utils@^2.5 happy-dom@^21 @vitejs/plugin-vue@^6`
-- [ ] **2. Czerwone testy** w `src/features/dashboard/WidgetFrame.test.ts` (pierwsza linia: `// @vitest-environment happy-dom`). `vi.mock('@/widgets/registry', …)` zwraca dla typu `todo` definicję z komponentem `FlakyWidget`, który rzuca błąd, dopóki flaga `fails` jest `true`:
+- [x] **1. Zależności.** `pnpm --filter @one-place/extension add -D @vue/test-utils@^2.5 happy-dom@^21 @vitejs/plugin-vue@^6`
+- [x] **2. Czerwone testy** w `src/features/dashboard/WidgetFrame.test.ts` (pierwsza linia: `// @vitest-environment happy-dom`). `vi.mock('@/widgets/registry', …)` zwraca dla typu `todo` definicję z komponentem `FlakyWidget`, który rzuca błąd, dopóki flaga `fails` jest `true`:
   - widget znanego typu się renderuje;
   - błąd widgetu pokazuje w ramce „This widget stopped working”, a po kliknięciu „Try again” (z `fails = false`) widget renderuje się poprawnie;
   - typ `notes` pokazuje „This widget needs a newer version of the extension”.
-- [ ] **3. Uruchom.** `pnpm --filter @one-place/extension test`. Oczekiwany wynik: **FAIL** z błędem `"./vue-plugin" is not exported under the conditions ["node", "development", "import"] from package …/@nuxt/ui`. `WxtVitest()` dodaje fake browser i aliasy, ale nie pluginy z `wxt.config.ts`. Bez nich Vitest nie rozwiąże `@nuxt/ui/vue-plugin` (robi to plugin Nuxt UI) ani nie skompiluje plików `.vue` (robi to `@vitejs/plugin-vue`).
-- [ ] **4. Konfiguracja Vitest.** W `vitest.config.ts` dodaj `vue()` z `@vitejs/plugin-vue` i `ui({ router: false, colorMode: false })` z `@nuxt/ui/vite`. Napisz `WidgetFrame.vue` (wskazówki w podpowiedzi) i teksty `widgets.unknown` oraz `widgets.error`. Oczekiwany wynik: **PASS (68 testów w rozszerzeniu)**.
-- [ ] **5. Eksperyment: ikony w testach.** Przeczytaj koniec wyniku testów. **Oczekiwany wynik:** dwa razy `DOMException [AbortError]: The operation was aborted.`, choć wszystkie testy przeszły. Zastanów się, co happy-dom przerwał, zanim otworzysz wyjaśnienie.
-- [ ] **6. Poprawka.** Utwórz `nuxt-ui.config.ts` z funkcją `nuxtUiOptions(dataIcons = [])`, która zwraca opcje Nuxt UI z `wxt.config.ts` (`router`, `colorMode`, `ui.colors`, `icon.clientBundle` ze `scan: true` i listą `dataIcons`). `wxt.config.ts` woła `ui(nuxtUiOptions(CONTEXT_ICONS))`, a `vitest.config.ts` `ui(nuxtUiOptions())`. Import w `vitest.config.ts` zapisz z rozszerzeniem: `'./nuxt-ui.config.ts'`. Uruchom testy: bez `AbortError`.
-- [ ] **7. Eksperyment: `return false`.** Usuń na chwilę `return false` z `onErrorCaptured`. Oczekiwany wynik: test błędu **FAIL** (`expected '' to contain 'This widget stopped working'`) i `Unhandled Rejection … Error: Boom`. Przywróć.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget frame with error boundary and component tests`.
+- [x] **3. Uruchom.** `pnpm --filter @one-place/extension test`. Oczekiwany wynik: **FAIL** z błędem `"./vue-plugin" is not exported under the conditions ["node", "development", "import"] from package …/@nuxt/ui`. `WxtVitest()` dodaje fake browser i aliasy, ale nie pluginy z `wxt.config.ts`. Bez nich Vitest nie rozwiąże `@nuxt/ui/vue-plugin` (robi to plugin Nuxt UI) ani nie skompiluje plików `.vue` (robi to `@vitejs/plugin-vue`).
+- [x] **4. Konfiguracja Vitest.** W `vitest.config.ts` dodaj `vue()` z `@vitejs/plugin-vue` i `ui({ router: false, colorMode: false })` z `@nuxt/ui/vite`. Napisz `WidgetFrame.vue` (wskazówki w podpowiedzi) i teksty `widgets.unknown` oraz `widgets.error`. Oczekiwany wynik: **PASS (68 testów w rozszerzeniu)**.
+- [x] **5. Eksperyment: ikony w testach.** Przeczytaj koniec wyniku testów. **Oczekiwany wynik:** dwa razy `DOMException [AbortError]: The operation was aborted.`, choć wszystkie testy przeszły. Zastanów się, co happy-dom przerwał, zanim otworzysz wyjaśnienie.
+- [x] **6. Poprawka.** Utwórz `nuxt-ui.config.ts` z funkcją `nuxtUiOptions(dataIcons = [])`, która zwraca opcje Nuxt UI z `wxt.config.ts` (`router`, `colorMode`, `ui.colors`, `icon.clientBundle` ze `scan: true` i listą `dataIcons`). `wxt.config.ts` woła `ui(nuxtUiOptions(CONTEXT_ICONS))`, a `vitest.config.ts` `ui(nuxtUiOptions())`. Import w `vitest.config.ts` zapisz z rozszerzeniem: `'./nuxt-ui.config.ts'`. Uruchom testy: bez `AbortError`.
+- [x] **7. Eksperyment: `return false`.** Usuń na chwilę `return false` z `onErrorCaptured`. Oczekiwany wynik: test błędu **FAIL** (`expected '' to contain 'This widget stopped working'`) i `Unhandled Rejection … Error: Boom`. Przywróć.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget frame with error boundary and component tests`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2643,10 +2643,10 @@ Teksty w grupie `widgets`:
 
 **Kroki:**
 
-- [ ] **1. Zależność.** `pnpm --filter @one-place/extension add @vueuse/core@^14`
-- [ ] **2. Siatka.** `grid.ts`: `ROW_HEIGHT = 40`, `GRID_GAP = 10` i `widgetHeight(h)`. `use-narrow-screen.ts`: `useBreakpoints(breakpointsTailwind).smaller('md')`. `DashboardGrid.vue`: na wąskim ekranie kolumna `WidgetFrame` w kolejności `columnOrder`, każdy o wysokości `widgetHeight(h)`, a na szerokim CSS grid z `repeat(12, minmax(0, 1fr))`, `grid-auto-rows: 40px`, `gap` i `padding` 10 px oraz położeniem z `compactLayout`.
-- [ ] **3. Pulpit kontekstu.** `ContextDashboard.vue`: `useWidgets(() => props.context.id)`, szkielety albo błąd z „Spróbuj ponownie”, gdy nie ma danych, `UEmpty` z nazwą i ikoną kontekstu dla pustej listy i `DashboardGrid` dla reszty. W `DashboardScreen.vue` zamień `UEmpty` aktywnego kontekstu na `<ContextDashboard v-else-if="active" :context="active" />`.
-- [ ] **4. Sprawdzenie ręczne** (`pnpm dev`). Widgetów nie da się jeszcze dodać z UI, więc wstaw je w bazie (wpisz swój e-mail):
+- [x] **1. Zależność.** `pnpm --filter @one-place/extension add @vueuse/core@^14`
+- [x] **2. Siatka.** `grid.ts`: `ROW_HEIGHT = 40`, `GRID_GAP = 10` i `widgetHeight(h)`. `use-narrow-screen.ts`: `useBreakpoints(breakpointsTailwind).smaller('md')`. `DashboardGrid.vue`: na wąskim ekranie kolumna `WidgetFrame` w kolejności `columnOrder`, każdy o wysokości `widgetHeight(h)`, a na szerokim CSS grid z `repeat(12, minmax(0, 1fr))`, `grid-auto-rows: 40px`, `gap` i `padding` 10 px oraz położeniem z `compactLayout`.
+- [x] **3. Pulpit kontekstu.** `ContextDashboard.vue`: `useWidgets(() => props.context.id)`, szkielety albo błąd z „Spróbuj ponownie”, gdy nie ma danych, `UEmpty` z nazwą i ikoną kontekstu dla pustej listy i `DashboardGrid` dla reszty. W `DashboardScreen.vue` zamień `UEmpty` aktywnego kontekstu na `<ContextDashboard v-else-if="active" :context="active" />`.
+- [x] **4. Sprawdzenie ręczne** (`pnpm dev`). Widgetów nie da się jeszcze dodać z UI, więc wstaw je w bazie (wpisz swój e-mail):
 
   ```bash
   docker compose exec db psql -U one one_place -c "insert into widgets (id, user_id, context_id, type, config, x, y, w, h) select gen_random_uuid(), c.user_id, c.id, v.type, v.config::jsonb, v.x, v.y, v.w, v.h from contexts c join \"user\" u on u.id = c.user_id cross join (values ('todo', '{}', 0, 0, 4, 6), ('todo', '{\"title\": \"Zakupy\"}', 4, 0, 4, 6), ('notes', '{}', 8, 0, 4, 4), ('todo', '{\"title\": \"Pod spodem\"}', 0, 10, 6, 4)) as v(type, config, x, y, w, h) where c.name = 'Praca' and u.email = 'twoj@email.pl'"
@@ -2654,16 +2654,16 @@ Teksty w grupie `widgets`:
 
   Przejdź na inną kartę i wróć. **Oczekiwany wynik:** „Zadania”, „Zakupy” i komunikat o nowszej wersji w pierwszym rzędzie, a „Pod spodem” zaraz pod nimi, na `y: 6` zamiast zapisanego `y: 10`. Zwęź okno poniżej 768 px: jedna kolumna w kolejności Zadania, Zakupy, nieznany widget, Pod spodem.
 
-- [ ] **5. Eksperyment: nowy kontekst.** Otwórz „Konteksty”, dodaj kontekst „Hobby” i spójrz na pulpit. **Oczekiwany wynik:** „Nie udało się wczytać danych.” zamiast pustego pulpitu, a w DevTools → Network `GET /api/contexts/<id>/widgets` z odpowiedzią 404. Po kliknięciu „Spróbuj ponownie” pulpit jest już pusty, jak powinien. Zastanów się, skąd 404, zanim otworzysz wyjaśnienie.
-- [ ] **6. Czerwony test** w `src/queries/widgets.test.ts`: po `mutate` z `useCreateContext` (odpowiedź API wstrzymana przez `deferred`) `useWidgets('hobby')` od razu ma `[]` i nie woła API, a po odpowiedzi 201 woła je raz. Rozszerz mock o `contexts.$post` i `contexts[':id'].widgets.$get`. Oczekiwany wynik: **FAIL** (`expected "vi.fn()" to not be called at all`).
-- [ ] **7. Poprawka.**
+- [x] **5. Eksperyment: nowy kontekst.** Otwórz „Konteksty”, dodaj kontekst „Hobby” i spójrz na pulpit. **Oczekiwany wynik:** „Nie udało się wczytać danych.” zamiast pustego pulpitu, a w DevTools → Network `GET /api/contexts/<id>/widgets` z odpowiedzią 404. Po kliknięciu „Spróbuj ponownie” pulpit jest już pusty, jak powinien. Zastanów się, skąd 404, zanim otworzysz wyjaśnienie.
+- [x] **6. Czerwony test** w `src/queries/widgets.test.ts`: po `mutate` z `useCreateContext` (odpowiedź API wstrzymana przez `deferred`) `useWidgets('hobby')` od razu ma `[]` i nie woła API, a po odpowiedzi 201 woła je raz. Rozszerz mock o `contexts.$post` i `contexts[':id'].widgets.$get`. Oczekiwany wynik: **FAIL** (`expected "vi.fn()" to not be called at all`).
+- [x] **7. Poprawka.**
   - Utwórz `queries/keys.ts` z `createContextKey` i przenieś do niego `widgetsKey`. Oba pliki zapytań będą potrzebować kluczy drugiego, a wspólny plik zapobiega cyklowi importów. Popraw importy (także w testach).
   - `useCreateContext` dostaje `mutationKey: createContextKey`, w `onMutate` zapisuje w cache pustą listę widgetów nowego kontekstu, a w `onError` ją usuwa.
   - `useWidgets` czyta przez `useMutationState` ID kontekstów, które czekają na zapis, i wyłącza dla nich zapytanie.
 
   Oczekiwany wynik: **PASS (69 testów w rozszerzeniu)**. Powtórz krok 5: pusty pulpit od razu i żadnego 404.
 
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): show widgets in a grid with a one-column view`.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): show widgets in a grid with a one-column view`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -3015,18 +3015,18 @@ import { widgetsKey } from './keys'
 
 **Kroki:**
 
-- [ ] **1. Czerwony test** w `src/stores/ui.test.ts`: `editMode` ustawione na `true` w jednej karcie jest `false` w nowej karcie po `load()`. Oczekiwany wynik: **FAIL**. Po dodaniu `editMode` (zwykły `ref(false)`, także w `reset()`): **PASS (70 testów w rozszerzeniu)**.
-- [ ] **2. Dodawanie.** `use-add-widget.ts`: miejsce z `placeNewWidget(compactLayout(widgets), definition.defaultSize)`, ID z `v7()`, `config: {}` i `mutate` z `useCreateWidget`.
-- [ ] **3. Katalog.** `WidgetCatalog.vue`: `UModal` z listą przycisków dla `Object.values(widgetRegistry)`. Kliknięcie dodaje widget i zamyka okno. `DashboardScreen` ładuje katalog leniwie i montuje go przy pierwszym otwarciu, tak jak okno kontekstów.
-- [ ] **4. Nagłówek i pusty pulpit.** `AppHeader`: przy aktywnym kontekście i szerokim ekranie przycisk „Edytuj pulpit” / „Gotowe” (`aria-pressed`) oraz, w trybie edycji, „Dodaj widget”, który emituje `addWidget`. `ContextDashboard`: akcja „Dodaj widget” w `UEmpty` pustego pulpitu. Teksty: `dashboard.edit`, `dashboard.done`, `dashboard.addWidget`, `widgets.catalog.title`.
-- [ ] **5. Eksperyment: ikona z rejestru.** Zbuduj rozszerzenie, załaduj `.output/chrome-mv3`, zaloguj się i otwórz DevTools → Network. Kliknij „Dodaj widget” na pustym pulpicie. **Oczekiwany wynik:** żądanie do `https://api.iconify.design/lucide.json?icons=list-checks`. Ikona `i-lucide-list-checks` jest w `registry.ts`, a nie w `.vue`.
-- [ ] **6. Poprawka.** W `nuxt-ui.config.ts` zamień `scan: true` na `scan: { globInclude: ['src/**/*.{vue,ts}'] }`. Zbuduj i powtórz krok 5: żadnych żądań poza API. Ikony kontekstów nadal przychodzą z `wxt.config.ts`, bo leżą poza `src` rozszerzenia.
-- [ ] **7. Sprawdzenie ręczne** (`pnpm dev`):
+- [x] **1. Czerwony test** w `src/stores/ui.test.ts`: `editMode` ustawione na `true` w jednej karcie jest `false` w nowej karcie po `load()`. Oczekiwany wynik: **FAIL**. Po dodaniu `editMode` (zwykły `ref(false)`, także w `reset()`): **PASS (70 testów w rozszerzeniu)**.
+- [x] **2. Dodawanie.** `use-add-widget.ts`: miejsce z `placeNewWidget(compactLayout(widgets), definition.defaultSize)`, ID z `v7()`, `config: {}` i `mutate` z `useCreateWidget`.
+- [x] **3. Katalog.** `WidgetCatalog.vue`: `UModal` z listą przycisków dla `Object.values(widgetRegistry)`. Kliknięcie dodaje widget i zamyka okno. `DashboardScreen` ładuje katalog leniwie i montuje go przy pierwszym otwarciu, tak jak okno kontekstów.
+- [x] **4. Nagłówek i pusty pulpit.** `AppHeader`: przy aktywnym kontekście i szerokim ekranie przycisk „Edytuj pulpit” / „Gotowe” (`aria-pressed`) oraz, w trybie edycji, „Dodaj widget”, który emituje `addWidget`. `ContextDashboard`: akcja „Dodaj widget” w `UEmpty` pustego pulpitu. Teksty: `dashboard.edit`, `dashboard.done`, `dashboard.addWidget`, `widgets.catalog.title`.
+- [x] **5. Eksperyment: ikona z rejestru.** Zbuduj rozszerzenie, załaduj `.output/chrome-mv3`, zaloguj się i otwórz DevTools → Network. Kliknij „Dodaj widget” na pustym pulpicie. **Oczekiwany wynik:** żądanie do `https://api.iconify.design/lucide.json?icons=list-checks`. Ikona `i-lucide-list-checks` jest w `registry.ts`, a nie w `.vue`.
+- [x] **6. Poprawka.** W `nuxt-ui.config.ts` zamień `scan: true` na `scan: { globInclude: ['src/**/*.{vue,ts}'] }`. Zbuduj i powtórz krok 5: żadnych żądań poza API. Ikony kontekstów nadal przychodzą z `wxt.config.ts`, bo leżą poza `src` rozszerzenia.
+- [x] **7. Sprawdzenie ręczne** (`pnpm dev`):
   - nowy kontekst: pusty pulpit z „Dodaj widget”; po wyborze „Zadania” widget pojawia się od razu;
   - „Edytuj pulpit”: przycisk zmienia się na „Gotowe”, obok jest „Dodaj widget”; kolejny widget trafia pod pierwszy (`x: 0, y: 6`);
   - zwęź okno poniżej 768 px: przyciski edycji znikają;
   - przeładuj kartę: „Edytuj pulpit”, czyli tryb podglądu.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget catalog and edit mode switch`.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget catalog and edit mode switch`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -3310,19 +3310,19 @@ Teksty: w `dashboard` klucze `"edit": "Edytuj pulpit"`, `"done": "Gotowe"`, `"ad
 
 **Kroki:**
 
-- [ ] **1. Edytor.** `GridEditor.vue`: lokalna tablica `layout` z elementami `{ i, x, y, w, h, minW, minH }` budowana z `compactLayout(widgets)` i odświeżana przez `watch` po każdej zmianie propsa `widgets`. `GridLayout` z `v-model:layout`, `col-num` 12, `row-height` i `margin` z `grid.ts`, `vertical-compact`, `is-draggable`, `is-resizable`. W każdym `GridItem` z `drag-allow-from=".widget-drag-handle"` jest `WidgetFrame` w trybie edycji.
-- [ ] **2. Podłączenie.** `DashboardGrid` dostaje propsy `contextId` i `editMode` oraz leniwy `GridEditor` (`defineAsyncComponent`) między widokiem jednokolumnowym a podglądem: `v-else-if="editMode"`. `ContextDashboard` przekazuje `context.id` i `ui.editMode`.
-- [ ] **3. Eksperyment: zapis każdego zgłoszenia.** Dodaj zapis wprost: `@layout-updated` woła `useDebounceFn` (500 ms), który wysyła **cały** układ przez `useSaveLayout`. Zbuduj albo uruchom `pnpm dev`, wejdź w tryb edycji na pulpicie z widgetem i patrz w DevTools → Network, niczego nie dotykając. **Oczekiwany wynik:** `PUT /api/contexts/<id>/layout` mniej więcej dwa razy na sekundę, bez końca. Zastanów się, co zamyka pętlę, zanim otworzysz wyjaśnienie.
-- [ ] **4. Poprawka.** W funkcji zapisu porównaj układ z cache: `changedLayout(props.widgets, …)` i wysyłaj tylko niepustą różnicę. Powtórz krok 3: zero żądań bez ruchu.
-- [ ] **5. Sprawdzenie ręczne** (`pnpm dev`, na pulpicie widgety z zadania 10):
+- [x] **1. Edytor.** `GridEditor.vue`: lokalna tablica `layout` z elementami `{ i, x, y, w, h, minW, minH }` budowana z `compactLayout(widgets)` i odświeżana przez `watch` po każdej zmianie propsa `widgets`. `GridLayout` z `v-model:layout`, `col-num` 12, `row-height` i `margin` z `grid.ts`, `vertical-compact`, `is-draggable`, `is-resizable`. W każdym `GridItem` z `drag-allow-from=".widget-drag-handle"` jest `WidgetFrame` w trybie edycji.
+- [x] **2. Podłączenie.** `DashboardGrid` dostaje propsy `contextId` i `editMode` oraz leniwy `GridEditor` (`defineAsyncComponent`) między widokiem jednokolumnowym a podglądem: `v-else-if="editMode"`. `ContextDashboard` przekazuje `context.id` i `ui.editMode`.
+- [x] **3. Eksperyment: zapis każdego zgłoszenia.** Dodaj zapis wprost: `@layout-updated` woła `useDebounceFn` (500 ms), który wysyła **cały** układ przez `useSaveLayout`. Zbuduj albo uruchom `pnpm dev`, wejdź w tryb edycji na pulpicie z widgetem i patrz w DevTools → Network, niczego nie dotykając. **Oczekiwany wynik:** `PUT /api/contexts/<id>/layout` mniej więcej dwa razy na sekundę, bez końca. Zastanów się, co zamyka pętlę, zanim otworzysz wyjaśnienie.
+- [x] **4. Poprawka.** W funkcji zapisu porównaj układ z cache: `changedLayout(props.widgets, …)` i wysyłaj tylko niepustą różnicę. Powtórz krok 3: zero żądań bez ruchu.
+- [x] **5. Sprawdzenie ręczne** (`pnpm dev`, na pulpicie widgety z zadania 10):
   - włącz i wyłącz edycję kilka razy: widgety nie przesuwają się ani o piksel; pierwsze włączenie wysyła jeden `PUT` z widgetem „Pod spodem” (`y: 6` zamiast `10`), kolejne nic;
   - przeciągnij widget za nagłówek w prawo: jeden `PUT` z nowym `x`; przeciąganie za treść widgetu nic nie robi;
   - zmniejsz widget uchwytem w prawym dolnym rogu: nie da się zejść poniżej 3×3;
   - podczas przeciągania miejsce docelowe ma kolor akcentu, a nie czerwony;
   - kliknij „Gotowe”, przeładuj kartę: układ zostaje, karta jest w podglądzie.
-- [ ] **6. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 489 kB**, a w liście plików z buildu osobny `GridEditor-….js` (około 140 kB).
-- [ ] **7. Ocena R4.** Zapisz w notatkach do zadania 16, co widzisz: wersja biblioteki, data ostatniego wydania i aktywność repozytorium (`npm view grid-layout-plus time`), działanie z bieżącym Vue, ostrzeżenia w konsoli, rozmiar chunka i zachowanie w trybie edycji. Na prototypie: 1.1.1 (październik 2025), 2.0 w becie, commity z października 2026, Vue 3.5.43 bez ostrzeżeń.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): edit the layout with grid-layout-plus`.
+- [x] **6. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 489 kB**, a w liście plików z buildu osobny `GridEditor-….js` (około 140 kB).
+- [x] **7. Ocena R4.** Zapisz w notatkach do zadania 16, co widzisz: wersja biblioteki, data ostatniego wydania i aktywność repozytorium (`npm view grid-layout-plus time`), działanie z bieżącym Vue, ostrzeżenia w konsoli, rozmiar chunka i zachowanie w trybie edycji. Na prototypie: 1.1.1 (październik 2025), 2.0 w becie, commity z października 2026, Vue 3.5.43 bez ostrzeżeń.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(extension): edit the layout with grid-layout-plus`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -3330,6 +3330,7 @@ Teksty: w `dashboard` klucze `"edit": "Edytuj pulpit"`, `"done": "Gotowe"`, `"ad
 - **Przeciąganie tylko za nagłówek.** `drag-allow-from=".widget-drag-handle"` wskazuje nagłówek ramki. Domyślne `drag-ignore-from: 'a, button'` sprawia, że przycisk menu w nagłówku (zadanie 13) nie zaczyna przeciągania.
 - **CSS biblioteki przychodzi w JavaScripcie.** Wersja 1.x wstawia własny `<style>` przy imporcie. CSP stron rozszerzenia w MV3 ogranicza skrypty, a nie style, więc to działa. Kolor miejsca docelowego zmienia zmienna `--vgl-placeholder-bg`.
 - **Edytor ładuje się raz.** Pierwsze włączenie edycji pobiera chunk (na prototypie edytor był widoczny po około 50 ms od kliknięcia), kolejne korzystają z załadowanego modułu.
+- **Zapis zaplanowany przed przeciąganiem.** `layout-updated` po zamontowaniu edytora planuje zapis dosuniętego układu. Gdy przeciąganie zacznie się w ciągu 500 ms, zapis wykonałby się w jego trakcie: wysłałby położenie „w połowie drogi”, a odpowiedź API podmieniłaby `layout` pod kursorem. Dlatego `@move` i `@resize` z `GridItem` wstrzymują zaplanowany zapis, a koniec przeciągania albo skalowania zgłasza układ jeszcze raz i planuje go od nowa. Kliknięcie „Gotowe” zaraz po przeciągnięciu wysyła zaplanowany zapis od razu (`onBeforeUnmount`). Dlatego zamiast `useDebounceFn`, którego nie da się anulować, jest zwykły `setTimeout`. Wyszło przy sprawdzaniu w przeglądarce (szybkie przeciągnięcie zaraz po włączeniu edycji dawało dwa `PUT`).
 - **Zmiana kontekstu w trybie edycji.** Prop `widgets` dostaje wtedy nową tablicę, `watch` buduje nowy `layout`, a biblioteka zgłasza „nowy układ”. Porównanie z cache nowego kontekstu nie znajduje różnic, więc nic nie zostaje wysłane.
 
 <details>
@@ -3359,9 +3360,8 @@ Teksty: w `dashboard` klucze `"edit": "Edytuj pulpit"`, `"done": "Gotowe"`, `"ad
 ```vue
 <script setup lang="ts">
 import { GRID_COLUMNS, type WidgetDto } from '@one-place/shared'
-import { useDebounceFn } from '@vueuse/core'
 import { GridItem, GridLayout } from 'grid-layout-plus'
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useSaveLayout } from '@/queries/widgets'
 import { findWidgetDefinition } from '@/widgets/registry'
 import { GRID_GAP, ROW_HEIGHT } from './grid'
@@ -3404,13 +3404,39 @@ watch(
 
 const widgetsById = computed(() => new Map(props.widgets.map((widget) => [widget.id, widget])))
 
+const SAVE_DELAY_MS = 500
+let saveTimer: ReturnType<typeof setTimeout> | undefined
+
 // F-GRID-04. grid-layout-plus reports a new layout after a drag or resize, but also on mount and
 // after every change of `layout`, so only a real difference from the cache is saved.
-const save = useDebounceFn(() => {
+function save() {
   const current = layout.value.map(({ i, x, y, w, h }) => ({ id: i, x, y, w, h }))
   const items = changedLayout(props.widgets, current)
   if (items.length > 0) saveLayout({ contextId: props.contextId, items })
-}, 500)
+}
+
+function scheduleSave() {
+  clearTimeout(saveTimer)
+  saveTimer = setTimeout(() => {
+    saveTimer = undefined
+    save()
+  }, SAVE_DELAY_MS)
+}
+
+// A save scheduled earlier (e.g. right after mount) must not run in the middle of a drag: it would
+// send a half-dragged layout, and its response would replace the layout under the pointer.
+// The end of the drag or resize reports the layout again, which schedules the save anew.
+function holdSave() {
+  clearTimeout(saveTimer)
+  saveTimer = undefined
+}
+
+// "Done" right after a drag: the pending save runs now instead of after the editor is gone
+onBeforeUnmount(() => {
+  if (saveTimer === undefined) return
+  holdSave()
+  save()
+})
 </script>
 
 <template>
@@ -3423,13 +3449,15 @@ const save = useDebounceFn(() => {
     is-draggable
     is-resizable
     class="grid-editor"
-    @layout-updated="save"
+    @layout-updated="scheduleSave"
   >
     <GridItem
       v-for="item in layout"
       :key="item.i"
       v-bind="item"
       drag-allow-from=".widget-drag-handle"
+      @move="holdSave"
+      @resize="holdSave"
     >
       <WidgetFrame v-if="widgetsById.get(item.i)" :widget="widgetsById.get(item.i)!" edit-mode />
     </GridItem>
@@ -3523,23 +3551,23 @@ const ui = useUiStore()
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/widgets/todo/TodoSettings.test.ts` (happy-dom, prawdziwy Nuxt UI i i18n jak w zadaniu 9):
+- [x] **1. Czerwone testy** w `src/widgets/todo/TodoSettings.test.ts` (happy-dom, prawdziwy Nuxt UI i i18n jak w zadaniu 9):
   - tytuł `'  Zakupy  '` wysłany dla konfiguracji `{ title: 'Stary', hideCompleted: true }` emituje `save` z `{ title: 'Zakupy', hideCompleted: true, source: { type: 'local' } }`;
   - tytuł z 61 znaków nie emituje `save`, a formularz pokazuje komunikat z „at most 60 characters”.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **2. Ustawienia Zadań.** `TodoSettings.vue`: konfiguracja z `resolveConfig`, `UForm` z `:validate="formErrors(TodoConfigSchema, t)"`, jedno pole „Tytuł” z podpowiedzią i przycisk „Zapisz”. Przy wysyłce `emit('save', TodoConfigSchema.parse({ ...config, ...state }))`. W `registry.ts` dodaj `settingsComponent: () => import('./todo/TodoSettings.vue')`. Teksty `widgets.todo.settings.*`, `widgets.settings.save` i `validation.widgetTitleTooLong`. Oczekiwany wynik: **PASS (72 testy w rozszerzeniu)**.
-- [ ] **3. Menu.** `WidgetActions.vue`: `UDropdownMenu` z `v-model:open` i przyciskiem `i-lucide-ellipsis`, pozycje „Ustawienia” (tylko gdy definicja ma `settingsComponent`) i „Usuń”, modal ustawień z leniwym komponentem ustawień typu i modal potwierdzenia usunięcia. Zapis ustawień woła `useUpdateWidgetConfig`, a potwierdzenie `useDeleteWidget`.
-- [ ] **4. Ramka.** W `WidgetFrame` dodaj w prawym górnym rogu (`absolute end-1.5 top-1.5`) zwykły `UButton` z tą samą ikoną. Kliknięcie ustawia `menuUsed` i `menuOpen` na `true`, a od tej chwili zamiast przycisku jest leniwy `WidgetActions` z `v-model:open="menuOpen"`. Nagłówek w trybie edycji dostaje `pe-10`, żeby tytuł nie wchodził pod przycisk.
-- [ ] **5. Eksperyment: menu na ścieżce startowej.** Zaimportuj na chwilę `WidgetActions` w ramce statycznie (`import WidgetActions from './WidgetActions.vue'` zamiast `defineAsyncComponent`), zbuduj i uruchom `pnpm size`. **Oczekiwany wynik: około 633 kB, czyli +142 kB i ponad budżet.** `UDropdownMenu` ciągnie warstwę menu z `reka-ui` i pozycjonowanie z `@floating-ui`, a `UModal` warstwę okien. Przywróć leniwy import.
-- [ ] **6. Sprawdzenie ręczne** (`pnpm dev`):
+- [x] **2. Ustawienia Zadań.** `TodoSettings.vue`: konfiguracja z `resolveConfig`, `UForm` z `:validate="formErrors(TodoConfigSchema, t)"`, jedno pole „Tytuł” z podpowiedzią i przycisk „Zapisz”. Przy wysyłce `emit('save', TodoConfigSchema.parse({ ...config, ...state }))`. W `registry.ts` dodaj `settingsComponent: () => import('./todo/TodoSettings.vue')`. Teksty `widgets.todo.settings.*`, `widgets.settings.save` i `validation.widgetTitleTooLong`. Oczekiwany wynik: **PASS (72 testy w rozszerzeniu)**.
+- [x] **3. Menu.** `WidgetActions.vue`: `UDropdownMenu` z `v-model:open` i przyciskiem `i-lucide-ellipsis`, pozycje „Ustawienia” (tylko gdy definicja ma `settingsComponent`) i „Usuń”, modal ustawień z leniwym komponentem ustawień typu i modal potwierdzenia usunięcia. Zapis ustawień woła `useUpdateWidgetConfig`, a potwierdzenie `useDeleteWidget`.
+- [x] **4. Ramka.** W `WidgetFrame` dodaj w prawym górnym rogu (`absolute end-1.5 top-1.5`) zwykły `UButton` z tą samą ikoną. Kliknięcie ustawia `menuUsed` i `menuOpen` na `true`, a od tej chwili zamiast przycisku jest leniwy `WidgetActions` z `v-model:open="menuOpen"`. Nagłówek w trybie edycji dostaje `pe-10`, żeby tytuł nie wchodził pod przycisk.
+- [x] **5. Eksperyment: menu na ścieżce startowej.** Zaimportuj na chwilę `WidgetActions` w ramce statycznie (`import WidgetActions from './WidgetActions.vue'` zamiast `defineAsyncComponent`), zbuduj i uruchom `pnpm size`. **Oczekiwany wynik: około 633 kB, czyli +142 kB i ponad budżet.** `UDropdownMenu` ciągnie warstwę menu z `reka-ui` i pozycjonowanie z `@floating-ui`, a `UModal` warstwę okien. Przywróć leniwy import.
+- [x] **6. Sprawdzenie ręczne** (`pnpm dev`):
   - kliknij menu widgetu: otwiera się za pierwszym razem (na prototypie po około 60 ms), z pozycjami „Ustawienia” i „Usuń”;
   - „Ustawienia” → tytuł z 61 znaków: komunikat „Tytuł może mieć najwyżej 60 znaków”; tytuł `  Zakupy  `: modal się zamyka, a widget od razu pokazuje „Zakupy”;
   - menu widgetu nieznanego typu ma tylko „Usuń”;
   - w trybie edycji menu jest w nagłówku, a kliknięcie go nie zaczyna przeciągania;
   - „Usuń” → modal „Usunąć widget „Zadania”?” → „Usuń”: widget znika, a reszta się dosuwa.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget menu with settings and delete`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): add widget menu with settings and delete`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -3970,18 +3998,18 @@ function retry() {
 
 **Kroki:**
 
-- [ ] **1. Teksty.** W `contexts.delete` dodaj klucz `widgets` z czterema formami po polsku: `"Kontekst nie ma widgetów. | Usunie też 1 widget. | Usunie też {count} widgety. | Usunie też {count} widgetów."` i trzema po angielsku: `"The context has no widgets. | Its widget will be deleted too. | Its {count} widgets will be deleted too."`.
-- [ ] **2. Czerwone testy** w `src/i18n/plural.test.ts`:
+- [x] **1. Teksty.** W `contexts.delete` dodaj klucz `widgets` z czterema formami po polsku: `"Kontekst nie ma widgetów. | Usunie też 1 widget. | Usunie też {count} widgety. | Usunie też {count} widgetów."` i trzema po angielsku: `"The context has no widgets. | Its widget will be deleted too. | Its {count} widgets will be deleted too."`.
+- [x] **2. Czerwone testy** w `src/i18n/plural.test.ts`:
   - `polishPluralIndex` dla `0, 1, 2, 4, 5, 11, 12, 14, 21, 22, 25, 104, 112` daje `0, 1, 2, 2, 3, 3, 3, 3, 3, 2, 3, 2, 3`;
   - `i18n.global.t('contexts.delete.widgets', 3, { locale: 'pl' })` to `'Usunie też 3 widgety.'`, dla 5 `'Usunie też 5 widgetów.'`, a po angielsku dla 3 `'Its 3 widgets will be deleted too.'`.
 
   Oczekiwany wynik: **FAIL**, bo moduł `./plural` nie istnieje.
 
-- [ ] **3. Eksperyment: domyślna reguła.** Utwórz `plural.ts` z funkcją, ale nie podłączaj jej jeszcze do `createI18n`. Uruchom testy. **Oczekiwany wynik:** test funkcji przechodzi, a test komunikatów **FAIL** z `'Usunie też 5 widgety.'`. Dla 3 wynik był poprawny przypadkiem.
-- [ ] **4. Poprawka.** W `i18n/index.ts` dodaj `pluralRules: { pl: polishPluralIndex }`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**.
-- [ ] **5. Modal.** W `ManageContexts.vue`: `useWidgets(() => toDelete.value?.id ?? null)` i `computed` z opisem, który przed stałym tekstem dokłada `t('contexts.delete.widgets', count)`, gdy liczba jest znana.
-- [ ] **6. Sprawdzenie ręczne** (`pnpm dev`): drugi kontekst z pięcioma widgetami (dodaj je w nim przez katalog), przełącz się z powrotem na pierwszy i przeładuj kartę. Otwórz „Konteksty” i kliknij usuwanie drugiego: po chwili „Usunie też 5 widgetów.” (lista została pobrana teraz). Anuluj i otwórz usuwanie aktywnego kontekstu z trzema widgetami: od razu „Usunie też 3 widgety.” z cache.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): show the widget count before deleting a context`.
+- [x] **3. Eksperyment: domyślna reguła.** Utwórz `plural.ts` z funkcją, ale nie podłączaj jej jeszcze do `createI18n`. Uruchom testy. **Oczekiwany wynik:** test funkcji przechodzi, a test komunikatów **FAIL** z `'Usunie też 5 widgety.'`. Dla 3 wynik był poprawny przypadkiem.
+- [x] **4. Poprawka.** W `i18n/index.ts` dodaj `pluralRules: { pl: polishPluralIndex }`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**.
+- [x] **5. Modal.** W `ManageContexts.vue`: `useWidgets(() => toDelete.value?.id ?? null)` i `computed` z opisem, który przed stałym tekstem dokłada `t('contexts.delete.widgets', count)`, gdy liczba jest znana.
+- [x] **6. Sprawdzenie ręczne** (`pnpm dev`): drugi kontekst z pięcioma widgetami (dodaj je w nim przez katalog), przełącz się z powrotem na pierwszy i przeładuj kartę. Otwórz „Konteksty” i kliknij usuwanie drugiego: po chwili „Usunie też 5 widgetów.” (lista została pobrana teraz). Anuluj i otwórz usuwanie aktywnego kontekstu z trzema widgetami: od razu „Usunie też 3 widgety.” z cache.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(extension): show the widget count before deleting a context`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -4119,15 +4147,15 @@ const deleteDescription = computed(() => {
 
 **Kroki:**
 
-- [ ] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 490 kB** (budżet 550 kB). W liście plików z buildu osobno: `GridEditor` (około 140 kB), `WidgetActions`, `WidgetCatalog`, `TodoWidget` i `TodoSettings`.
-- [ ] **2. Eksperyment: edytor w pierwszym renderze.** W `DashboardGrid.vue` zamień na chwilę `defineAsyncComponent` na zwykły `import GridEditor from './GridEditor.vue'`, zbuduj i uruchom `pnpm size`. **Oczekiwany wynik: około 630 kB i błąd przekroczenia budżetu.** To liczba, od której zaczęła się decyzja 1. Przywróć leniwy import.
-- [ ] **3. Czas pierwszego renderu.** Zbuduj, załaduj `.output/chrome-mv3`, dodaj sześć widgetów i odczekaj sekundę. Otwórz nową kartę i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Powtórz kilka razy, potem z „CPU: 4x slowdown” w DevTools → Performance. Na prototypie: mediana 30 ms i 86 ms. Wymaganie to poniżej 200 ms.
-- [ ] **4. Karta otwarta offline.** W zbudowanej paczce: DevTools → Network → „Offline”, przeładuj kartę. Widgety są z cache, widać baner offline. Włącz edycję (chunk edytora jest w paczce, więc ładuje się bez sieci) i przesuń widget: żadnego żądania i żadnego toastu. Wyłącz tryb Offline: wychodzi jeden `PUT` z nowym położeniem.
-- [ ] **5. Eksperyment: widget usunięty na innym urządzeniu.** Włącz edycję. W `psql` usuń jeden z widgetów: `docker compose exec db psql -U one one_place -c "delete from widgets where config->>'title' = 'Zakupy'"`. Przeciągnij „Zakupy” w inne miejsce. **Oczekiwany wynik:** `PUT` z odpowiedzią 400 `LAYOUT_INVALID`, toast „Serwer odrzucił zmianę. Spróbuj ponownie.” i widget wraca na swoje miejsce. Ale zostaje na pulpicie, choć w bazie już go nie ma, dopóki nie przełączysz się na inną kartę i z powrotem.
-- [ ] **6. Czerwony test.** W teście `useSaveLayout` z zadania 6 dopisz na końcu: `expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)`. Oczekiwany wynik: **FAIL**.
-- [ ] **7. Poprawka.** W `onError` mutacji `useSaveLayout` po cofnięciu wywołaj `queryClient.invalidateQueries({ queryKey: widgetsKey(contextId) })`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**. Zbuduj i powtórz krok 5 z innym widgetem: po toaście usunięty widget znika sam.
-- [ ] **8. Błąd w zaślepce (DoD).** W `TodoWidget.vue` dodaj na chwilę pod `config`: `if (config.value.title === 'Boom') throw new Error('Boom')`. Zbuduj, ustaw w ustawieniach jednego widgetu tytuł „Boom” i przeładuj kartę. **Oczekiwany wynik:** ta ramka pokazuje „Ten widget przestał działać” z „Spróbuj ponownie”, a nagłówek, pozostałe widgety i menu tej ramki działają. Zmień w jej ustawieniach tytuł na „Naprawiony” i kliknij „Spróbuj ponownie”: widget wraca. Usuń dodaną linię.
-- [ ] **9. Limit 50 widgetów.** Uzupełnij kontekst „Praca” do 50 widgetów (wpisz swój e-mail):
+- [x] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 490 kB** (budżet 550 kB). W liście plików z buildu osobno: `GridEditor` (około 140 kB), `WidgetActions`, `WidgetCatalog`, `TodoWidget` i `TodoSettings`.
+- [x] **2. Eksperyment: edytor w pierwszym renderze.** W `DashboardGrid.vue` zamień na chwilę `defineAsyncComponent` na zwykły `import GridEditor from './GridEditor.vue'`, zbuduj i uruchom `pnpm size`. **Oczekiwany wynik: około 630 kB i błąd przekroczenia budżetu.** To liczba, od której zaczęła się decyzja 1. Przywróć leniwy import.
+- [x] **3. Czas pierwszego renderu.** Zbuduj, załaduj `.output/chrome-mv3`, dodaj sześć widgetów i odczekaj sekundę. Otwórz nową kartę i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Powtórz kilka razy, potem z „CPU: 4x slowdown” w DevTools → Performance. Na prototypie: mediana 30 ms i 86 ms. Wymaganie to poniżej 200 ms.
+- [x] **4. Karta otwarta offline.** W zbudowanej paczce: DevTools → Network → „Offline”, przeładuj kartę. Widgety są z cache, widać baner offline. Włącz edycję (chunk edytora jest w paczce, więc ładuje się bez sieci) i przesuń widget: żadnego żądania i żadnego toastu. Wyłącz tryb Offline: wychodzi jeden `PUT` z nowym położeniem.
+- [x] **5. Eksperyment: widget usunięty na innym urządzeniu.** Włącz edycję. W `psql` usuń jeden z widgetów: `docker compose exec db psql -U one one_place -c "delete from widgets where config->>'title' = 'Zakupy'"`. Przeciągnij „Zakupy” w inne miejsce. **Oczekiwany wynik:** `PUT` z odpowiedzią 400 `LAYOUT_INVALID`, toast „Serwer odrzucił zmianę. Spróbuj ponownie.” i widget wraca na swoje miejsce. Ale zostaje na pulpicie, choć w bazie już go nie ma, dopóki nie przełączysz się na inną kartę i z powrotem.
+- [x] **6. Czerwony test.** W teście `useSaveLayout` z zadania 6 dopisz na końcu: `expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)`. Oczekiwany wynik: **FAIL**.
+- [x] **7. Poprawka.** W `onError` mutacji `useSaveLayout` po cofnięciu wywołaj `queryClient.invalidateQueries({ queryKey: widgetsKey(contextId) })`. Oczekiwany wynik: **PASS (74 testy w rozszerzeniu)**. Zbuduj i powtórz krok 5 z innym widgetem: po toaście usunięty widget znika sam.
+- [x] **8. Błąd w zaślepce (DoD).** W `TodoWidget.vue` dodaj na chwilę pod `config`: `if (config.value.title === 'Boom') throw new Error('Boom')`. Zbuduj, ustaw w ustawieniach jednego widgetu tytuł „Boom” i przeładuj kartę. **Oczekiwany wynik:** ta ramka pokazuje „Ten widget przestał działać” z „Spróbuj ponownie”, a nagłówek, pozostałe widgety i menu tej ramki działają. Zmień w jej ustawieniach tytuł na „Naprawiony” i kliknij „Spróbuj ponownie”: widget wraca. Usuń dodaną linię.
+- [x] **9. Limit 50 widgetów.** Uzupełnij kontekst „Praca” do 50 widgetów (wpisz swój e-mail):
 
   ```bash
   docker compose exec db psql -U one one_place -c "insert into widgets (id, user_id, context_id, type, config, x, y, w, h) select gen_random_uuid(), c.user_id, c.id, 'todo', '{}', 0, 100 + n * 6, 4, 6 from contexts c join \"user\" u on u.id = c.user_id cross join lateral generate_series(1, 50 - (select count(*)::int from widgets w where w.context_id = c.id)) n where c.name = 'Praca' and u.email = 'twoj@email.pl'"
@@ -4135,8 +4163,8 @@ const deleteDescription = computed(() => {
 
   Przejdź na inną kartę i wróć, potem dodaj widget z katalogu. **Oczekiwany wynik:** widget pojawia się i znika, a toast mówi „Osiągnięto limit. Usuń coś, zanim dodasz kolejny element.”. Na koniec usuń widgety testowe: `delete from widgets where y >= 100`.
 
-- [ ] **10. Prywatność.** W zbudowanej paczce przejdź przez kroki 4–9 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
-- [ ] **11.** `pnpm format && pnpm check`, potem commit: `fix(extension): refetch widgets after a rejected layout`.
+- [x] **10. Prywatność.** W zbudowanej paczce przejdź przez kroki 4–9 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
+- [x] **11.** `pnpm format && pnpm check`, potem commit: `fix(extension): refetch widgets after a rejected layout`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -4189,7 +4217,7 @@ expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)
 
 **Kroki:**
 
-- [ ] **1. Architektura.** W [03-architektura.md](03-architektura.md):
+- [x] **1. Architektura.** W [03-architektura.md](03-architektura.md):
   - w „Pakiet `shared`”: stałe bez Zoda w `widget-types.ts` (`WIDGET_TYPES`, `GRID_COLUMNS`, `MAX_WIDGETS_PER_CONTEXT`, `WIDGET_SIZES`, `isWidgetType`, `WidgetDto`), schematy w `widgets.ts`; na ścieżce startowej rozszerzenia importuje się tylko pliki bez Zoda; każde pole konfiguracji widgetu ma wartość domyślną, więc `{}` daje konfigurację domyślną;
   - w „Struktura repozytorium”: `features/widgets/` (katalog i dodawanie), `apps/extension/nuxt-ui.config.ts`;
   - w „API” (zasady): `PATCH /widgets/:id` zastępuje całą konfigurację, sprawdzaną schematem typu zapisanego w bazie; trasy `/contexts/:id/widgets` i `/contexts/:id/layout` są w routerze zagnieżdżonym w `contextsRoutes` (`Hono<AuthEnv>`), więc sesja jest sprawdzana raz; cudzy kontekst w tych trasach daje 404; układ sprawdza przynależność w `UPDATE … WHERE` i zapisuje się w jednej transakcji;
@@ -4200,16 +4228,16 @@ expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)
   - w „Testy”: komponenty w Vitest z `@vitejs/plugin-vue` i pluginem Nuxt UI (wspólne `nuxtUiOptions`), `happy-dom` włączany w pliku testu;
   - w rejestrze decyzji: podgląd na CSS grid z leniwym `grid-layout-plus` (odrzucone: biblioteka w obu trybach, +139 kB startowego JS) oraz rejestr widgetów bez Zoda ze schematem przy komponencie (odrzucone: walidacja w ramce, +93 kB, i `zod/mini`, +52 kB);
   - w „Ryzyka”: wynik R4 z notatek z zadania 12 (wersja, aktywność repozytorium, działanie z Vue, rozmiar chunka, plan awaryjny bez zmian).
-- [ ] **2. Roadmapa.** Przy Etapie 3 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza. Przy Etapie 4 zaznacz, że `TodoConfigSchema` ze źródłem `local` i `TodoSettings.vue` z tytułem już istnieją, więc Etap 4 dopisuje „Ukryj ukończone”, listę zadań i moduł `todos`.
-- [ ] **3. Specyfikacja.** Sprawdź, czy [02-specyfikacja.md](02-specyfikacja.md) zgadza się z tym, co powstało. Na prototypie nic nie trzeba było zmieniać: budżet 550 kB zostaje.
-- [ ] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-3-siatka-i-system-widgetów):
-  - [ ] w trybie edycji można dodać, przesunąć, przeskalować i usunąć widget, a układ zostaje zachowany po przeładowaniu (zadania 11–13);
-  - [ ] błąd rzucony w zaślepce nie wywraca pulpitu (zadanie 15, krok 8);
-  - [ ] modal usuwania kontekstu pokazuje liczbę widgetów (zadanie 14);
-  - [ ] testy API sprawdzają 401 bez sesji, 404 dla cudzego kontekstu i widgetu, 400 dla niepoprawnych danych i `LAYOUT_INVALID` bez częściowego zapisu (`widgets.test.ts`);
-  - [ ] ryzyko R4 ma zapisany wynik;
-  - [ ] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
-- [ ] **5.** `pnpm check` (oczekiwany wynik: 26 + 77 + 74 = **177 testów**), potem commit: `docs: add stage 3 results`.
+- [x] **2. Roadmapa.** Przy Etapie 3 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza. Przy Etapie 4 zaznacz, że `TodoConfigSchema` ze źródłem `local` i `TodoSettings.vue` z tytułem już istnieją, więc Etap 4 dopisuje „Ukryj ukończone”, listę zadań i moduł `todos`.
+- [x] **3. Specyfikacja.** Sprawdź, czy [02-specyfikacja.md](02-specyfikacja.md) zgadza się z tym, co powstało. Na prototypie nic nie trzeba było zmieniać: budżet 550 kB zostaje.
+- [x] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-3-siatka-i-system-widgetów):
+  - [x] w trybie edycji można dodać, przesunąć, przeskalować i usunąć widget, a układ zostaje zachowany po przeładowaniu (zadania 11–13);
+  - [x] błąd rzucony w zaślepce nie wywraca pulpitu (zadanie 15, krok 8);
+  - [x] modal usuwania kontekstu pokazuje liczbę widgetów (zadanie 14);
+  - [x] testy API sprawdzają 401 bez sesji, 404 dla cudzego kontekstu i widgetu, 400 dla niepoprawnych danych i `LAYOUT_INVALID` bez częściowego zapisu (`widgets.test.ts`);
+  - [x] ryzyko R4 ma zapisany wynik;
+  - [x] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
+- [x] **5.** `pnpm check` (oczekiwany wynik: 26 + 77 + 74 = **177 testów**), potem commit: `docs: add stage 3 results`.
 
 ---
 

@@ -70,6 +70,7 @@
     "delete": {
       "title": "Usunąć kontekst „{name}”?",
       "description": "Kontekst zniknie na wszystkich urządzeniach. Tej operacji nie można cofnąć.",
+      "widgets": "Kontekst nie ma widgetów. | Usunie też 1 widget. | Usunie też {count} widgety. | Usunie też {count} widgetów.",
       "confirm": "Usuń",
       "cancel": "Anuluj"
     }
@@ -78,7 +79,46 @@
     "empty": "Tu pojawią się widgety.",
     "loadError": "Nie udało się wczytać danych.",
     "retry": "Spróbuj ponownie",
-    "offline": "Offline, pokazuję zapisane dane"
+    "offline": "Offline, pokazuję zapisane dane",
+    "edit": "Edytuj pulpit",
+    "done": "Gotowe",
+    "addWidget": "Dodaj widget"
+  },
+  "widgets": {
+    "todo": {
+      "name": "Zadania",
+      "description": "Lista rzeczy do zrobienia",
+      "settings": {
+        "title": "Tytuł",
+        "titleHelp": "Pusty tytuł oznacza „Zadania”."
+      }
+    },
+    "menu": {
+      "open": "Opcje widgetu",
+      "settings": "Ustawienia",
+      "delete": "Usuń"
+    },
+    "settings": {
+      "title": "Ustawienia widgetu",
+      "save": "Zapisz"
+    },
+    "delete": {
+      "title": "Usunąć widget „{name}”?",
+      "description": "Widget i jego dane znikną na wszystkich urządzeniach. Tej operacji nie można cofnąć.",
+      "confirm": "Usuń",
+      "cancel": "Anuluj"
+    },
+    "unknown": {
+      "name": "Nieznany widget",
+      "title": "Ten widget wymaga nowszej wersji rozszerzenia"
+    },
+    "error": {
+      "title": "Ten widget przestał działać",
+      "retry": "Spróbuj ponownie"
+    },
+    "catalog": {
+      "title": "Dodaj widget"
+    }
   },
   "settings": {
     "title": "Ustawienia",
@@ -102,6 +142,7 @@
     "passwordTooShort": "Hasło musi mieć co najmniej 8 znaków",
     "passwordTooLong": "Hasło może mieć najwyżej 128 znaków",
     "contextNameRequired": "Podaj nazwę kontekstu",
-    "contextNameTooLong": "Nazwa może mieć najwyżej 40 znaków"
+    "contextNameTooLong": "Nazwa może mieć najwyżej 40 znaków",
+    "widgetTitleTooLong": "Tytuł może mieć najwyżej 60 znaków"
   }
 }

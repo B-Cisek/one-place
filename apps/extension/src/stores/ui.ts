@@ -9,6 +9,8 @@ const activeContextItem = storage.defineItem<string | null>('local:activeContext
 
 export const useUiStore = defineStore('ui', () => {
   const activeContextId = ref<string | null>(null)
+  // F-GRID-02: only in memory, so every new tab opens in preview mode
+  const editMode = ref(false)
 
   async function load() {
     activeContextId.value = await activeContextItem.getValue()
@@ -21,8 +23,9 @@ export const useUiStore = defineStore('ui', () => {
 
   async function reset() {
     activeContextId.value = null
+    editMode.value = false
     await activeContextItem.removeValue()
   }
 
-  return { activeContextId, load, selectContext, reset }
+  return { activeContextId, editMode, load, selectContext, reset }
 })

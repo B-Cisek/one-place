@@ -7,6 +7,7 @@ import { useAccountLocale } from '@/features/settings/use-account-locale'
 import { useContexts } from '@/queries/contexts'
 import { useOnline } from '@/queries/use-online'
 import AppHeader from './AppHeader.vue'
+import ContextDashboard from './ContextDashboard.vue'
 
 // Not needed for the first render, so their forms (and Zod) stay out of the start-up bundle
 const FirstContext = defineAsyncComponent(() => import('@/features/contexts/FirstContext.vue'))
@@ -16,6 +17,7 @@ const ManageContextsModal = defineAsyncComponent(
 const SettingsSlideover = defineAsyncComponent(
   () => import('@/features/settings/SettingsSlideover.vue'),
 )
+const WidgetCatalog = defineAsyncComponent(() => import('@/features/widgets/WidgetCatalog.vue'))
 
 const { t } = useI18n()
 const { data: contexts, isError, refetch } = useContexts()
@@ -26,6 +28,8 @@ const manageOpen = ref(false)
 const manageUsed = ref(false)
 const settingsOpen = ref(false)
 const settingsUsed = ref(false)
+const catalogOpen = ref(false)
+const catalogUsed = ref(false)
 useMutationErrorToasts()
 useAccountLocale()
 
@@ -44,6 +48,11 @@ function openSettings() {
   settingsUsed.value = true
   settingsOpen.value = true
 }
+
+function openCatalog() {
+  catalogUsed.value = true
+  catalogOpen.value = true
+}
 </script>
 
 <template>
@@ -53,6 +62,7 @@ function openSettings() {
       :active="active"
       @manage-contexts="openManage"
       @open-settings="openSettings"
+      @add-widget="openCatalog"
     />
     <main class="flex-1 space-y-4 p-4">
       <!-- F-SYNC-05 -->
@@ -78,15 +88,14 @@ function openSettings() {
         </div>
       </template>
       <FirstContext v-else-if="contexts.length === 0" />
-      <UEmpty
-        v-else-if="active"
-        :icon="active.icon"
-        :title="active.name"
-        :description="t('dashboard.empty')"
-        class="mt-16"
-      />
+      <ContextDashboard v-else-if="active" :context="active" @add-widget="openCatalog" />
     </main>
     <ManageContextsModal v-if="manageUsed" v-model:open="manageOpen" />
     <SettingsSlideover v-if="settingsUsed" v-model:open="settingsOpen" />
+    <WidgetCatalog
+      v-if="catalogUsed && active"
+      v-model:open="catalogOpen"
+      :context-id="active.id"
+    />
   </div>
 </template>

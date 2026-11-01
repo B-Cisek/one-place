@@ -70,7 +70,7 @@
 
 - `shared`: `WIDGET_TYPES`, `widgetConfigSchemas`, schematy układu;
 - API: moduł `widgets` (`GET`, `POST`, `PATCH`, `DELETE`, `PUT layout` w transakcji), walidacja typu i konfiguracji, limity;
-- rozszerzenie: kontrakt `WidgetDefinition`, `registry.ts`, `WidgetFrame` (menu, błędy, nieznany typ, walidacja konfiguracji), `DashboardGrid` z `grid-layout-plus`, tryb edycji, katalog widgetów, zapis układu z debounce, widok jednokolumnowy;
+- rozszerzenie: kontrakt `WidgetDefinition`, `registry.ts`, `WidgetFrame` (menu ładowane przy pierwszym kliknięciu, błędy, nieznany typ), odczyt konfiguracji przez `resolveConfig` w komponencie widgetu, podgląd na CSS grid i leniwy `GridEditor` z `grid-layout-plus` w trybie edycji, katalog widgetów, zapis układu z debounce, widok jednokolumnowy;
 - typ `todo` istnieje w rejestrze z komponentem-zaślepką (sam tytuł), żeby siatkę można było testować przed Etapem 4;
 - liczba widgetów w modalu usuwania kontekstu (F-CTX-07); w Etapie 2 modal jej nie pokazuje, bo widgetów jeszcze nie ma;
 - **R4:** ocena `grid-layout-plus`.
@@ -84,8 +84,9 @@
 **Zakres:**
 
 - API: moduł `todos` z sortowaniem po `position COLLATE "C"`, limit 500, sprawdzenie typu widgetu;
-- rozszerzenie: `useTodos()`, `TaskSource` z implementacją `local`, `TaskList.vue` (dodawanie, checkbox, edycja w miejscu, usuwanie, przeciąganie przez `vue-draggable-plus`), `TodoSettings.vue` (tytuł, ukryj ukończone);
-- `config.source = { type: 'local' }` w domyślnej konfiguracji.
+- rozszerzenie: `useTodos()`, `TaskSource` z implementacją `local`, `TaskList.vue` (dodawanie, checkbox, edycja w miejscu, usuwanie, przeciąganie przez `vue-draggable-plus`), w `TodoSettings.vue` pole „Ukryj ukończone”.
+
+Z Etapu 3 są już gotowe `TodoConfigSchema` ze źródłem `{ type: 'local' }` w konfiguracji domyślnej oraz `TodoSettings.vue` z tytułem, więc Etap 4 dopisuje „Ukryj ukończone”, listę zadań i moduł `todos`.
 
 **DoD:** wszystkie operacje na zadaniach działają optymistycznie i przetrwają przeładowanie. `TaskList` ma testy komponentu niezależne od API.
 
