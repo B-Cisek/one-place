@@ -110,6 +110,9 @@ describe('useSaveLayout', () => {
     response.resolve(jsonResponse(400, { error: { code: 'LAYOUT_INVALID', message: 'Invalid' } }))
     await expect(saving).rejects.toThrow()
     expect(cached()).toEqual([tasks, shopping])
+    // The layout was rejected because the cache is out of date (e.g. a widget deleted on another
+    // device), so the widgets are fetched again
+    expect(queryClient.getQueryState(key)?.isInvalidated).toBe(true)
   })
 })
 

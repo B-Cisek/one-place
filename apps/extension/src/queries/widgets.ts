@@ -120,7 +120,12 @@ export function useSaveLayout() {
       changeOptimistically<WidgetDto[]>(queryClient, widgetsKey(contextId), (list) =>
         withLayout(list, items),
       ),
-    onError: (_error, _input, rollback) => rollback?.(),
+    onError: (_error, { contextId }, rollback) => {
+      rollback?.()
+      // A rejected layout means the cache is out of date, e.g. a widget was deleted on another
+      // device. Fetching the widgets again shows what the API has.
+      void queryClient.invalidateQueries({ queryKey: widgetsKey(contextId) })
+    },
     // The API returns every widget of the context
     onSuccess: (saved, { contextId }) => queryClient.setQueryData(widgetsKey(contextId), saved),
   })
