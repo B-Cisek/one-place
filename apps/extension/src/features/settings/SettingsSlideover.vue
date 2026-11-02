@@ -1,19 +1,30 @@
 <script setup lang="ts">
 import type { RadioGroupItem } from '@nuxt/ui'
-import type { AccentColor, Locale, ThemeMode, ThemeSettings } from '@one-place/shared'
+import type {
+  AccentColor,
+  Locale,
+  ThemeMode,
+  ThemeOverride,
+  ThemeSettings,
+} from '@one-place/shared'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { signOut } from '@/features/auth/sign-out'
+import { useActiveContext } from '@/features/contexts/active-context'
+import { useUpdateContext } from '@/queries/contexts'
 import { useMe } from '@/queries/me'
 import { useSettings, useUpdateSettings } from '@/queries/settings'
 import AccentPicker from './AccentPicker.vue'
 import ThemeModePicker from './ThemeModePicker.vue'
+import ThemeOverrideFields from './ThemeOverrideFields.vue'
 
 const open = defineModel<boolean>('open', { required: true })
 const { t } = useI18n()
 const { data: me } = useMe()
 const { data: settings } = useSettings()
 const { mutate: updateSettings } = useUpdateSettings()
+const active = useActiveContext()
+const { mutate: updateContext } = useUpdateContext()
 
 // A radio value cannot be null, so 'browser' stands for "no language saved on the account"
 const languages = computed<RadioGroupItem[]>(() => [
@@ -39,6 +50,14 @@ const accent = computed({
   get: () => settings.value?.theme.accent,
   set: (value?: AccentColor) => value && updateTheme({ accent: value }),
 })
+
+// The section is about the active context, so its effect is visible behind the panel
+const themeOverride = computed({
+  get: () => active.value?.themeOverride ?? null,
+  set: (value: ThemeOverride | null) => {
+    if (active.value) updateContext({ id: active.value.id, themeOverride: value })
+  },
+})
 </script>
 
 <template>
@@ -54,6 +73,12 @@ const accent = computed({
           <UFormField :label="t('settings.theme.accent')">
             <AccentPicker v-model="accent" />
           </UFormField>
+        </section>
+        <section v-if="active" class="space-y-3">
+          <h3 class="font-semibold text-highlighted">
+            {{ t('settings.contextTheme.title', { name: active.name }) }}
+          </h3>
+          <ThemeOverrideFields v-model="themeOverride" />
         </section>
         <UFormField :label="t('settings.language.label')">
           <URadioGroup v-model="language" :items="languages" />
