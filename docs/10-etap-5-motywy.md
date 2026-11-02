@@ -25,11 +25,11 @@ Kroki oznaczone jako **eksperyment** celowo pokazują błąd, zanim go naprawisz
 
 ## Wymagania wstępne
 
-- [ ] Etap 4 jest skończony, a `pnpm check` przechodzi (234 testy)
+- [x] Etap 4 jest skończony, a `pnpm check` przechodzi (234 testy)
 - [ ] Postgres działa: `docker compose up -d`
-- [ ] Migracje z Etapów 1–4 są zastosowane: `pnpm --filter @one-place/api db:migrate`
+- [x] Migracje z Etapów 1–4 są zastosowane: `pnpm --filter @one-place/api db:migrate`
 - [ ] `pnpm dev` uruchamia API i przeglądarkę z rozszerzeniem
-- [ ] `pnpm --filter @one-place/extension build && pnpm size` pokazuje około 492 kB
+- [x] `pnpm --filter @one-place/extension build && pnpm size` pokazuje około 492 kB
 
 ## Ograniczenia globalne
 
@@ -115,17 +115,17 @@ one-place/
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/theme.test.ts`, w nowym `describe('resolveTheme')`, z motywem globalnym `{ ...DEFAULT_THEME, mode: 'dark', accent: 'green' }`:
+- [x] **1. Czerwone testy** w `src/theme.test.ts`, w nowym `describe('resolveTheme')`, z motywem globalnym `{ ...DEFAULT_THEME, mode: 'dark', accent: 'green' }`:
   - bez nadpisania (`undefined`, `null` i `{}`) wynik równa się motywowi globalnemu;
   - `{ accent: 'rose' }` zmienia tylko akcent, a `{ mode: 'light' }` tylko tryb;
   - `{ mode: 'system', accent: 'teal' }` zmienia oba pola;
   - `{ accent: undefined }` daje motyw globalny;
   - wywołanie nie zmienia obiektu motywu globalnego.
-- [ ] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo `DEFAULT_THEME` i `resolveTheme` nie istnieją.
-- [ ] **3. Implementacja** w `src/theme.ts`: stałe trybów, typy, `DEFAULT_THEME` (`system`, `blue`, tło `none`) i `resolveTheme`, które składa wynik pole po polu przez `??`. Na górze pliku dopisz komentarz, że plik jest bez Zoda.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (36 testów w `shared`)**.
+- [x] **2. Uruchom.** `pnpm --filter @one-place/shared test`. Oczekiwany wynik: **FAIL**, bo `DEFAULT_THEME` i `resolveTheme` nie istnieją.
+- [x] **3. Implementacja** w `src/theme.ts`: stałe trybów, typy, `DEFAULT_THEME` (`system`, `blue`, tło `none`) i `resolveTheme`, które składa wynik pole po polu przez `??`. Na górze pliku dopisz komentarz, że plik jest bez Zoda.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (36 testów w `shared`)**.
 - [ ] **5. Eksperyment: spread.** Zamień ciało `resolveTheme` na `return { ...global, ...override }`. Oczekiwany wynik: wszystkie testy przechodzą poza `ignores a field set to undefined`, który daje **FAIL**: wynik ma `accent: undefined`. Przywróć `??`.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add theme types and resolveTheme`.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(shared): add theme types and resolveTheme`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -292,19 +292,19 @@ describe('resolveTheme', () => {
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/theme-schemas.test.ts`:
+- [x] **1. Czerwone testy** w `src/theme-schemas.test.ts`:
   - `ThemeSettingsSchema` przyjmuje `DEFAULT_THEME`;
   - odrzuca tryb `'sepia'`, akcent `'red'`, tło `{ type: 'image' }` i `schemaVersion: 2`;
   - odrzuca niepełny motyw `{ mode: 'dark' }`;
   - `ThemeOverrideSchema` przyjmuje `{}`, `{ accent: 'rose' }` i `{ mode: 'dark', accent: 'teal' }`, a odrzuca `{ accent: 'red' }`;
   - `ThemeOverrideSchema.parse({ schemaVersion: 1, mode: 'light' })` daje `{ mode: 'light' }`;
   - dwa testy typów: `expectTypeOf<z.infer<typeof ThemeSettingsSchema>>().toEqualTypeOf<ThemeSettings>()` i to samo dla nadpisania.
-- [ ] **2. Uruchom.** Oczekiwany wynik: **FAIL**, bo moduł `./theme-schemas` nie istnieje.
-- [ ] **3. Implementacja** `src/theme-schemas.ts`. W `src/index.ts` dopisz eksport pod `./theme`.
-- [ ] **4. Zielone testy** i typy: `pnpm --filter @one-place/shared test` (**PASS, 44 testy**) oraz `pnpm --filter @one-place/shared typecheck` (bez błędów).
+- [x] **2. Uruchom.** Oczekiwany wynik: **FAIL**, bo moduł `./theme-schemas` nie istnieje.
+- [x] **3. Implementacja** `src/theme-schemas.ts`. W `src/index.ts` dopisz eksport pod `./theme`.
+- [x] **4. Zielone testy** i typy: `pnpm --filter @one-place/shared test` (**PASS, 44 testy**) oraz `pnpm --filter @one-place/shared typecheck` (bez błędów).
 - [ ] **5. Eksperyment: kto sprawdza `expectTypeOf`.** W pierwszym teście typów zamień `toEqualTypeOf<ThemeSettings>()` na `toEqualTypeOf<ThemeOverride>()`. `pnpm --filter @one-place/shared test`: **PASS**, wszystkie 44. `pnpm --filter @one-place/shared typecheck`: błąd TS2344. Przywróć.
 - [ ] **6. Eksperyment: węższy schemat.** W `ThemeSettingsSchema` zamień `z.enum(THEME_MODES)` na `z.enum(['light', 'dark'])`. Testy: **FAIL** jeden (`accepts the default theme`, bo domyślny tryb to `system`). Typecheck: dwa błędy TS2344 w testach typów, bo `z.infer` nie zgadza się już z `ThemeSettings` ani z `ThemeOverride`. Przywróć.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(shared): add theme schemas`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(shared): add theme schemas`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -438,13 +438,13 @@ export * from './theme-schemas'
 
 **Kroki:**
 
-- [ ] **1. Czerwony test** w `test/migrations.test.ts`: zapytanie do `information_schema.columns` o kolumny `theme` i `theme_override` zwraca dwa wiersze z `data_type: 'jsonb'` i `is_nullable: 'YES'`. Oczekiwany wynik: **FAIL** (pusta lista).
-- [ ] **2. Schemat.** W `settings.ts` dopisz `theme: jsonb('theme').$type<ThemeSettings>()`, a w `contexts.ts` `themeOverride: jsonb('theme_override').$type<ThemeOverride>()`. Bez `.notNull()`.
-- [ ] **3. Migracja.** `pnpm --filter @one-place/api db:generate --name theme`. W pliku SQL są dwa `ALTER TABLE … ADD COLUMN … jsonb`.
-- [ ] **4. Zielony test.** `pnpm --filter @one-place/api test`. Oczekiwany wynik: **PASS (98 testów w API)**.
+- [x] **1. Czerwony test** w `test/migrations.test.ts`: zapytanie do `information_schema.columns` o kolumny `theme` i `theme_override` zwraca dwa wiersze z `data_type: 'jsonb'` i `is_nullable: 'YES'`. Oczekiwany wynik: **FAIL** (pusta lista).
+- [x] **2. Schemat.** W `settings.ts` dopisz `theme: jsonb('theme').$type<ThemeSettings>()`, a w `contexts.ts` `themeOverride: jsonb('theme_override').$type<ThemeOverride>()`. Bez `.notNull()`.
+- [x] **3. Migracja.** `pnpm --filter @one-place/api db:generate --name theme`. W pliku SQL są dwa `ALTER TABLE … ADD COLUMN … jsonb`.
+- [x] **4. Zielony test.** `pnpm --filter @one-place/api test`. Oczekiwany wynik: **PASS (98 testów w API)**.
 - [ ] **5. Eksperyment: `NOT NULL` na istniejących danych.** Najpierw upewnij się, że baza w Dockerze ma wiersz w `user_settings` (np. zmieniłeś język w Etapie 2): `docker compose exec db psql -U one one_place -c 'select count(*) from user_settings'`. Jeśli jest 0, zmień język w panelu ustawień. Teraz dopisz `.notNull()` do kolumny `theme`, usuń `0004_theme.sql` i `meta/0004_snapshot.json`, przywróć `meta/_journal.json` (`git checkout apps/api/src/db/migrations/meta/_journal.json`) i wygeneruj migrację jeszcze raz. W SQL jest `ADD COLUMN "theme" jsonb NOT NULL`. `pnpm --filter @one-place/api db:migrate`: **błąd z kodem 1 bez komunikatu**. Uruchom to samo polecenie ręcznie: `docker compose exec db psql -U one one_place -c 'ALTER TABLE "user_settings" ADD COLUMN "theme" jsonb NOT NULL'`. Odpowiedź: `column "theme" of relation "user_settings" contains null values`. Testy na PGlite w tym czasie: test migracji **FAIL** i dwa testy `PATCH /api/settings` **FAIL**. Testy ustawień padają tylko dlatego, że serwis jeszcze nie zapisuje motywu, a po zadaniu 4 by przechodziły. Na stałe pilnuje tego test migracji. Usuń `.notNull()`, powtórz usunięcie plików i przywrócenie `_journal.json` z kroku i wygeneruj migrację z kroku 3.
-- [ ] **6. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c 'select user_id, locale, theme from user_settings'`. Istniejące wiersze mają `theme` puste (`null`).
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add theme columns`.
+- [x] **6. Migracja w Dockerze.** `pnpm --filter @one-place/api db:migrate`, potem `docker compose exec db psql -U one one_place -c 'select user_id, locale, theme from user_settings'`. Istniejące wiersze mają `theme` puste (`null`).
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): add theme columns`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -558,10 +558,10 @@ it('add nullable theme columns', async () => {
 
 **Kroki:**
 
-- [ ] **1. Czerwony test** w `packages/shared/src/settings.test.ts`: `UpdateSettingsSchema` przyjmuje `{ theme: { ...DEFAULT_THEME, mode: 'dark' } }` i odrzuca `{ theme: { mode: 'dark' } }`. Oczekiwany wynik: **FAIL**.
-- [ ] **2. Implementacja w `shared`.** `theme: ThemeSettingsSchema` w `UpdateSettingsSchema` i `theme: ThemeSettings` w `SettingsDto`. Oczekiwany wynik: **PASS (45 testów w `shared`)**.
-- [ ] **3. Niech TypeScript pokaże resztę.** `pnpm typecheck`. Oczekiwany wynik: błędy w `apps/api/src/modules/settings/service.ts` (dwa obiekty bez `theme`). Rozszerzenie zgłosi swój błąd (fikstura w `queries/settings.test.ts`) dopiero wtedy, gdy API przestanie mieć błędy, bo `pnpm -r typecheck` zatrzymuje się na pierwszym pakiecie z błędem.
-- [ ] **4. Czerwone testy API** w `test/settings.test.ts`:
+- [x] **1. Czerwony test** w `packages/shared/src/settings.test.ts`: `UpdateSettingsSchema` przyjmuje `{ theme: { ...DEFAULT_THEME, mode: 'dark' } }` i odrzuca `{ theme: { mode: 'dark' } }`. Oczekiwany wynik: **FAIL**.
+- [x] **2. Implementacja w `shared`.** `theme: ThemeSettingsSchema` w `UpdateSettingsSchema` i `theme: ThemeSettings` w `SettingsDto`. Oczekiwany wynik: **PASS (45 testów w `shared`)**.
+- [x] **3. Niech TypeScript pokaże resztę.** `pnpm typecheck`. Oczekiwany wynik: błędy w `apps/api/src/modules/settings/service.ts` (dwa obiekty bez `theme`). Rozszerzenie zgłosi swój błąd (fikstura w `queries/settings.test.ts`) dopiero wtedy, gdy API przestanie mieć błędy, bo `pnpm -r typecheck` zatrzymuje się na pierwszym pakiecie z błędem.
+- [x] **4. Czerwone testy API** w `test/settings.test.ts`:
   - `GET` bez zapisanych ustawień i pierwszy `PATCH` z samym językiem zwracają też `theme: DEFAULT_THEME` (popraw dwa istniejące `toEqual`);
   - zapisany motyw `{ ...DEFAULT_THEME, mode: 'dark', accent: 'green' }` wraca w odpowiedzi i zostaje po zmianie języka;
   - język zostaje po zmianie motywu;
@@ -569,10 +569,10 @@ it('add nullable theme columns', async () => {
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **5. Implementacja w serwisie.** `DEFAULT_SETTINGS` dostaje `theme: DEFAULT_THEME`, a `toSettingsDto` zamienia `null` z kolumny na `DEFAULT_THEME`. `updateSettings` nie wymaga zmian. Oczekiwany wynik: **PASS (101 testów w API)**.
-- [ ] **6. Fikstura w rozszerzeniu.** W `apps/extension/src/queries/settings.test.ts` obiekt `saved` dostaje `theme: DEFAULT_THEME`. `pnpm typecheck` przechodzi.
-- [ ] **7. Eksperyment: wiersz bez motywu.** W `toSettingsDto` zamień `row.theme ?? DEFAULT_THEME` na samo `row.theme`. `pnpm --filter @one-place/api typecheck`: błąd `Type 'ThemeSettings | null' is not assignable to type 'ThemeSettings'`. Teraz „ucisz” go: `row.theme!`. Typecheck przechodzi, a test `creates the row on the first save and returns it` daje **FAIL**: wiersz utworzony przez zmianę języka ma `theme: null`. Przywróć `?? DEFAULT_THEME`.
-- [ ] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): save the global theme in settings`.
+- [x] **5. Implementacja w serwisie.** `DEFAULT_SETTINGS` dostaje `theme: DEFAULT_THEME`, a `toSettingsDto` zamienia `null` z kolumny na `DEFAULT_THEME`. `updateSettings` nie wymaga zmian. Oczekiwany wynik: **PASS (101 testów w API)**.
+- [x] **6. Fikstura w rozszerzeniu.** W `apps/extension/src/queries/settings.test.ts` obiekt `saved` dostaje `theme: DEFAULT_THEME`. `pnpm typecheck` przechodzi.
+- [x] **7. Eksperyment: wiersz bez motywu.** W `toSettingsDto` zamień `row.theme ?? DEFAULT_THEME` na samo `row.theme`. `pnpm --filter @one-place/api typecheck`: błąd `Type 'ThemeSettings | null' is not assignable to type 'ThemeSettings'`. Teraz „ucisz” go: `row.theme!`. Typecheck przechodzi, a test `creates the row on the first save and returns it` daje **FAIL**: wiersz utworzony przez zmianę języka ma `theme: null`. Przywróć `?? DEFAULT_THEME`.
+- [x] **8.** `pnpm format && pnpm check`, potem commit: `feat(api): save the global theme in settings`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -752,24 +752,24 @@ const saved: SettingsDto = { locale: null, theme: DEFAULT_THEME, updatedAt: null
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `packages/shared/src/contexts.test.ts`:
+- [x] **1. Czerwone testy** w `packages/shared/src/contexts.test.ts`:
   - `UpdateContextSchema` przyjmuje `{ themeOverride: { accent: 'rose' } }` i `{ themeOverride: null }`, a odrzuca `{ themeOverride: { accent: 'red' } }`;
   - `CreateContextSchema` pomija `themeOverride` (wynik równa się danym bez niego).
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **2. Implementacja w `shared`.** `UpdateContextSchema` to `CreateContextSchema.omit({ id: true }).extend({ themeOverride: ThemeOverrideSchema.nullable() }).partial()`. `ContextDto` dostaje `themeOverride: ThemeOverride | null`. Oczekiwany wynik: **PASS (47 testów w `shared`)**.
-- [ ] **3. Czerwone testy API** w `test/contexts.test.ts`:
+- [x] **2. Implementacja w `shared`.** `UpdateContextSchema` to `CreateContextSchema.omit({ id: true }).extend({ themeOverride: ThemeOverrideSchema.nullable() }).partial()`. `ContextDto` dostaje `themeOverride: ThemeOverride | null`. Oczekiwany wynik: **PASS (47 testów w `shared`)**.
+- [x] **3. Czerwone testy API** w `test/contexts.test.ts`:
   - `POST` zwraca `themeOverride: null`;
   - `PATCH` z `{ themeOverride: { accent: 'rose' } }` zapisuje nadpisanie, późniejsza zmiana nazwy go nie rusza, a `{ themeOverride: null }` je usuwa;
   - `{ themeOverride: { accent: 'red' } }` daje 400.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **4. Implementacja.** W `toContextDto` dopisz `themeOverride: row.themeOverride`. `updateContext` nie wymaga zmian. Oczekiwany wynik: **PASS (102 testy w API)**.
-- [ ] **5. Rozszerzenie.** `pnpm typecheck` pokaże dwa miejsca: szkic kontekstu w `useCreateContext` (`queries/contexts.ts`) i fiksturę `context()` w `queries/contexts.test.ts`. W obu dopisz `themeOverride: null`. Oczekiwany wynik: `pnpm check` przechodzi (106 testów w rozszerzeniu).
+- [x] **4. Implementacja.** W `toContextDto` dopisz `themeOverride: row.themeOverride`. `updateContext` nie wymaga zmian. Oczekiwany wynik: **PASS (102 testy w API)**.
+- [x] **5. Rozszerzenie.** `pnpm typecheck` pokaże dwa miejsca: szkic kontekstu w `useCreateContext` (`queries/contexts.ts`) i fiksturę `context()` w `queries/contexts.test.ts`. W obu dopisz `themeOverride: null`. Oczekiwany wynik: `pnpm check` przechodzi (106 testów w rozszerzeniu).
 - [ ] **6. Eksperyment: kolejność `.partial()` i `.extend()`.** Zamień kolejność na `CreateContextSchema.omit({ id: true }).partial().extend({ … })`. Oczekiwany wynik: w `shared` **FAIL** `accepts a single field and validates it`, w API **FAIL** trzy testy `PATCH` (zmiana samej nazwy dostaje 400), a `pnpm typecheck` zgłasza błędy w `ContextRow.vue` i `ManageContexts.vue`, bo `themeOverride` stał się wymagany w każdej zmianie kontekstu. Przywróć kolejność.
-- [ ] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): save a theme override in a context`.
+- [x] **7.** `pnpm format && pnpm check`, potem commit: `feat(api): save a theme override in a context`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -925,17 +925,17 @@ const draft: ContextDto = {
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/theme/apply-theme.test.ts` (pierwsza linia: `// @vitest-environment happy-dom`). Po każdym teście wyczyść klasę i styl `<html>` oraz `localStorage`:
+- [x] **1. Czerwone testy** w `src/theme/apply-theme.test.ts` (pierwsza linia: `// @vitest-environment happy-dom`). Po każdym teście wyczyść klasę i styl `<html>` oraz `localStorage`:
   - tryb `dark` ustawia klasę `dark`, a `light` ją zdejmuje, także gdy system jest ciemny;
   - tryb `system` idzie za drugim argumentem;
   - drugi akcent zastępuje pierwszy (`--ui-color-primary-500` i `-950`);
   - w `localStorage` pod `THEME_STORAGE_KEY` jest `{ mode: 'system', vars: { … } }` z wartościami akcentu;
   - gdy `localStorage.setItem` rzuca wyjątek, motyw i tak trafia na stronę.
-- [ ] **2. Uruchom.** `pnpm --filter @one-place/extension test`. Oczekiwany wynik: **FAIL**, bo moduł nie istnieje.
-- [ ] **3. Implementacja** `src/theme/apply-theme.ts`.
-- [ ] **4. Zielone testy.** Oczekiwany wynik: **PASS (111 testów w rozszerzeniu)**.
+- [x] **2. Uruchom.** `pnpm --filter @one-place/extension test`. Oczekiwany wynik: **FAIL**, bo moduł nie istnieje.
+- [x] **3. Implementacja** `src/theme/apply-theme.ts`.
+- [x] **4. Zielone testy.** Oczekiwany wynik: **PASS (111 testów w rozszerzeniu)**.
 - [ ] **5. Eksperyment: środowisko testu.** Usuń komentarz `// @vitest-environment happy-dom` i uruchom testy. Oczekiwany wynik: `ReferenceError: document is not defined` jeszcze przed pierwszym testem, a Vitest pokazuje plik z „no tests”. Przywróć komentarz.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): apply the theme to the page`.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): apply the theme to the page`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1078,18 +1078,18 @@ describe('applyTheme', () => {
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/theme/theme-boot.test.ts` (happy-dom). Skrypt wczytaj jako tekst: `import bootScript from '../../public/theme-boot.js?raw'`, a uruchamiaj przez `new Function(bootScript)()` po podmianie `matchMedia` (`vi.stubGlobal`):
+- [x] **1. Czerwone testy** w `src/theme/theme-boot.test.ts` (happy-dom). Skrypt wczytaj jako tekst: `import bootScript from '../../public/theme-boot.js?raw'`, a uruchamiaj przez `new Function(bootScript)()` po podmianie `matchMedia` (`vi.stubGlobal`):
   - po `applyTheme({ …, mode: 'dark', accent: 'green' }, false)` i wyczyszczeniu `<html>` skrypt odtwarza tę samą klasę i ten sam atrybut `style`;
   - zapisany tryb `system` i system ciemny dają klasę `dark`;
   - bez zapisu i z uszkodzonym zapisem (`'{broken'`) skrypt stosuje tryb systemowy.
 
   Oczekiwany wynik: **FAIL**, bo pliku nie ma.
 
-- [ ] **2. Skrypt** `apps/extension/public/theme-boot.js`: odczyt zapisu w `try/catch`, tryb systemowy jako wartość domyślna, klasa `dark` i zmienne z zapisu. Całość w bloku `{ … }`, żeby zmienne nie trafiły do zakresu globalnego. Oczekiwany wynik: **PASS (114 testów w rozszerzeniu)**.
-- [ ] **3. Podłączenie.** W `index.html` dopisz w `<head>`, pod `<title>`, linię `<script src="/theme-boot.js"></script>` (bez `type="module"`).
-- [ ] **4. Build.** `pnpm --filter @one-place/extension build`. W `.output/chrome-mv3/` jest `theme-boot.js` (około 0,8 kB), a w `newtab.html` skrypt stoi w `<head>` przed `<script type="module" …>`.
+- [x] **2. Skrypt** `apps/extension/public/theme-boot.js`: odczyt zapisu w `try/catch`, tryb systemowy jako wartość domyślna, klasa `dark` i zmienne z zapisu. Całość w bloku `{ … }`, żeby zmienne nie trafiły do zakresu globalnego. Oczekiwany wynik: **PASS (114 testów w rozszerzeniu)**.
+- [x] **3. Podłączenie.** W `index.html` dopisz w `<head>`, pod `<title>`, linię `<script src="/theme-boot.js"></script>` (bez `type="module"`).
+- [x] **4. Build.** `pnpm --filter @one-place/extension build`. W `.output/chrome-mv3/` jest `theme-boot.js` (około 0,8 kB), a w `newtab.html` skrypt stoi w `<head>` przed `<script type="module" …>`.
 - [ ] **5. Eksperyment: wynik zamiast trybu.** W `applyTheme` zapisz `mode: isDark(theme.mode, systemDark) ? 'dark' : 'light'` zamiast `mode: theme.mode`. Oczekiwany wynik: **FAIL** dwa testy: `saves the mode and the variables for the boot script` i `asks the system in the system mode`. Tak wyglądałby zapis „gotowego wyniku”: zapisany jasny motyw, choć system jest już ciemny. Przywróć.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): apply the saved theme before the first paint`.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): apply the saved theme before the first paint`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1225,25 +1225,25 @@ describe('theme-boot.js', () => {
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** w `src/theme/use-applied-theme.test.ts` (happy-dom). Podmień `matchMedia` na obiekt z getterem `matches` i `addEventListener`, który zapamiętuje słuchacza, żeby test mógł „przełączyć system”. Composable uruchamiaj w `effectScope().run(…)`:
+- [x] **1. Czerwone testy** w `src/theme/use-applied-theme.test.ts` (happy-dom). Podmień `matchMedia` na obiekt z getterem `matches` i `addEventListener`, który zapamiętuje słuchacza, żeby test mógł „przełączyć system”. Composable uruchamiaj w `effectScope().run(…)`:
   - motyw jest na stronie od razu, a po zmianie `ref` z motywem po `nextTick()` jest nowy;
   - w trybie `system` przełączenie systemu na ciemny i wywołanie słuchacza dodaje klasę `dark`;
   - getter zwracający `null` zostawia `<html>` bez zmian i niczego nie zapisuje.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **2. Implementacja** `src/theme/use-applied-theme.ts`: `usePreferredDark()` i `watchEffect`, który woła `applyTheme`, gdy getter zwraca motyw.
+- [x] **2. Implementacja** `src/theme/use-applied-theme.ts`: `usePreferredDark()` i `watchEffect`, który woła `applyTheme`, gdy getter zwraca motyw.
 - [ ] **3. Eksperyment: jednorazowy odczyt systemu.** Zamień `usePreferredDark()` na `{ value: matchMedia('(prefers-color-scheme: dark)').matches }`. Oczekiwany wynik: **FAIL** `follows a change of the system theme without a reload`. Przywróć.
-- [ ] **4. Czerwone testy** w `src/features/settings/use-account-theme.test.ts` dla czystej funkcji `accountTheme`:
+- [x] **4. Czerwone testy** w `src/features/settings/use-account-theme.test.ts` dla czystej funkcji `accountTheme`:
   - bez ustawień albo bez kontekstów zwraca `null`;
   - z nadpisaniem aktywnego kontekstu zwraca motyw złożony;
   - dla kontekstu bez nadpisania i bez żadnego kontekstu zwraca motyw globalny.
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **5. Implementacja** `src/features/settings/use-account-theme.ts`: `accountTheme` i `useAccountTheme`, który podaje ją do `useAppliedTheme`. Oczekiwany wynik: **PASS (120 testów w rozszerzeniu)**.
-- [ ] **6. Podłączenie.** `useAccountTheme()` w `DashboardScreen.vue` pod `useAccountLocale()`. `useAppliedTheme(() => DEFAULT_THEME)` w `AuthScreen.vue`.
-- [ ] **7. Sprawdzenie w przeglądarce** (`pnpm dev`). Zaloguj się i otwórz DevTools na nowej karcie. W zakładce Elements `<html>` ma styl z `--ui-color-primary-*: var(--color-blue-*)`. Rendering → „Emulate CSS media feature prefers-color-scheme” → `dark`: klasa `dark` pojawia się bez przeładowania. Teraz ustaw motyw przez API, wklejając w konsoli tej karty:
+- [x] **5. Implementacja** `src/features/settings/use-account-theme.ts`: `accountTheme` i `useAccountTheme`, który podaje ją do `useAppliedTheme`. Oczekiwany wynik: **PASS (120 testów w rozszerzeniu)**.
+- [x] **6. Podłączenie.** `useAccountTheme()` w `DashboardScreen.vue` pod `useAccountLocale()`. `useAppliedTheme(() => DEFAULT_THEME)` w `AuthScreen.vue`.
+- [x] **7. Sprawdzenie w przeglądarce** (`pnpm dev`). Zaloguj się i otwórz DevTools na nowej karcie. W zakładce Elements `<html>` ma styl z `--ui-color-primary-*: var(--color-blue-*)`. Rendering → „Emulate CSS media feature prefers-color-scheme” → `dark`: klasa `dark` pojawia się bez przeładowania. Teraz ustaw motyw przez API, wklejając w konsoli tej karty:
 
   ```js
   const { authToken } = await chrome.storage.local.get('authToken')
@@ -1259,7 +1259,7 @@ describe('theme-boot.js', () => {
   Przejdź na inną kartę i wróć (odświeżenie po powrocie): pulpit jest ciemny z zielonym akcentem. Wyloguj się: ekran logowania wraca do motywu domyślnego i dalej reaguje na emulację `prefers-color-scheme`.
 
 - [ ] **8. Eksperyment: motyw domyślny „na chwilę”.** Zaloguj się ponownie (motyw konta jest ciemny i zielony). W `accountTheme` zastąp obie linie ciała jedną: `return resolveTheme(settings?.theme ?? DEFAULT_THEME, active?.themeOverride)` (z importem `DEFAULT_THEME`). Na nowej karcie w konsoli usuń cache zapytań: `await chrome.storage.local.remove('one-place:query-cache')` i zamknij kartę. Zatrzymaj bazę: `docker compose stop db` (API odpowiada wtedy 500, sesja zostaje). Otwórz nową kartę. **Oczekiwany wynik:** jasny motyw z niebieskim akcentem, choć konto ma ciemny i zielony, a w `localStorage` (Application → Local Storage) zapisał się `"mode":"system"`. Przywróć kod, uruchom bazę (`docker compose start db`), otwórz kartę, żeby zapisał się motyw konta, i powtórz: usunięcie cache, `docker compose stop db`, nowa karta. Teraz zostaje ciemny i zielony z ostatniego zapisu. Na koniec `docker compose start db`.
-- [ ] **9.** `pnpm format && pnpm check`, potem commit: `feat(extension): apply the effective theme of the account`.
+- [x] **9.** `pnpm format && pnpm check`, potem commit: `feat(extension): apply the effective theme of the account`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1512,9 +1512,9 @@ useAppliedTheme(() => DEFAULT_THEME)
   Tak wygląda stan po aktualizacji z Etapu 4: cache bez nowych pól i jeszcze bez zapisanego motywu. Zamknij kartę.
 
 - [ ] **2. Eksperyment: bez zmiany wersji.** Zatrzymaj bazę (`docker compose stop db`) i otwórz nową kartę. **Oczekiwany wynik:** w konsoli `TypeError: Cannot read properties of undefined (reading 'schemaVersion')`, a pulpit z cache jest w motywie domyślnym zamiast ciemnego z zielonym. Uruchom bazę (`docker compose start db`) i przejdź na inną kartę i z powrotem: dane przychodzą z API i motyw wraca. Błąd w konsoli zostaje jako ślad.
-- [ ] **3. Zmiana wersji.** W `cache.ts` ustaw `CACHE_SCHEMA_VERSION = '2'`.
+- [x] **3. Zmiana wersji.** W `cache.ts` ustaw `CACHE_SCHEMA_VERSION = '2'`.
 - [ ] **4. Ten sam stan z nową wersją.** Powtórz krok 1 (fragment ustawia `buster: '1'`, czyli tak, jak zapisała stara wersja) i krok 2. **Oczekiwany wynik:** bez `TypeError`. Pulpit nie ma cache, więc pokazuje szkielety (F-SYNC-02), a motyw jest domyślny, bo nic nie było zapisane. Po `docker compose start db` pulpit i motyw konta przychodzą z API.
-- [ ] **5.** `pnpm format && pnpm check` (120 testów w rozszerzeniu, bez zmian), potem commit: `feat(extension): drop the cache saved without theme fields`.
+- [x] **5.** `pnpm format && pnpm check` (120 testów w rozszerzeniu, bez zmian), potem commit: `feat(extension): drop the cache saved without theme fields`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -1573,11 +1573,11 @@ export const CACHE_SCHEMA_VERSION = '2'
 
 **Kroki:**
 
-- [ ] **1. Czerwony test** w `settings.test.ts` z klientem z `createQueryClient()` (ustawienia aplikacji, więc zmiany idą po kolei): dwie zmiany motywu (`green`, potem `rose`) z odpowiedziami z `deferred`. Po rozwiązaniu pierwszej odpowiedzi, gdy wyszło już drugie żądanie, akcent w cache nadal jest `rose`. Po drugiej odpowiedzi cache ma `version: 2`. Oczekiwany wynik: **FAIL** `expected 'green' to be 'rose'`.
-- [ ] **2. Czerwony test** w `contexts.test.ts` tak samo dla `useUpdateContext` i `themeOverride`. Oczekiwany wynik: **FAIL**.
-- [ ] **3. Wspólna funkcja.** Przenieś `hasLaterChanges` z `todos.ts` do `optimistic.ts` i dodaj parametr `mutationKey`. W `todos.ts` wołaj ją z `todoChangeKey` (usuń lokalną wersję i nieużywany import `QueryClient`).
-- [ ] **4. Ustawienia i konteksty.** `useUpdateSettings` dostaje `mutationKey: settingsChangeKey`, a `useUpdateContext` `mutationKey: contextChangeKey`. W `onSuccess` obu: `if (hasLaterChanges(queryClient, klucz)) return` przed zapisem odpowiedzi. Oczekiwany wynik: **PASS (122 testy w rozszerzeniu)**.
-- [ ] **5.** `pnpm format && pnpm check`, potem commit: `fix(extension): keep the latest theme change while an earlier one is answered`.
+- [x] **1. Czerwony test** w `settings.test.ts` z klientem z `createQueryClient()` (ustawienia aplikacji, więc zmiany idą po kolei): dwie zmiany motywu (`green`, potem `rose`) z odpowiedziami z `deferred`. Po rozwiązaniu pierwszej odpowiedzi, gdy wyszło już drugie żądanie, akcent w cache nadal jest `rose`. Po drugiej odpowiedzi cache ma `version: 2`. Oczekiwany wynik: **FAIL** `expected 'green' to be 'rose'`.
+- [x] **2. Czerwony test** w `contexts.test.ts` tak samo dla `useUpdateContext` i `themeOverride`. Oczekiwany wynik: **FAIL**.
+- [x] **3. Wspólna funkcja.** Przenieś `hasLaterChanges` z `todos.ts` do `optimistic.ts` i dodaj parametr `mutationKey`. W `todos.ts` wołaj ją z `todoChangeKey` (usuń lokalną wersję i nieużywany import `QueryClient`).
+- [x] **4. Ustawienia i konteksty.** `useUpdateSettings` dostaje `mutationKey: settingsChangeKey`, a `useUpdateContext` `mutationKey: contextChangeKey`. W `onSuccess` obu: `if (hasLaterChanges(queryClient, klucz)) return` przed zapisem odpowiedzi. Oczekiwany wynik: **PASS (122 testy w rozszerzeniu)**.
+- [x] **5.** `pnpm format && pnpm check`, potem commit: `fix(extension): keep the latest theme change while an earlier one is answered`.
 
 Miganie zobaczysz w przeglądarce w zadaniu 13, gdy będzie już panel z próbkami kolorów.
 
@@ -1793,20 +1793,20 @@ it('keeps showing the latest change while an earlier one is answered', async () 
 
 **Kroki:**
 
-- [ ] **1. Tłumaczenia.** W `settings` dopisz `theme` (tytuł, tryb, nazwy trybów, akcent, nazwy 10 akcentów, `inherit`) i `contextTheme` (tytuł z `{name}`, „Używaj motywu globalnego”). Klucz `contextTheme` przyda się w zadaniu 12.
-- [ ] **2. Czerwone testy** `ThemeModePicker.test.ts` (happy-dom, pluginy `ui` i `i18n`, jak w `TodoSettings.test.ts`):
+- [x] **1. Tłumaczenia.** W `settings` dopisz `theme` (tytuł, tryb, nazwy trybów, akcent, nazwy 10 akcentów, `inherit`) i `contextTheme` (tytuł z `{name}`, „Używaj motywu globalnego”). Klucz `contextTheme` przyda się w zadaniu 12.
+- [x] **2. Czerwone testy** `ThemeModePicker.test.ts` (happy-dom, pluginy `ui` i `i18n`, jak w `TodoSettings.test.ts`):
   - pokazuje „Light”, „Dark”, „System”, zaznacza wybrany (`aria-checked="true"`), a kliknięcie emituje `update:modelValue` z nowym trybem;
   - z `inherit` pierwsza opcja to „Global”, jest zaznaczona dla `undefined`, a kliknięcie emituje `undefined`.
-- [ ] **3. Implementacja** `ThemeModePicker.vue`: `role="radiogroup"` z przyciskami `UButton role="radio"`, tak jak `IconPicker`. Ikony `i-lucide-sun`, `i-lucide-moon`, `i-lucide-monitor`, a dla „Globalny” `i-lucide-globe`.
-- [ ] **4. Czerwone testy** `AccentPicker.test.ts`:
+- [x] **3. Implementacja** `ThemeModePicker.vue`: `role="radiogroup"` z przyciskami `UButton role="radio"`, tak jak `IconPicker`. Ikony `i-lucide-sun`, `i-lucide-moon`, `i-lucide-monitor`, a dla „Globalny” `i-lucide-globe`.
+- [x] **4. Czerwone testy** `AccentPicker.test.ts`:
   - 10 próbek z nazwami (`aria-label`), próbka „Green” ma w stylu `var(--color-green-500)`;
   - zaznacza wybrany akcent, a kliknięcie „Teal” emituje `'teal'`;
   - z `inherit` pierwsza próbka to „Global”, a kliknięcie emituje `undefined`.
-- [ ] **5. Implementacja** `AccentPicker.vue`: okrągłe przyciski z tłem `var(--color-<akcent>-500)` w stylu inline i obrysem dla zaznaczonego. Oczekiwany wynik: **PASS (127 testów w rozszerzeniu)**.
-- [ ] **6. Panel.** W `SettingsSlideover.vue` nad językiem sekcja „Wygląd” z oboma wybierakami. Zmiana woła `updateSettings({ theme: { ...settings.theme, ...zmiana } })`.
-- [ ] **7. Sprawdzenie w przeglądarce** (`pnpm dev`). Otwórz ustawienia, kliknij „Ciemny”, potem „Zielony”. Pulpit za panelem zmienia się od razu, a w DevTools → Network są dwa `PATCH /api/settings`, każdy z pełnym motywem. Przeładuj kartę: motyw zostaje.
+- [x] **5. Implementacja** `AccentPicker.vue`: okrągłe przyciski z tłem `var(--color-<akcent>-500)` w stylu inline i obrysem dla zaznaczonego. Oczekiwany wynik: **PASS (127 testów w rozszerzeniu)**.
+- [x] **6. Panel.** W `SettingsSlideover.vue` nad językiem sekcja „Wygląd” z oboma wybierakami. Zmiana woła `updateSettings({ theme: { ...settings.theme, ...zmiana } })`.
+- [x] **7. Sprawdzenie w przeglądarce** (`pnpm dev`). Otwórz ustawienia, kliknij „Ciemny”, potem „Zielony”. Pulpit za panelem zmienia się od razu, a w DevTools → Network są dwa `PATCH /api/settings`, każdy z pełnym motywem. Przeładuj kartę: motyw zostaje.
 - [ ] **8. Eksperyment: klasa z szablonu tekstowego.** W `AccentPicker.vue` zamień styl inline na klasę ``:class="[swatch, `bg-${accent}-500`]"`` i usuń `:style`. Oczekiwany wynik: próbki są przezroczyste (sam obrys po zaznaczeniu). Tailwind nie znalazł w kodzie klas `bg-green-500` i innych, więc ich nie wygenerował. Przywróć styl inline.
-- [ ] **9.** `pnpm format && pnpm check`, potem commit: `feat(extension): choose the mode and the accent in settings`.
+- [x] **9.** `pnpm format && pnpm check`, potem commit: `feat(extension): choose the mode and the accent in settings`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2153,7 +2153,7 @@ const accent = computed({
 
 **Kroki:**
 
-- [ ] **1. Czerwone testy** `ThemeOverrideFields.test.ts`:
+- [x] **1. Czerwone testy** `ThemeOverrideFields.test.ts`:
   - `null`: przełącznik (`role="switch"`) ma `aria-checked="true"`, a wybieraków nie ma;
   - kliknięcie przełącznika przy `null` emituje `{}`;
   - przy `{}` oba wybieraki mają zaznaczone „Global”;
@@ -2162,11 +2162,11 @@ const accent = computed({
 
   Oczekiwany wynik: **FAIL**.
 
-- [ ] **2. Implementacja** `ThemeOverrideFields.vue`: `defineModel<ThemeOverride | null>`, trzy `computed` (`useGlobal`, `mode`, `accent`), `USwitch` i oba wybieraki z `inherit`. Oczekiwany wynik: **PASS (132 testy w rozszerzeniu)**.
-- [ ] **3. Panel.** W `SettingsSlideover.vue` pod sekcją „Wygląd” sekcja z tytułem `t('settings.contextTheme.title', { name: active.name })` i `ThemeOverrideFields`. Jej `v-model` to `computed`, który czyta `active.themeOverride` i zapisuje przez `updateContext({ id: active.id, themeOverride })`.
-- [ ] **4. Sprawdzenie w przeglądarce** (`pnpm dev`, dwa konteksty „Praca” i „Dom”, motyw globalny ciemny z zielonym). W „Praca” otwórz ustawienia, wyłącz „Używaj motywu globalnego” i wybierz „Malinowy”: pulpit od razu ma malinowy akcent. Przełącz się na „Dom”: zielony. Wróć do „Praca”: malinowy. Przeładuj kartę w każdym z nich: bez mignięcia innym akcentem. W „Praca” wybierz akcent „Globalny” (zielony), potem włącz przełącznik. W Network ostatni `PATCH /api/contexts/:id` ma `{"themeOverride":null}`.
+- [x] **2. Implementacja** `ThemeOverrideFields.vue`: `defineModel<ThemeOverride | null>`, trzy `computed` (`useGlobal`, `mode`, `accent`), `USwitch` i oba wybieraki z `inherit`. Oczekiwany wynik: **PASS (132 testy w rozszerzeniu)**.
+- [x] **3. Panel.** W `SettingsSlideover.vue` pod sekcją „Wygląd” sekcja z tytułem `t('settings.contextTheme.title', { name: active.name })` i `ThemeOverrideFields`. Jej `v-model` to `computed`, który czyta `active.themeOverride` i zapisuje przez `updateContext({ id: active.id, themeOverride })`.
+- [x] **4. Sprawdzenie w przeglądarce** (`pnpm dev`, dwa konteksty „Praca” i „Dom”, motyw globalny ciemny z zielonym). W „Praca” otwórz ustawienia, wyłącz „Używaj motywu globalnego” i wybierz „Malinowy”: pulpit od razu ma malinowy akcent. Przełącz się na „Dom”: zielony. Wróć do „Praca”: malinowy. Przeładuj kartę w każdym z nich: bez mignięcia innym akcentem. W „Praca” wybierz akcent „Globalny” (zielony), potem włącz przełącznik. W Network ostatni `PATCH /api/contexts/:id` ma `{"themeOverride":null}`.
 - [ ] **5. Eksperyment: spread wraca.** Wróć na chwilę do eksperymentu z zadania 1: w `resolveTheme` wpisz `return { ...global, ...override }`, zbuduj (`pnpm --filter @one-place/extension build`) i załaduj `.output/chrome-mv3`. W „Praca” ustaw nadpisanie akcentu „Malinowy” i odczekaj chwilę. Włącz DevTools → Network → „Offline” i wybierz akcent „Globalny”. **Oczekiwany wynik:** w Elements `<html>` ma `--ui-color-primary-500: var(--color-undefined-500)`, a elementy w kolorze akcentu tracą kolor, dopóki nie wrócisz online i nie przyjdzie odpowiedź z `{}` bez pola `accent`. Przywróć `??` i zbuduj ponownie.
-- [ ] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): override the theme in the active context`.
+- [x] **6.** `pnpm format && pnpm check`, potem commit: `feat(extension): override the theme in the active context`.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2412,16 +2412,16 @@ const themeOverride = computed({
 
 **Kroki:**
 
-- [ ] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 495,6 kB** (Etap 4: 492,1 kB, budżet 550 kB). Około 1 kB to moduł motywu, a resztę dają tłumaczenia, które jak dotąd są w paczce startowej. Komponenty panelu są w leniwym chunku `SettingsSlideover` (około 36,5 kB), a `theme-boot.js` (0,8 kB) leży poza `chunks/` i nie wlicza się do sumy.
+- [x] **1. Pomiar.** `pnpm --filter @one-place/extension build && pnpm size`. Oczekiwany wynik: **około 495,6 kB** (Etap 4: 492,1 kB, budżet 550 kB). Około 1 kB to moduł motywu, a resztę dają tłumaczenia, które jak dotąd są w paczce startowej. Komponenty panelu są w leniwym chunku `SettingsSlideover` (około 36,5 kB), a `theme-boot.js` (0,8 kB) leży poza `chunks/` i nie wlicza się do sumy.
 - [ ] **2. Eksperyment: Zod na ścieżce startowej.** W `accountTheme` dopisz przed `return resolveTheme(…)` linię `if (!ThemeSettingsSchema.safeParse(settings.theme).success) return null` (z importem z `@one-place/shared`). Zbuduj i uruchom `pnpm size`. **Oczekiwany wynik:** około 587 kB, `Start-up JS is 37.4 kB over the budget` i kod wyjścia 1. Przywróć.
-- [ ] **3. Pierwsza klatka.** W zbudowanej paczce ustaw motyw ciemny z zielonym akcentem. DevTools → Performance → ⚙ → zaznacz „Screenshots”, ustaw CPU na „4x slowdown” i kliknij „Record and reload”. **Oczekiwany wynik:** pierwszy zrzut jest już ciemny. Na prototypie mierzyłem to skryptem, który zapisuje wygląd `<html>` w `requestAnimationFrame` przed pierwszym malowaniem: 15 z 15 przeładowań ciemnych z zielonym akcentem.
+- [x] **3. Pierwsza klatka.** W zbudowanej paczce ustaw motyw ciemny z zielonym akcentem. DevTools → Performance → ⚙ → zaznacz „Screenshots”, ustaw CPU na „4x slowdown” i kliknij „Record and reload”. **Oczekiwany wynik:** pierwszy zrzut jest już ciemny. Na prototypie mierzyłem to skryptem, który zapisuje wygląd `<html>` w `requestAnimationFrame` przed pierwszym malowaniem: 15 z 15 przeładowań ciemnych z zielonym akcentem.
 - [ ] **4. Eksperyment: bez skryptu startowego.** Usuń z `index.html` linię z `theme-boot.js`, zbuduj i powtórz krok 3 kilka razy. **Oczekiwany wynik:** w części nagrań pierwszy zrzut jest jasny, a następny ciemny. Na prototypie 11 z 15 przeładowań zbudowanej paczki miało jasną pierwszą klatkę z domyślnym akcentem. W pozostałych aplikacja zdążyła zamontować się przed malowaniem. W `pnpm dev` aplikacja ani razu (0 z 15) nie zdążyła przed pierwszą klatką. Przywróć linię i zbuduj.
-- [ ] **5. Motyw systemu na żywo.** Ustaw tryb „Systemowy”. DevTools → ⋮ → More tools → Rendering → „Emulate CSS media feature prefers-color-scheme”: przełączaj `light` i `dark`. **Oczekiwany wynik:** pulpit zmienia się od razu, bez przeładowania. Kontekst z nadpisaniem trybu „Ciemny” zostaje ciemny.
-- [ ] **6. Zmiana offline.** Otwórz ustawienia, włącz DevTools → Network → „Offline”, kliknij „Ciemny” i „Morski”. **Oczekiwany wynik:** zmiana od razu, bez toastów, a w Network nie ma żądań. Wyłącz Offline: dwa `PATCH /api/settings` po kolei, oba 200. Po przeładowaniu motyw zostaje.
+- [x] **5. Motyw systemu na żywo.** Ustaw tryb „Systemowy”. DevTools → ⋮ → More tools → Rendering → „Emulate CSS media feature prefers-color-scheme”: przełączaj `light` i `dark`. **Oczekiwany wynik:** pulpit zmienia się od razu, bez przeładowania. Kontekst z nadpisaniem trybu „Ciemny” zostaje ciemny.
+- [x] **6. Zmiana offline.** Otwórz ustawienia, włącz DevTools → Network → „Offline”, kliknij „Ciemny” i „Morski”. **Oczekiwany wynik:** zmiana od razu, bez toastów, a w Network nie ma żądań. Wyłącz Offline: dwa `PATCH /api/settings` po kolei, oba 200. Po przeładowaniu motyw zostaje.
 - [ ] **7. Eksperyment: miganie bez zadania 10.** W `queries/settings.ts` zakomentuj linię `if (hasLaterChanges(queryClient, settingsChangeKey)) return` i zbuduj. DevTools → Network → throttling → „Add…” → własny profil z opóźnieniem (latency) 800 ms, potem go wybierz. W panelu szybko kliknij „Zielony” i „Malinowy”. **Oczekiwany wynik:** akcent zmienia się na zielony, malinowy, po chwili znowu na zielony i na końcu na malinowy. Na prototypie zapis zmian zmiennej akcentu: `green, rose, green, rose`, a z zabezpieczeniem: `green, rose`. Przywróć linię, zbuduj i wyłącz throttling.
-- [ ] **8. Wylogowanie.** Wyloguj się przy motywie ciemnym z zielonym. **Oczekiwany wynik:** ekran logowania ma motyw domyślny (systemowy, niebieski) i reaguje na emulację z kroku 5. W Application → Local Storage `one-place:theme` ma `"mode":"system"`.
-- [ ] **9. Czas pierwszego renderu.** Przeładuj kartę kilka razy i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Na prototypie w Chromium headless: 27–57 ms. Wymaganie to poniżej 200 ms.
-- [ ] **10. Prywatność.** Przejdź przez kroki 3–8 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
+- [x] **8. Wylogowanie.** Wyloguj się przy motywie ciemnym z zielonym. **Oczekiwany wynik:** ekran logowania ma motyw domyślny (systemowy, niebieski) i reaguje na emulację z kroku 5. W Application → Local Storage `one-place:theme` ma `"mode":"system"`.
+- [x] **9. Czas pierwszego renderu.** Przeładuj kartę kilka razy i w konsoli wpisz `performance.getEntriesByName('dashboard-rendered')[0].startTime`. Na prototypie w Chromium headless: 27–57 ms. Wymaganie to poniżej 200 ms.
+- [x] **10. Prywatność.** Przejdź przez kroki 3–8 z otwartym DevTools → Network i filtrem `-domain:localhost`. Nie ma żadnych żądań.
 
 **Pułapki (sprawdzone na prototypie):**
 
@@ -2446,7 +2446,7 @@ const themeOverride = computed({
 
 **Kroki:**
 
-- [ ] **1. Architektura.** W [03-architektura.md](03-architektura.md):
+- [x] **1. Architektura.** W [03-architektura.md](03-architektura.md):
   - w „Struktura repozytorium”: `src/theme/` (`apply-theme.ts`, `use-applied-theme.ts`) i komponenty panelu (`ThemeModePicker.vue`, `AccentPicker.vue`, `ThemeOverrideFields.vue`, `use-account-theme.ts`);
   - w „Pakiet `shared`”: typy, `DEFAULT_THEME` i `resolveTheme` w `theme.ts` bez Zoda, a `ThemeSettingsSchema` i `ThemeOverrideSchema` w `theme-schemas.ts`; testy typów (`expectTypeOf`) pilnują zgodności (decyzja 3);
   - w „Model danych”: `user_settings.theme` i `contexts.theme_override` to `jsonb` z możliwym `null` (`null` to motyw domyślny albo brak nadpisania), dodane w migracji `0004_theme`; usuń uwagę, że w Etapie 2 tabela ma tylko `locale`;
@@ -2456,17 +2456,17 @@ const themeOverride = computed({
   - w „Warstwa danych”: `hasLaterChanges(queryClient, mutationKey)` w `optimistic.ts`, klucze mutacji ustawień i zmian kontekstu;
   - w „Motywy”: `useAppliedTheme` (z `usePreferredDark`) i `useAccountTheme`, motyw stosowany dopiero po wczytaniu ustawień i kontekstów, ekran logowania z `DEFAULT_THEME`, wylogowanie zapisuje motyw domyślny, sekcja „Wygląd kontekstu” dla aktywnego kontekstu, opcja „Globalny” pole po polu;
   - w rejestrze decyzji: typy motywu bez Zoda i schematy osobno (odrzucone: `z.infer` z `import type`, schematy w tym samym pliku), kolumny z `null` (odrzucone: `NOT NULL DEFAULT`), zapis trybu zamiast wyniku w `localStorage`.
-- [ ] **2. Specyfikacja.** W [02-specyfikacja.md](02-specyfikacja.md) sprawdź F-THEME-01 … F-THEME-06. W F-THEME-03 dopisz opcję „Globalny” w każdym polu, a w F-AUTH-04, że wylogowanie przywraca motyw domyślny.
-- [ ] **3. Roadmapa.** Przy Etapie 5 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza (`ThemeSettingsSchema` i `ThemeOverrideSchema` są w `theme-schemas.ts`, a „sekcja »Wygląd« w ustawieniach kontekstu” to sekcja w panelu ustawień).
-- [ ] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-5-motywy):
-  - [ ] motyw globalny i nadpisanie w kontekście działają natychmiast (zadania 11 i 12);
-  - [ ] są zachowane po przeładowaniu, bez mignięcia (zadania 7 i 13);
-  - [ ] tryb systemowy reaguje na zmianę ustawień systemu bez przeładowania (zadania 8 i 13);
-  - [ ] testy API sprawdzają motyw domyślny, zapis całego motywu, 400 dla niepoprawnego motywu i nadpisania oraz usunięcie nadpisania przez `null` (`settings.test.ts`, `contexts.test.ts`);
-  - [ ] kolumny motywu mogą być `null` (test migracji i krok 6 zadania 3);
-  - [ ] `CACHE_SCHEMA_VERSION` jest zmienione (zadanie 9);
-  - [ ] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
-- [ ] **5.** `pnpm check` (oczekiwany wynik: 47 + 102 + 132 = **281 testów**), potem commit: `docs: add stage 5 results`.
+- [x] **2. Specyfikacja.** W [02-specyfikacja.md](02-specyfikacja.md) sprawdź F-THEME-01 … F-THEME-06. W F-THEME-03 dopisz opcję „Globalny” w każdym polu, a w F-AUTH-04, że wylogowanie przywraca motyw domyślny.
+- [x] **3. Roadmapa.** Przy Etapie 5 w [04-roadmapa.md](04-roadmapa.md) jest odnośnik do tego planu. Sprawdź, czy zakres się zgadza (`ThemeSettingsSchema` i `ThemeOverrideSchema` są w `theme-schemas.ts`, a „sekcja »Wygląd« w ustawieniach kontekstu” to sekcja w panelu ustawień).
+- [x] **4. Definicja ukończenia** z [roadmapy](04-roadmapa.md#etap-5-motywy):
+  - [x] motyw globalny i nadpisanie w kontekście działają natychmiast (zadania 11 i 12);
+  - [x] są zachowane po przeładowaniu, bez mignięcia (zadania 7 i 13);
+  - [x] tryb systemowy reaguje na zmianę ustawień systemu bez przeładowania (zadania 8 i 13);
+  - [x] testy API sprawdzają motyw domyślny, zapis całego motywu, 400 dla niepoprawnego motywu i nadpisania oraz usunięcie nadpisania przez `null` (`settings.test.ts`, `contexts.test.ts`);
+  - [x] kolumny motywu mogą być `null` (test migracji i krok 6 zadania 3);
+  - [x] `CACHE_SCHEMA_VERSION` jest zmienione (zadanie 9);
+  - [x] startowy JS mieści się w budżecie, a pierwszy render z cache trwa poniżej 200 ms.
+- [x] **5.** `pnpm check` (oczekiwany wynik: 47 + 102 + 132 = **281 testów**), potem commit: `docs: add stage 5 results`.
 
 ---
 
