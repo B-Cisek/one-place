@@ -66,11 +66,11 @@ one-place/
 │  │  │  ├─ queries/              composables per zasób, klucze zapytań
 │  │  │  ├─ lib/                  positions.ts (indeks ułamkowy), by-position.ts (sortowanie jak w API)
 │  │  │  ├─ stores/               Pinia: ui.ts
-│  │  │  ├─ theme/                resolveTheme, applyTheme, cache motywu
+│  │  │  ├─ theme/                apply-theme.ts (applyTheme, zapis dla theme-boot.js), use-applied-theme.ts
 │  │  │  ├─ features/
 │  │  │  │  ├─ auth/              ekrany logowania i rejestracji
 │  │  │  │  ├─ contexts/          przełącznik, pusty stan, zarządzanie
-│  │  │  │  ├─ settings/          slideover ustawień (motyw, język)
+│  │  │  │  ├─ settings/          SettingsSlideover, ThemeModePicker, AccentPicker, ThemeOverrideFields, use-account-theme.ts, use-account-locale.ts
 │  │  │  │  ├─ dashboard/         ContextDashboard, DashboardGrid (podgląd), GridEditor (edycja), WidgetFrame, WidgetActions, layout.ts
 │  │  │  │  └─ widgets/           WidgetCatalog, use-add-widget.ts (katalog i dodawanie)
 │  │  │  ├─ widgets/              registry.ts, types.ts, config.ts (resolveConfig), todo/
@@ -140,17 +140,16 @@ export const CONTEXT_ICONS = [
 export const WIDGET_TYPES = ['todo'] as const
 export const GRID_COLUMNS = 12
 
-// Motyw
-export const ThemeSettingsSchema = z.object({
-  schemaVersion: z.literal(1),
-  mode: z.enum(['light', 'dark', 'system']),
-  accent: z.enum(ACCENT_COLORS),
-  background: z.discriminatedUnion('type', [
-    z.object({ type: z.literal('none') }),
-    // później: color | gradient | image
-  ]),
-})
-export const ThemeOverrideSchema = ThemeSettingsSchema.omit({ schemaVersion: true }).partial()
+// Motyw bez Zoda (theme.ts): THEME_MODES, typy ThemeSettings i ThemeOverride (napisane ręcznie),
+// DEFAULT_THEME, resolveTheme(), accentCssVariables()
+export const THEME_MODES = ['light', 'dark', 'system'] as const
+export interface ThemeSettings {
+  schemaVersion: 1
+  mode: ThemeMode
+  accent: AccentColor
+  background: { type: 'none' } // później: color | gradient | image
+}
+export type ThemeOverride = Partial<Omit<ThemeSettings, 'schemaVersion'>>
 export const DEFAULT_THEME: ThemeSettings = {
   schemaVersion: 1,
   mode: 'system',
@@ -158,6 +157,15 @@ export const DEFAULT_THEME: ThemeSettings = {
   background: { type: 'none' },
 }
 export function resolveTheme(global: ThemeSettings, override?: ThemeOverride | null): ThemeSettings
+
+// Schematy motywu (theme-schemas.ts), używa ich API
+export const ThemeSettingsSchema = z.object({
+  schemaVersion: z.literal(1),
+  mode: z.enum(THEME_MODES),
+  accent: z.enum(ACCENT_COLORS),
+  background: z.discriminatedUnion('type', [z.object({ type: z.literal('none') })]),
+})
+export const ThemeOverrideSchema = ThemeSettingsSchema.omit({ schemaVersion: true }).partial()
 
 // Konfiguracje widgetów (widgets.ts): mapa typ → schemat. Każde pole ma wartość domyślną,
 // więc schemat.parse({}) daje konfigurację domyślną.
@@ -173,7 +181,7 @@ export const widgetConfigSchemas = { todo: TodoConfigSchema } satisfies Record<W
 
 Pakiet zawiera też schematy wejścia i DTO dla każdego zasobu (`CreateContextInput`, `ContextDto`, `WidgetDto`, `LayoutItem`, `TodoDto`…).
 
-**Pliki z Zodem i bez niego.** Stałe i typy widgetów, których rozszerzenie potrzebuje na ścieżce startowej, są w `widget-types.ts`, a schematy w `widgets.ts`. `"sideEffects": false` usuwa z paczki tylko pliki, z których nic nie jest importowane, więc import jednej stałej z pliku ze schematami dokładał do startowego JS cały rdzeń Zoda (około 93 kB, pomiar z Etapu 3). Na ścieżce startowej rozszerzenia importuje się tylko pliki bez Zoda.
+**Pliki z Zodem i bez niego.** Stałe i typy widgetów, których rozszerzenie potrzebuje na ścieżce startowej, są w `widget-types.ts`, a schematy w `widgets.ts`. `"sideEffects": false` usuwa z paczki tylko pliki, z których nic nie jest importowane, więc import jednej stałej z pliku ze schematami dokładał do startowego JS cały rdzeń Zoda (około 93 kB, pomiar z Etapu 3). Na ścieżce startowej rozszerzenia importuje się tylko pliki bez Zoda. Tak samo motyw: typy, `DEFAULT_THEME` i `resolveTheme` są w `theme.ts`, a `ThemeSettingsSchema` i `ThemeOverrideSchema` w `theme-schemas.ts` (Etap 5, D18). Typy są napisane ręcznie, a testy typów (`expectTypeOf<z.infer<typeof ThemeSettingsSchema>>().toEqualTypeOf<ThemeSettings>()` i to samo dla nadpisania) pilnują, żeby schemat i typ opisywały te same dane. Sprawdza je `tsc` (`pnpm typecheck`), a nie `vitest run`.
 
 ## Model danych
 
@@ -191,28 +199,28 @@ Tabele Better Auth (`user`, `session`, `account`, `verification`) mają standard
 
 **`user_settings`**
 
-| Kolumna                 | Typ                     | Uwagi                             |
-| ----------------------- | ----------------------- | --------------------------------- |
-| `user_id`               | `text` PK, FK `user.id` |                                   |
-| `theme`                 | `jsonb`                 | `ThemeSettings`, od Etapu 5       |
-| `locale`                | `varchar(8)` null       | `null` oznacza język przeglądarki |
-| `updated_at`, `version` |                         |                                   |
+| Kolumna                 | Typ                     | Uwagi                                     |
+| ----------------------- | ----------------------- | ----------------------------------------- |
+| `user_id`               | `text` PK, FK `user.id` |                                           |
+| `theme`                 | `jsonb` null            | `ThemeSettings`; `null` to motyw domyślny |
+| `locale`                | `varchar(8)` null       | `null` oznacza język przeglądarki         |
+| `updated_at`, `version` |                         |                                           |
 
 Wiersz powstaje leniwie. `GET /settings` zwraca wartości domyślne, gdy go nie ma, a `PATCH /settings` robi upsert (`onConflictDoUpdate`, `version` zwiększane w SQL). Rejestracja nie zależy więc od dodatkowego hooka.
 
-W Etapie 2 tabela ma tylko `locale`. Kolumny `user_settings.theme` i `contexts.theme_override` dochodzą w Etapie 5 razem z nową migracją i zmianą `CACHE_SCHEMA_VERSION`.
+Kolumny `user_settings.theme` i `contexts.theme_override` dodała migracja `0004_theme` (Etap 5). Obie mogą być `null`: `null` w ustawieniach oznacza motyw domyślny (API zwraca wtedy `DEFAULT_THEME`), a w kontekście brak nadpisania. Dzięki temu migracja przechodzi na tabelach z istniejącymi wierszami, a zmiana motywu domyślnego nie wymaga migracji (D19). Test migracji sprawdza `is_nullable`, bo PGlite startuje z pustą bazą i nie zauważyłby kolumny `NOT NULL`.
 
 **`contexts`**
 
-| Kolumna                               | Typ                | Uwagi                        |
-| ------------------------------------- | ------------------ | ---------------------------- |
-| `id`                                  | `uuid` PK          |                              |
-| `user_id`                             | `text` FK          | indeks `(user_id, position)` |
-| `name`                                | `varchar(40)`      |                              |
-| `icon`                                | `varchar(64)`      | z `CONTEXT_ICONS`            |
-| `position`                            | `text COLLATE "C"` |                              |
-| `theme_override`                      | `jsonb` null       | `ThemeOverride`, od Etapu 5  |
-| `created_at`, `updated_at`, `version` |                    |                              |
+| Kolumna                               | Typ                | Uwagi                                      |
+| ------------------------------------- | ------------------ | ------------------------------------------ |
+| `id`                                  | `uuid` PK          |                                            |
+| `user_id`                             | `text` FK          | indeks `(user_id, position)`               |
+| `name`                                | `varchar(40)`      |                                            |
+| `icon`                                | `varchar(64)`      | z `CONTEXT_ICONS`                          |
+| `position`                            | `text COLLATE "C"` |                                            |
+| `theme_override`                      | `jsonb` null       | `ThemeOverride`; `null` to brak nadpisania |
+| `created_at`, `updated_at`, `version` |                    |                                            |
 
 **`widgets`**
 
@@ -268,7 +276,9 @@ Prefiks `/api`, JSON. Wszystkie endpointy poza `/api/auth/*` i `/api/health` wym
 ### Zasady
 
 - **`POST` i `PATCH` zwracają pełny rekord** z aktualnymi `updatedAt` i `version`. Klient podmienia nim wpis w cache.
-- **`SettingsDto` to `{ locale, updatedAt, version }`.** Przed pierwszym zapisem `GET /settings` zwraca `{ locale: null, updatedAt: null, version: 0 }`. `version: 0` odróżnia „nigdy nie zapisano” od zapisanego wiersza.
+- **`SettingsDto` to `{ locale, theme, updatedAt, version }`.** Przed pierwszym zapisem `GET /settings` zwraca `{ locale: null, theme: DEFAULT_THEME, updatedAt: null, version: 0 }`. `version: 0` odróżnia „nigdy nie zapisano” od zapisanego wiersza. `theme` jest zawsze pełne: wiersz z `theme = null` (np. zapisany tylko język) też dostaje `DEFAULT_THEME`.
+- **Motyw zapisywany w całości.** `PATCH /settings` przyjmuje cały `theme` (`ThemeSettingsSchema`), a fragment motywu daje `400 VALIDATION_ERROR`. Upsert zmienia tylko podane pola, więc zmiana języka nie rusza motywu i odwrotnie.
+- **Nadpisanie motywu kontekstu.** `PATCH /contexts/:id` przyjmuje `themeOverride` (obiekt `ThemeOverrideSchema` albo `null`). `null` usuwa nadpisanie, a brak pola go nie zmienia. `POST /contexts` nie przyjmuje `themeOverride`: nowy kontekst zawsze zaczyna z `themeOverride: null`.
 - **Walidacja wejścia przez `validate(target, schema)`** (`lib/validate.ts`): `zValidator` z hookiem, który rzuca `ZodError`, więc błędne dane dają `400 VALIDATION_ERROR` w standardowym formacie z `handleError`. ID w ścieżce sprawdza `IdParamSchema` (UUID), zanim trafi do Postgresa. Treść, która nie jest poprawnym JSON-em (`HTTPException(400)` z walidatora Hono), też daje `400 VALIDATION_ERROR`, a nie 500.
 - **Idempotentne tworzenie.** `POST` tworzący rekord odpowiada `201`. `POST` z ID, które już istnieje u tego samego użytkownika, zwraca istniejący rekord ze statusem `200`. To samo ID u innego użytkownika daje `409 ID_CONFLICT`. Istniejące ID jest sprawdzane przed limitem, więc ponowienie dwudziestego kontekstu przy limicie 20 dostaje `200`, a nie `422`.
 - **Układ zapisywany hurtowo.** `PUT /contexts/:id/layout` aktualizuje w jednej transakcji pozycje i rozmiary podanych widgetów. Każde ID musi należeć do tego kontekstu i użytkownika, w przeciwnym razie całe żądanie jest odrzucane (`400 LAYOUT_INVALID`). Widgety spoza listy pozostają bez zmian.
@@ -352,13 +362,13 @@ Serwisy nie znają Hono, a trasy nie znają Drizzle. `createApp({ db })` przyjmu
 
 ### Start nowej karty
 
-1. **Motyw przed pierwszym renderem (F-THEME-05).** `public/theme-boot.js` to mały, klasyczny (nie modułowy) skrypt w `<head>`, który blokuje parsowanie, więc wykonuje się przed pierwszym malowaniem. Czyta z `localStorage` ostatni motyw efektywny i ustawia klasę `dark` oraz zmienne akcentu na `<html>`. Jest zgodny z CSP MV3, bo jest plikiem z rozszerzenia, a nie skryptem inline.
+1. **Motyw przed pierwszym renderem (F-THEME-05).** `public/theme-boot.js` to mały (około 0,9 kB), klasyczny (nie modułowy) skrypt w `<head>`, który blokuje parsowanie, więc wykonuje się przed pierwszym malowaniem. Czyta z `localStorage` wpis `one-place:theme` w postaci `{ mode, vars }`, zapisany przez `applyTheme`, i ustawia klasę `dark` oraz zmienne akcentu na `<html>`. Zapisany jest tryb, a nie wynik: w trybie systemowym skrypt sam pyta `matchMedia('(prefers-color-scheme: dark)')`, więc zmiana motywu systemu przy zamkniętej przeglądarce nie miga starym. Bez zapisu albo z uszkodzonym zapisem stosuje tryb systemowy (`DEFAULT_THEME.mode`) bez zmiennych, czyli akcent domyślny z konfiguracji Nuxt UI. Jest zgodny z CSP MV3, bo jest plikiem z rozszerzenia, a nie skryptem inline. Test `theme-boot.test.ts` uruchamia skrypt (import `?raw`) i sprawdza, że daje ten sam `<html>` co `applyTheme`.
 2. **Odtworzenie cache.** Persister TanStack Query wczytuje cache z `chrome.storage.local`, a Pinia wczytuje `activeContextId`.
 3. **Montaż aplikacji.** Aplikacja montuje się dopiero po wczytaniu tokenu z `chrome.storage.local`. Bez tokenu pokazuje się ekran logowania, ładowany leniwie (`defineAsyncComponent`) razem z formularzami, Zod i klientem Better Auth. Z tokenem renderuje się pulpit z cache, a zapytania nieświeże są odświeżane w tle.
 
 Kroki 2 i 3 dzieją się przed `mount`: `main.ts` czeka na `Promise.all([loadSession(), restoreCache(queryClient), uiStore.load()])`. Opcja `clientPersister` z `VueQueryPlugin` odtwarzałaby cache dopiero po zainstalowaniu pluginu, więc pierwszy render pokazałby szkielety.
 
-Startowy JS nowej karty liczymy jako sumę skryptu wejściowego i chunków z `modulepreload` (`pnpm size` po buildzie). Po Etapie 1: **325,6 kB**. Po Etapie 2: **473 kB**. Po Etapie 3: **490,6 kB**. Po Etapie 4: **492,1 kB** (budżet 550 kB). Leniwie w Etapie 3 ładują się: edytor siatki `GridEditor` z `grid-layout-plus` (około 140 kB, przy pierwszym włączeniu edycji), menu widgetu z modalami ustawień i usuwania (`WidgetActions`, około 25 kB, przy pierwszym kliknięciu), katalog widgetów, ustawienia Zadań i komponenty widgetów. Sam `newtab-*.js` ma około 200 kB, bo Vite wydziela kod wspólny z leniwymi komponentami (Vue, Nuxt UI) do osobnych chunków, które strona i tak pobiera przy starcie. W Etapie 4 lista zadań ładuje się razem z leniwym `TodoWidget` (około 22 kB z `TaskList`), ustawienia Zadań w `TodoSettings` (około 10 kB), a `vue-draggable-plus` (około 41 kB) to ten sam leniwy chunk co w oknie kontekstów. `byPosition` jest w osobnym pliku `lib/by-position.ts`, a nie w `lib/positions.ts`: zapytania kontekstów sortują przy starcie, a `positions.ts` importuje `fractional-indexing` (+3,6 kB startowego JS), potrzebny dopiero przy dodawaniu i przeciąganiu. Leniwie ładują się ekran logowania, formularz pierwszego kontekstu, okno zarządzania kontekstami (około 126 kB z `UModal`, `UPopover` i `vue-draggable-plus`) i panel ustawień.
+Startowy JS nowej karty liczymy jako sumę skryptu wejściowego i chunków z `modulepreload` (`pnpm size` po buildzie). Po Etapie 1: **325,6 kB**. Po Etapie 2: **473 kB**. Po Etapie 3: **490,6 kB**. Po Etapie 4: **492,1 kB**. Po Etapie 5: **495,6 kB** (budżet 550 kB): około 1 kB to moduł motywu, a resztę dają tłumaczenia; komponenty panelu motywu są w leniwym chunku `SettingsSlideover` (około 36,5 kB), a `theme-boot.js` leży poza `chunks/` i nie wlicza się do sumy. Jedno wywołanie `ThemeSettingsSchema.safeParse` na ścieżce startowej dawało około 587 kB (+92 kB Zoda). Leniwie w Etapie 3 ładują się: edytor siatki `GridEditor` z `grid-layout-plus` (około 140 kB, przy pierwszym włączeniu edycji), menu widgetu z modalami ustawień i usuwania (`WidgetActions`, około 25 kB, przy pierwszym kliknięciu), katalog widgetów, ustawienia Zadań i komponenty widgetów. Sam `newtab-*.js` ma około 200 kB, bo Vite wydziela kod wspólny z leniwymi komponentami (Vue, Nuxt UI) do osobnych chunków, które strona i tak pobiera przy starcie. W Etapie 4 lista zadań ładuje się razem z leniwym `TodoWidget` (około 22 kB z `TaskList`), ustawienia Zadań w `TodoSettings` (około 10 kB), a `vue-draggable-plus` (około 41 kB) to ten sam leniwy chunk co w oknie kontekstów. `byPosition` jest w osobnym pliku `lib/by-position.ts`, a nie w `lib/positions.ts`: zapytania kontekstów sortują przy starcie, a `positions.ts` importuje `fractional-indexing` (+3,6 kB startowego JS), potrzebny dopiero przy dodawaniu i przeciąganiu. Leniwie ładują się ekran logowania, formularz pierwszego kontekstu, okno zarządzania kontekstami (około 126 kB z `UModal`, `UPopover` i `vue-draggable-plus`) i panel ustawień.
 
 `performance.mark('dashboard-rendered')` w `DashboardScreen` (tylko gdy lista kontekstów jest w cache) mierzy wymaganie wydajnościowe. Po Etapie 2 pierwszy render z cache: mediana 22–26 ms na prototypie (około 80 ms przy `CPU 4x slowdown`) i 68 ms w Chromium headless w maszynie wirtualnej. Po Etapie 3 z 23 widgetami na pulpicie w Chromium headless w maszynie wirtualnej: mediana około 140 ms (115–188 ms), a przy `CPU 4x slowdown` około 600 ms. Prototyp z sześcioma widgetami miał 30 ms i 86 ms. Po Etapie 4 z jednym widgetem Zadania w Chromium headless w maszynie wirtualnej: mediana 93 ms przy 3 zadaniach i 94 ms przy 50 (pusty pulpit: około 95 ms), a przy 500 zadaniach mediana 172–192 ms z pojedynczymi pomiarami powyżej 200 ms, bo odtworzenie dużego cache z `chrome.storage.local` trwa dłużej. Prototyp z 500 zadaniami miał 59–73 ms. Pełny pomiar we wszystkich scenariuszach dojdzie w Etapie 6.
 
@@ -383,7 +393,7 @@ Klucze używane przez więcej niż jeden plik (`widgetsKey(contextId)`, `todosKe
 - nowy widget Zadania dostaje w `onMutate` pustą listę zadań w cache (tylko typ `todo`), a `useTodos` jest wyłączone, dopóki mutacja tworzenia tego widgetu czeka na API (`useMutationState` po `createWidgetKey`). Bez tego nowy widget dostawał 404, a offline pokazywał szkielety bez końca. Gdy tworzenie widgetu się nie uda, wpis zadań jest usuwany;
 - usunięcie kontekstu usuwa wpisy zadań jego widgetów (czytane z wpisu widgetów, więc przed nim), a potem wpis widgetów (`removeQueries`), bo inaczej zostałyby w `chrome.storage.local` do wylogowania. Usunięcie widgetu usuwa wpis jego zadań;
 - lista zadań w cache jest zawsze posortowana przez `byPosition` (`lib/by-position.ts`), tak samo jak w API, także po optymistycznym przesunięciu;
-- mutacje zadań mają wspólny `mutationKey` (`['todos', 'change']`). `onSuccess` dodania i zmiany zapisuje odpowiedź w cache tylko wtedy, gdy nie czeka żadna nowsza zmiana zadań (`isMutating(…) > 1`), bo jej optymistyczny stan jest nowszy niż ta odpowiedź (podwójne kliknięcie checkboxa nie miga);
+- mutacje zadań mają wspólny `mutationKey` (`['todos', 'change']`), zmiana ustawień `['settings', 'change']`, a zmiana kontekstu `['contexts', 'change']`. `onSuccess` zapisuje odpowiedź w cache tylko wtedy, gdy nie czeka żadna nowsza zmiana z tym samym kluczem (`hasLaterChanges(queryClient, mutationKey)` w `queries/optimistic.ts`, czyli `isMutating(…) > 1`), bo jej optymistyczny stan jest nowszy niż ta odpowiedź (podwójne kliknięcie checkboxa albo dwa szybkie kliknięcia akcentu nie migają). Każdy zasób ma własny klucz, więc czekająca zmiana zadania nie blokuje zapisu odpowiedzi ustawień;
 - zmiana zadania odrzucona z 404 (zadanie usunięte na innym urządzeniu) po cofnięciu unieważnia listę zadań widgetu, więc zadanie znika po odświeżeniu. `404` przy usuwaniu zadania to sukces;
 - odrzucony układ (`useSaveLayout` → `onError`) po cofnięciu unieważnia zapytanie widgetów, bo odrzucenie zwykle znaczy, że cache jest nieaktualny (np. widget usunięty na innym urządzeniu). Pozostałe mutacje widgetów tylko cofają zmianę.
 
@@ -399,7 +409,7 @@ Toast „Zmiana została cofnięta” pokazuje jeden słuchacz `MutationCache` (
 **Persister (F-SYNC-01, F-SYNC-07):**
 
 - storage: adapter na `chrome.storage.local`, klucz `one-place:query-cache`;
-- `buster`: stała `CACHE_SCHEMA_VERSION`, zwiększana przy każdej zmianie kształtu DTO, co powoduje odrzucenie starego cache;
+- `buster`: stała `CACHE_SCHEMA_VERSION`, zwiększana przy każdej zmianie kształtu DTO, co powoduje odrzucenie starego cache. Po Etapie 5: `'2'` (ustawienia dostały `theme`, a konteksty `themeOverride`; bez zmiany stary cache dawał `TypeError` i motyw domyślny offline). Zapis motywu w `localStorage` zostaje przy zmianie wersji;
 - `maxAge`: 30 dni;
 - zapis ograniczony do jednego na sekundę (throttle);
 - `shouldDehydrateQuery: (query) => query.state.data !== undefined`: zapisywane są wszystkie zapytania z danymi, także w stanie `error` po nieudanym odświeżeniu (API nie działa). Domyślny warunek (tylko `success`) usunąłby je z cache przy następnym zapisie;
@@ -424,11 +434,15 @@ Toast „Zmiana została cofnięta” pokazuje jeden słuchacz `MutationCache` (
 
 ### Motywy
 
-- `resolveTheme(settings.theme, activeContext.themeOverride)` daje motyw efektywny. Złożenie działa pole po polu: każde pole nadpisania, które nie jest `undefined`, zastępuje pole globalne.
-- `applyTheme(theme)`:
-  - ustawia lub zdejmuje klasę `dark` na `<html>`; dla `system` nasłuchuje `matchMedia('(prefers-color-scheme: dark)')`;
-  - ustawia akcent przez nadpisanie zmiennych `--ui-color-primary-50 … -950` na `:root` wartościami `var(--color-<accent>-<odcień>)`;
-  - zapisuje motyw efektywny w `localStorage` dla `theme-boot.js`.
+- `resolveTheme(settings.theme, activeContext.themeOverride)` daje motyw efektywny. Złożenie działa pole po polu przez `??`: każde pole nadpisania, które nie jest `undefined`, zastępuje pole globalne. Spread (`{ ...global, ...override }`) nie wystarcza, bo kopiuje też klucze z `undefined`, które panel ustawia dla opcji „Globalny”.
+- `applyTheme(theme, systemDark)` (`theme/apply-theme.ts`):
+  - ustawia lub zdejmuje klasę `dark` na `<html>` (`isDark(mode, systemDark)`);
+  - ustawia akcent przez nadpisanie zmiennych `--ui-color-primary-50 … -950` na `<html>` wartościami `var(--color-<accent>-<odcień>)`;
+  - zapisuje `{ mode, vars }` w `localStorage` (`one-place:theme`) dla `theme-boot.js`; błąd zapisu (pełny lub zablokowany storage) nie przeszkadza w zastosowaniu motywu.
+- `useAppliedTheme(() => theme | null)` (`theme/use-applied-theme.ts`) stosuje motyw w `watchEffect` razem z `usePreferredDark()` z VueUse, więc reaguje na każdą zmianę motywu i na zmianę motywu systemu bez przeładowania. `null` oznacza „jeszcze nie wiem”: strona zostaje z motywem ze skryptu startowego.
+- `useAccountTheme()` (`features/settings/use-account-theme.ts`) podaje do `useAppliedTheme` czystą funkcję `accountTheme(settings, contexts, active)`, która zwraca `null`, dopóki nie ma ustawień i listy kontekstów. Motyw domyślny „na chwilę” (np. po odrzuceniu cache) nadpisałby dobry motyw ze skryptu startowego, a motyw globalny przed listą kontekstów mignąłby w kontekście z nadpisaniem. Wołany w `DashboardScreen`.
+- Ekran logowania stosuje `DEFAULT_THEME` (`useAppliedTheme(() => DEFAULT_THEME)` w `AuthScreen`), więc po wylogowaniu w `localStorage` jest motyw domyślny (F-AUTH-04), a strona dalej reaguje na motyw systemu.
+- Panel ustawień ma sekcję „Wygląd” (tryb przez `ThemeModePicker`, akcent przez `AccentPicker`; każda zmiana wysyła cały motyw) i pod nią „Wygląd kontekstu »nazwa«” dla aktywnego kontekstu (`ThemeOverrideFields`). Przełącznik „Używaj motywu globalnego” włączony to `themeOverride: null`, a wyłączony zapisuje puste nadpisanie `{}`. Przy wyłączonym tryb i akcent mają opcję „Globalny” (`undefined` w polu), więc można nadpisać jedno pole, a drugie zostaje globalne. Próbki akcentu mają kolor jako styl inline, bo Tailwind nie widzi klas budowanych w trakcie działania.
 - Ten sam mechanizm zmiennych CSS jest używany w `theme-boot.js` i w aplikacji, więc oba miejsca dają identyczny wynik.
 - Wbudowane zarządzanie trybem kolorów Nuxt UI jest wyłączone (`colorMode: false` w pluginie Vite), bo trybem zarządza moduł `theme/`.
 - Akcent ustawiamy jako styl inline na `<html>`. Wygrywa on z regułą `:root`, którą Nuxt UI wstrzykuje w trakcie działania.
@@ -540,25 +554,28 @@ pnpm dev                      # API (watch) + WXT dev, który uruchamia przeglą
 
 ## Rejestr decyzji
 
-| #   | Decyzja                                                                         | Odrzucone alternatywy                                        | Uzasadnienie                                                                                                      |
-| --- | ------------------------------------------------------------------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| D1  | Backend jest źródłem prawdy, lokalnie tylko cache                               | `chrome.storage.sync`, tylko lokalnie                        | synchronizacja między urządzeniami bez limitów `storage.sync`                                                     |
-| D2  | TanStack Query z persisterem (stale-while-revalidate, mutacje optymistyczne)    | własny silnik sync (outbox i delta), Zero/Electric/PowerSync | najkrótsza droga do działającego MVP; API z `version` i `updatedAt` pozwala później przejść na własny silnik      |
-| D3  | Hono na Node 24 LTS, docelowo VPS                                               | Cloudflare Workers                                           | wybór autora; wdrożenie po MVP                                                                                    |
-| D4  | PostgreSQL i Drizzle; PGlite w testach                                          | SQLite                                                       | `jsonb`, współbieżne zapisy wielu użytkowników, zgodność z silnikami synchronizacji                               |
-| D5  | Better Auth, e-mail i hasło, plugin `bearer`                                    | Google OAuth, klucz synchronizacji, ciasteczka               | prostota; token w nagłówku działa przewidywalnie z originu rozszerzenia; magic link później                       |
-| D6  | Logowanie wymagane w MVP                                                        | tryb lokalny z opcjonalnym kontem                            | mniej przypadków brzegowych; tryb bez konta przed publikacją                                                      |
-| D7  | Vue 3, Nuxt UI, WXT                                                             | React (`react-grid-layout`, `cmdk`), Svelte                  | preferencja autora; `UCommandPalette` pod przyszłe Cmd+K                                                          |
-| D8  | Motyw globalny z opcjonalnym nadpisaniem w kontekście                           | tylko globalny, tylko per kontekst                           | elastyczność bez migracji przy dodaniu tła per kontekst                                                           |
-| D9  | Brak domyślnych kontekstów                                                      | seed „Praca” i „Prywatne”                                    | użytkownik sam decyduje o strukturze                                                                              |
-| D10 | UUIDv7 generowany przez klienta                                                 | ID z serwera                                                 | mutacje optymistyczne bez podmiany ID, idempotentne `POST`                                                        |
-| D11 | Jeden widget Zadania z wymiennym źródłem danych                                 | osobny widget per integracja                                 | jeden UI listy, zmiana źródła w ustawieniach                                                                      |
-| D12 | Bez `host_permissions`, CORS z allowlistą originów                              | `host_permissions` do API                                    | mniej uprawnień, łatwiejsze review w sklepie                                                                      |
-| D13 | Integracje zewnętrzne przez backend                                             | wywołania z rozszerzenia                                     | tokeny poza przeglądarką, konfiguracja raz na koncie                                                              |
-| D14 | Przełącznik kontekstów jako zakładki (`UTabs`) w nagłówku                       | menu rozwijane (`UDropdownMenu`)                             | menu dokłada ponad 100 kB startowego JS (pomiar z Etapu 2: +104 kB); zakładki przełączają jednym kliknięciem      |
-| D15 | Podgląd pulpitu na CSS grid, `grid-layout-plus` ładowany leniwie tylko w edycji | biblioteka w obu trybach                                     | biblioteka w pierwszym renderze to +139 kB startowego JS (ponad budżet); ten sam algorytm dosuwania w obu trybach |
-| D16 | Rejestr widgetów bez Zoda, schemat konfiguracji przy leniwym komponencie        | walidacja w ramce (`configSchema` w definicji), `zod/mini`   | ramka jest w pierwszym renderze: walidacja w niej to +93 kB, a `zod/mini` nadal +52 kB                            |
-| D17 | Wszystkie mutacje w jednej kolejce (`mutations.scope` w `QueryClient`)          | równoległe zapisy, blokada pola do zapisu widgetu i zadania  | równoległe zapisy po powrocie sieci dostawały 404 i gubiły zmiany; UI zostaje optymistyczne, kolejki nie widać    |
+| #   | Decyzja                                                                         | Odrzucone alternatywy                                            | Uzasadnienie                                                                                                      |
+| --- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| D1  | Backend jest źródłem prawdy, lokalnie tylko cache                               | `chrome.storage.sync`, tylko lokalnie                            | synchronizacja między urządzeniami bez limitów `storage.sync`                                                     |
+| D2  | TanStack Query z persisterem (stale-while-revalidate, mutacje optymistyczne)    | własny silnik sync (outbox i delta), Zero/Electric/PowerSync     | najkrótsza droga do działającego MVP; API z `version` i `updatedAt` pozwala później przejść na własny silnik      |
+| D3  | Hono na Node 24 LTS, docelowo VPS                                               | Cloudflare Workers                                               | wybór autora; wdrożenie po MVP                                                                                    |
+| D4  | PostgreSQL i Drizzle; PGlite w testach                                          | SQLite                                                           | `jsonb`, współbieżne zapisy wielu użytkowników, zgodność z silnikami synchronizacji                               |
+| D5  | Better Auth, e-mail i hasło, plugin `bearer`                                    | Google OAuth, klucz synchronizacji, ciasteczka                   | prostota; token w nagłówku działa przewidywalnie z originu rozszerzenia; magic link później                       |
+| D6  | Logowanie wymagane w MVP                                                        | tryb lokalny z opcjonalnym kontem                                | mniej przypadków brzegowych; tryb bez konta przed publikacją                                                      |
+| D7  | Vue 3, Nuxt UI, WXT                                                             | React (`react-grid-layout`, `cmdk`), Svelte                      | preferencja autora; `UCommandPalette` pod przyszłe Cmd+K                                                          |
+| D8  | Motyw globalny z opcjonalnym nadpisaniem w kontekście                           | tylko globalny, tylko per kontekst                               | elastyczność bez migracji przy dodaniu tła per kontekst                                                           |
+| D9  | Brak domyślnych kontekstów                                                      | seed „Praca” i „Prywatne”                                        | użytkownik sam decyduje o strukturze                                                                              |
+| D10 | UUIDv7 generowany przez klienta                                                 | ID z serwera                                                     | mutacje optymistyczne bez podmiany ID, idempotentne `POST`                                                        |
+| D11 | Jeden widget Zadania z wymiennym źródłem danych                                 | osobny widget per integracja                                     | jeden UI listy, zmiana źródła w ustawieniach                                                                      |
+| D12 | Bez `host_permissions`, CORS z allowlistą originów                              | `host_permissions` do API                                        | mniej uprawnień, łatwiejsze review w sklepie                                                                      |
+| D13 | Integracje zewnętrzne przez backend                                             | wywołania z rozszerzenia                                         | tokeny poza przeglądarką, konfiguracja raz na koncie                                                              |
+| D14 | Przełącznik kontekstów jako zakładki (`UTabs`) w nagłówku                       | menu rozwijane (`UDropdownMenu`)                                 | menu dokłada ponad 100 kB startowego JS (pomiar z Etapu 2: +104 kB); zakładki przełączają jednym kliknięciem      |
+| D15 | Podgląd pulpitu na CSS grid, `grid-layout-plus` ładowany leniwie tylko w edycji | biblioteka w obu trybach                                         | biblioteka w pierwszym renderze to +139 kB startowego JS (ponad budżet); ten sam algorytm dosuwania w obu trybach |
+| D16 | Rejestr widgetów bez Zoda, schemat konfiguracji przy leniwym komponencie        | walidacja w ramce (`configSchema` w definicji), `zod/mini`       | ramka jest w pierwszym renderze: walidacja w niej to +93 kB, a `zod/mini` nadal +52 kB                            |
+| D17 | Wszystkie mutacje w jednej kolejce (`mutations.scope` w `QueryClient`)          | równoległe zapisy, blokada pola do zapisu widgetu i zadania      | równoległe zapisy po powrocie sieci dostawały 404 i gubiły zmiany; UI zostaje optymistyczne, kolejki nie widać    |
+| D18 | Typy motywu bez Zoda w `theme.ts`, schematy w `theme-schemas.ts`, test typów    | typy z `z.infer` przez `import type`, schematy w tym samym pliku | motyw jest potrzebny przed pierwszym renderem; jeden import ze schematem to +92 kB startowego JS                  |
+| D19 | Kolumny motywu `jsonb` z możliwym `null` (`null` = domyślny / brak nadpisania)  | `NOT NULL DEFAULT '{…}'`, `NOT NULL` bez wartości                | migracja na tabelach z wierszami; motyw domyślny tylko w `DEFAULT_THEME`, jego zmiana bez migracji                |
+| D20 | W `localStorage` dla skryptu startowego zapisany tryb i zmienne, a nie wynik    | zapis gotowego `dark: true/false`                                | w trybie systemowym skrypt pyta system, więc zmiana motywu systemu przy zamkniętej przeglądarce nie miga          |
 
 ## Ryzyka
 

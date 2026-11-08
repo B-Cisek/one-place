@@ -101,9 +101,9 @@ Z Etapu 3 są już gotowe `TodoConfigSchema` ze źródłem `{ type: 'local' }` w
 
 **Zakres:**
 
-- `shared`: `ThemeSettingsSchema`, `ThemeOverrideSchema`, `resolveTheme` z testami;
-- API: kolumny `user_settings.theme` i `contexts.theme_override` z nową migracją, `theme` w `PATCH /settings` i `themeOverride` w `PATCH /contexts/:id`, zmiana `CACHE_SCHEMA_VERSION` (w Etapie 2 tych kolumn jeszcze nie ma);
-- rozszerzenie: `applyTheme`, `public/theme-boot.js`, ustawienia globalne (tryb, próbki akcentów), sekcja „Wygląd” w ustawieniach kontekstu z opcją „Używaj motywu globalnego”;
+- `shared`: typy motywu, `DEFAULT_THEME` i `resolveTheme` w `theme.ts` (bez Zoda), `ThemeSettingsSchema` i `ThemeOverrideSchema` w `theme-schemas.ts`, z testami;
+- API: kolumny `user_settings.theme` i `contexts.theme_override` z nową migracją, `theme` w `PATCH /settings` i `themeOverride` w `PATCH /contexts/:id`, zmiana `CACHE_SCHEMA_VERSION`;
+- rozszerzenie: `applyTheme`, `public/theme-boot.js`, ustawienia globalne (tryb, próbki akcentów), sekcja „Wygląd kontekstu” w panelu ustawień (dla aktywnego kontekstu) z opcją „Używaj motywu globalnego” i opcją „Globalny” w każdym polu;
 - obsługa zmiany motywu systemu na żywo.
 
 **DoD:** motyw globalny i nadpisanie w kontekście działają natychmiast i są zachowane po przeładowaniu bez mignięcia.
