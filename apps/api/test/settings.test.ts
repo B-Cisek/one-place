@@ -1,3 +1,4 @@
+import { DEFAULT_THEME } from '@one-place/shared'
 import { describe, expect, it } from 'vitest'
 import { asUser, signUp, TEST_USER } from './auth-helpers'
 import { createTestApp } from './create-test-app'
@@ -19,7 +20,12 @@ describe('GET /api/settings', () => {
     const { alice } = await setup()
     const res = await alice.get('/api/settings')
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({ locale: null, updatedAt: null, version: 0 })
+    expect(await res.json()).toEqual({
+      locale: null,
+      theme: DEFAULT_THEME,
+      updatedAt: null,
+      version: 0,
+    })
   })
 })
 
@@ -28,7 +34,12 @@ describe('PATCH /api/settings', () => {
     const { alice } = await setup()
     const res = await alice.patch('/api/settings', { locale: 'en' })
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual({ locale: 'en', updatedAt: expect.any(String), version: 1 })
+    expect(await res.json()).toEqual({
+      locale: 'en',
+      theme: DEFAULT_THEME,
+      updatedAt: expect.any(String),
+      version: 1,
+    })
     expect(await (await alice.get('/api/settings')).json()).toMatchObject({ locale: 'en' })
   })
 
@@ -44,6 +55,34 @@ describe('PATCH /api/settings', () => {
     const res = await alice.patch('/api/settings', { locale: 'de' })
     expect(res.status).toBe(400)
     expect((await res.json()).error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('saves the theme and keeps it when the language changes', async () => {
+    const { alice } = await setup()
+    const theme = { ...DEFAULT_THEME, mode: 'dark', accent: 'green' }
+    const res = await alice.patch('/api/settings', { theme })
+    expect(await res.json()).toMatchObject({ theme, locale: null })
+    await alice.patch('/api/settings', { locale: 'en' })
+    expect(await (await alice.get('/api/settings')).json()).toMatchObject({ theme, locale: 'en' })
+  })
+
+  it('keeps the language when the theme changes', async () => {
+    const { alice } = await setup()
+    await alice.patch('/api/settings', { locale: 'en' })
+    await alice.patch('/api/settings', { theme: { ...DEFAULT_THEME, accent: 'rose' } })
+    expect(await (await alice.get('/api/settings')).json()).toMatchObject({
+      locale: 'en',
+      theme: { accent: 'rose' },
+    })
+  })
+
+  it('rejects an unknown accent and a part of a theme', async () => {
+    const { alice } = await setup()
+    for (const theme of [{ ...DEFAULT_THEME, accent: 'red' }, { accent: 'green' }]) {
+      const res = await alice.patch('/api/settings', { theme })
+      expect(res.status).toBe(400)
+      expect((await res.json()).error.code).toBe('VALIDATION_ERROR')
+    }
   })
 
   it('keeps settings of each user separate', async () => {

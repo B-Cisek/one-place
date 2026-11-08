@@ -9,7 +9,7 @@ import { storage } from 'wxt/utils/storage'
 
 // F-SYNC-07: bump it whenever the shape of cached data changes. A cache saved with another
 // value is thrown away, and the data is fetched again.
-export const CACHE_SCHEMA_VERSION = '1'
+export const CACHE_SCHEMA_VERSION = '2'
 export const CACHE_MAX_AGE = 1000 * 60 * 60 * 24 * 30
 export const CACHE_KEY = 'one-place:query-cache'
 

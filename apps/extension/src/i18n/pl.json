@@ -131,6 +131,33 @@
   },
   "settings": {
     "title": "Ustawienia",
+    "theme": {
+      "title": "Wygląd",
+      "mode": "Tryb",
+      "modes": {
+        "light": "Jasny",
+        "dark": "Ciemny",
+        "system": "Systemowy"
+      },
+      "accent": "Kolor akcentu",
+      "accents": {
+        "blue": "Niebieski",
+        "indigo": "Indygo",
+        "violet": "Fioletowy",
+        "pink": "Różowy",
+        "rose": "Malinowy",
+        "orange": "Pomarańczowy",
+        "amber": "Bursztynowy",
+        "green": "Zielony",
+        "emerald": "Szmaragdowy",
+        "teal": "Morski"
+      },
+      "inherit": "Globalny"
+    },
+    "contextTheme": {
+      "title": "Wygląd kontekstu „{name}”",
+      "useGlobal": "Używaj motywu globalnego"
+    },
     "language": {
       "label": "Język",
       "browser": "Język przeglądarki"

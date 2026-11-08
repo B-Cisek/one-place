@@ -10,9 +10,10 @@ import { apiErrorInfo } from '@/api/api-error'
 import { apiClient } from '@/api/client'
 import { byPosition } from '@/lib/by-position'
 import { createContextKey, todosKey, widgetsKey } from './keys'
-import { changeOptimistically } from './optimistic'
+import { changeOptimistically, hasLaterChanges } from './optimistic'
 
 export const contextsKey = ['contexts'] as const
+const contextChangeKey = ['contexts', 'change'] as const
 
 // Adds the context or replaces the one with the same id, keeping the list sorted
 function withContext(list: ContextDto[], context: ContextDto) {
@@ -34,7 +35,13 @@ export function useCreateContext() {
       parseResponse(apiClient.api.contexts.$post({ json: input })),
     onMutate: async (input) => {
       const now = new Date().toISOString()
-      const draft: ContextDto = { ...input, createdAt: now, updatedAt: now, version: 1 }
+      const draft: ContextDto = {
+        ...input,
+        themeOverride: null,
+        createdAt: now,
+        updatedAt: now,
+        version: 1,
+      }
       const rollback = await changeOptimistically<ContextDto[]>(queryClient, contextsKey, (list) =>
         withContext(list, draft),
       )
@@ -54,6 +61,7 @@ export function useCreateContext() {
 export function useUpdateContext() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: contextChangeKey,
     mutationFn: ({ id, ...changes }: UpdateContextInput & { id: string }) =>
       parseResponse(apiClient.api.contexts[':id'].$patch({ param: { id }, json: changes })),
     onMutate: ({ id, ...changes }) =>
@@ -62,8 +70,10 @@ export function useUpdateContext() {
         return current ? withContext(list, { ...current, ...changes }) : list
       }),
     onError: (_error, _input, rollback) => rollback?.(),
-    onSuccess: (saved) =>
-      queryClient.setQueryData<ContextDto[]>(contextsKey, (list = []) => withContext(list, saved)),
+    onSuccess: (saved) => {
+      if (hasLaterChanges(queryClient, contextChangeKey)) return
+      queryClient.setQueryData<ContextDto[]>(contextsKey, (list = []) => withContext(list, saved))
+    },
   })
 }
 

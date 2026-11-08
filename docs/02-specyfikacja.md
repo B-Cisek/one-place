@@ -25,7 +25,7 @@ Dokument opisuje **co** robi MVP. Sposób realizacji opisuje [03-architektura.md
 | F-AUTH-01 | Rejestracja: nazwa (1–50 znaków), e-mail, hasło (8–128 znaków). Po rejestracji użytkownik jest od razu zalogowany.                                            |
 | F-AUTH-02 | Logowanie e-mailem i hasłem. Przy błędnych danych pojawia się jeden ogólny komunikat „Nieprawidłowy e-mail lub hasło”, bez wskazania, które pole jest błędne. |
 | F-AUTH-03 | Sesja jest ważna 30 dni i odnawia się przy użyciu. Po wygaśnięciu pojawia się ekran logowania.                                                                |
-| F-AUTH-04 | Wylogowanie usuwa token i cały lokalny cache danych.                                                                                                          |
+| F-AUTH-04 | Wylogowanie usuwa token i cały lokalny cache danych, a motyw wraca do domyślnego.                                                                             |
 | F-AUTH-05 | Odpowiedź 401 z API w dowolnym momencie działa jak wylogowanie i pokazuje komunikat „Sesja wygasła”.                                                          |
 | F-AUTH-06 | Bez zalogowania rozszerzenie pokazuje wyłącznie ekran logowania lub rejestracji.                                                                              |
 
@@ -46,14 +46,14 @@ Poza MVP: reset hasła, weryfikacja adresu e-mail, magic link (wymagają wysyłk
 
 ### Motywy (THEME)
 
-| ID         | Wymaganie                                                                                                                      |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| F-THEME-01 | Tryb: jasny, ciemny lub systemowy (domyślnie systemowy). Tryb systemowy reaguje na zmianę ustawień systemu bez przeładowania.  |
-| F-THEME-02 | Kolor akcentu z predefiniowanej listy (domyślnie `blue`).                                                                      |
-| F-THEME-03 | Nadpisanie w kontekście: tryb, akcent lub oba. Opcja „Używaj motywu globalnego” usuwa nadpisanie.                              |
-| F-THEME-04 | Zmiany są widoczne natychmiast, a zapis odbywa się w tle.                                                                      |
-| F-THEME-05 | Otwarcie nowej karty nie powoduje mignięcia innym motywem niż efektywny.                                                       |
-| F-THEME-06 | Model motywu ma pole `background`. W MVP jego jedyna wartość to `none` i UI go nie pokazuje. To przygotowanie pod tło pulpitu. |
+| ID         | Wymaganie                                                                                                                           |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| F-THEME-01 | Tryb: jasny, ciemny lub systemowy (domyślnie systemowy). Tryb systemowy reaguje na zmianę ustawień systemu bez przeładowania.       |
+| F-THEME-02 | Kolor akcentu z predefiniowanej listy (domyślnie `blue`).                                                                           |
+| F-THEME-03 | Nadpisanie w kontekście: tryb, akcent lub oba. Każde pole ma opcję „Globalny”, a opcja „Używaj motywu globalnego” usuwa nadpisanie. |
+| F-THEME-04 | Zmiany są widoczne natychmiast, a zapis odbywa się w tle.                                                                           |
+| F-THEME-05 | Otwarcie nowej karty nie powoduje mignięcia innym motywem niż efektywny.                                                            |
+| F-THEME-06 | Model motywu ma pole `background`. W MVP jego jedyna wartość to `none` i UI go nie pokazuje. To przygotowanie pod tło pulpitu.      |
 
 Lista akcentów w MVP: `blue`, `indigo`, `violet`, `pink`, `rose`, `orange`, `amber`, `green`, `emerald`, `teal`.
 

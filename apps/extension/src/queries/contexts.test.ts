@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { contextsKey, useCreateContext, useDeleteContext, useUpdateContext } from './contexts'
 import { deferred, jsonResponse, withQueryClient } from './testing'
 import { widgetsKey } from './keys'
+import { createQueryClient } from './query-client'
 
 const api = vi.hoisted(() => ({ post: vi.fn(), patch: vi.fn(), delete: vi.fn() }))
 
@@ -24,6 +25,7 @@ function context(overrides: Partial<ContextDto>): ContextDto {
     name: 'Praca',
     icon: 'i-lucide-briefcase',
     position: 'a0',
+    themeOverride: null,
     createdAt: '2026-10-01T10:00:00.000Z',
     updatedAt: '2026-10-01T10:00:00.000Z',
     version: 1,
@@ -74,6 +76,30 @@ describe('useCreateContext', () => {
 })
 
 describe('useUpdateContext', () => {
+  it('keeps showing the latest change while an earlier one is answered', async () => {
+    queryClient = createQueryClient()
+    queryClient.setQueryData(contextsKey, [work, home])
+    const first = deferred<Response>()
+    const second = deferred<Response>()
+    api.patch.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise)
+    const { mutate } = withQueryClient(queryClient, useUpdateContext)
+    const accent = () =>
+      queryClient.getQueryData<ContextDto[]>(contextsKey)?.[0]?.themeOverride?.accent
+
+    mutate({ id: 'work', themeOverride: { accent: 'green' } })
+    mutate({ id: 'work', themeOverride: { accent: 'rose' } })
+    await vi.waitFor(() => expect(accent()).toBe('rose'))
+
+    first.resolve(jsonResponse(200, { ...work, themeOverride: { accent: 'green' }, version: 2 }))
+    await vi.waitFor(() => expect(api.patch).toHaveBeenCalledTimes(2))
+    expect(accent()).toBe('rose')
+
+    second.resolve(jsonResponse(200, { ...work, themeOverride: { accent: 'rose' }, version: 3 }))
+    await vi.waitFor(() =>
+      expect(queryClient.getQueryData<ContextDto[]>(contextsKey)?.[0]?.version).toBe(3),
+    )
+  })
+
   it('keeps the list sorted by position after a move', async () => {
     const response = deferred<Response>()
     api.patch.mockReturnValue(response.promise)

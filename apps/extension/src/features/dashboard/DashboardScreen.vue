@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useActiveContext } from '@/features/contexts/active-context'
 import { useMutationErrorToasts } from '@/features/errors/use-mutation-error-toasts'
 import { useAccountLocale } from '@/features/settings/use-account-locale'
+import { useAccountTheme } from '@/features/settings/use-account-theme'
 import { useContexts } from '@/queries/contexts'
 import { useOnline } from '@/queries/use-online'
 import AppHeader from './AppHeader.vue'
@@ -32,6 +33,7 @@ const catalogOpen = ref(false)
 const catalogUsed = ref(false)
 useMutationErrorToasts()
 useAccountLocale()
+useAccountTheme()
 
 // Performance requirement: the first render from the cache within 200 ms of opening the tab.
 // The mark's startTime counts from the start of the page load.

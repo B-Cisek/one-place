@@ -1,12 +1,16 @@
 <script setup lang="ts">
+import { DEFAULT_THEME } from '@one-place/shared'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { session } from '@/api/session'
+import { useAppliedTheme } from '@/theme/use-applied-theme'
 import SignInForm from './SignInForm.vue'
 import SignUpForm from './SignUpForm.vue'
 
 const { t } = useI18n()
 const mode = ref<'sign-in' | 'sign-up'>('sign-in')
+// Signed out there is no account theme. Signing out also removes the saved one (F-AUTH-04).
+useAppliedTheme(() => DEFAULT_THEME)
 </script>
 
 <template>

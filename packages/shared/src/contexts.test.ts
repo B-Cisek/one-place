@@ -52,6 +52,18 @@ describe('CreateContextSchema', () => {
 })
 
 describe('UpdateContextSchema', () => {
+  it('accepts a theme override or null that removes it', () => {
+    expect(UpdateContextSchema.parse({ themeOverride: { accent: 'rose' } })).toEqual({
+      themeOverride: { accent: 'rose' },
+    })
+    expect(UpdateContextSchema.parse({ themeOverride: null })).toEqual({ themeOverride: null })
+    expect(UpdateContextSchema.safeParse({ themeOverride: { accent: 'red' } }).success).toBe(false)
+  })
+
+  it('does not take a theme override when creating a context', () => {
+    expect(CreateContextSchema.parse({ ...validContext, themeOverride: {} })).toEqual(validContext)
+  })
+
   it('accepts a single field and validates it', () => {
     expect(UpdateContextSchema.parse({ name: ' Dom ' })).toEqual({ name: 'Dom' })
     expect(UpdateContextSchema.safeParse({ icon: 'i-lucide-skull' }).success).toBe(false)

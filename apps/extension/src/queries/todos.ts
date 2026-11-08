@@ -4,20 +4,14 @@ import type {
   TodoDto,
   UpdateTodoInput,
 } from '@one-place/shared'
-import {
-  type QueryClient,
-  useMutation,
-  useMutationState,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/vue-query'
+import { useMutation, useMutationState, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { parseResponse } from 'hono/client'
 import { computed, type MaybeRefOrGetter, toValue } from 'vue'
 import { apiErrorInfo } from '@/api/api-error'
 import { apiClient } from '@/api/client'
 import { byPosition } from '@/lib/by-position'
 import { createWidgetKey, todosKey } from './keys'
-import { changeOptimistically } from './optimistic'
+import { changeOptimistically, hasLaterChanges } from './optimistic'
 
 interface TodoRef {
   id: string
@@ -30,14 +24,6 @@ function withTodo(list: TodoDto[], todo: TodoDto) {
 }
 
 const todoChangeKey = ['todos', 'change'] as const
-
-// Changes wait in one queue, so a later change of the tasks may still be waiting when this one is
-// answered. Its optimistic state is newer than this response: writing the response would show an
-// older state for a moment (a task ticked twice in a row would blink). The last change writes.
-function hasLaterChanges(queryClient: QueryClient) {
-  // This mutation is still pending while its onSuccess runs, so it counts too
-  return queryClient.isMutating({ mutationKey: todoChangeKey }) > 1
-}
 
 export function useTodos(widgetId: MaybeRefOrGetter<string>) {
   // The same as with a new context: a widget added in this tab is in the cache before the API
@@ -78,7 +64,7 @@ export function useAddTodo() {
     },
     onError: (_error, _input, rollback) => rollback?.(),
     onSuccess: (saved) => {
-      if (hasLaterChanges(queryClient)) return
+      if (hasLaterChanges(queryClient, todoChangeKey)) return
       queryClient.setQueryData<TodoDto[]>(todosKey(saved.widgetId), (list = []) =>
         withTodo(list, saved),
       )
@@ -108,7 +94,7 @@ export function useUpdateTodo() {
       }
     },
     onSuccess: (saved) => {
-      if (hasLaterChanges(queryClient)) return
+      if (hasLaterChanges(queryClient, todoChangeKey)) return
       queryClient.setQueryData<TodoDto[]>(todosKey(saved.widgetId), (list = []) =>
         withTodo(list, saved),
       )
