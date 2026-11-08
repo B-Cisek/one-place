@@ -43,6 +43,7 @@ describe('POST /api/contexts', () => {
       name: 'Praca',
       icon: input.icon,
       position: input.position,
+      themeOverride: null,
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
       version: 1,
@@ -108,6 +109,22 @@ describe('PATCH /api/contexts/:id', () => {
     })
   })
 
+  it('saves a theme override and removes it with null', async () => {
+    const { alice } = await setup()
+    const input = contextInput()
+    await alice.post('/api/contexts', input)
+    const path = `/api/contexts/${input.id}`
+    const res = await alice.patch(path, { themeOverride: { accent: 'rose' } })
+    expect(await res.json()).toMatchObject({ themeOverride: { accent: 'rose' } })
+    await alice.patch(path, { name: 'Dom' })
+    expect(await (await alice.get('/api/contexts')).json()).toMatchObject([
+      { name: 'Dom', themeOverride: { accent: 'rose' } },
+    ])
+    expect(await (await alice.patch(path, { themeOverride: null })).json()).toMatchObject({
+      themeOverride: null,
+    })
+  })
+
   it("returns 404 for another user's context and leaves it unchanged", async () => {
     const { alice, bob } = await setup()
     const input = contextInput()
@@ -124,6 +141,8 @@ describe('PATCH /api/contexts/:id', () => {
     await alice.post('/api/contexts', input)
     expect((await alice.patch('/api/contexts/42', { name: 'Dom' })).status).toBe(400)
     expect((await alice.patch(`/api/contexts/${input.id}`, { name: '' })).status).toBe(400)
+    const override = { themeOverride: { accent: 'red' } }
+    expect((await alice.patch(`/api/contexts/${input.id}`, override)).status).toBe(400)
   })
 })
 

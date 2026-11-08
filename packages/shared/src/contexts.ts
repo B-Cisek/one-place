@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import type { ThemeOverride } from './theme'
+import { ThemeOverrideSchema } from './theme-schemas'
 
 export const CONTEXT_NAME_MAX_LENGTH = 40
 export const MAX_CONTEXTS = 20
@@ -45,7 +47,12 @@ export const CreateContextSchema = z.object({
   position: PositionSchema,
 })
 
-export const UpdateContextSchema = CreateContextSchema.omit({ id: true }).partial()
+export const UpdateContextSchema = CreateContextSchema.omit({ id: true })
+  .extend({
+    // null removes the override, so the context uses the global theme (F-THEME-03)
+    themeOverride: ThemeOverrideSchema.nullable(),
+  })
+  .partial()
 
 // What the user fills in. The id and the position come from the extension.
 export const ContextFormSchema = CreateContextSchema.pick({ name: true, icon: true })
@@ -59,6 +66,7 @@ export interface ContextDto {
   name: string
   icon: ContextIcon
   position: string
+  themeOverride: ThemeOverride | null
   createdAt: string
   updatedAt: string
   version: number
