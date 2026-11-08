@@ -131,6 +131,33 @@
   },
   "settings": {
     "title": "Settings",
+    "theme": {
+      "title": "Appearance",
+      "mode": "Mode",
+      "modes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "accent": "Accent color",
+      "accents": {
+        "blue": "Blue",
+        "indigo": "Indigo",
+        "violet": "Violet",
+        "pink": "Pink",
+        "rose": "Rose",
+        "orange": "Orange",
+        "amber": "Amber",
+        "green": "Green",
+        "emerald": "Emerald",
+        "teal": "Teal"
+      },
+      "inherit": "Global"
+    },
+    "contextTheme": {
+      "title": "Appearance of “{name}”",
+      "useGlobal": "Use the global theme"
+    },
     "language": {
       "label": "Language",
       "browser": "Browser language"
