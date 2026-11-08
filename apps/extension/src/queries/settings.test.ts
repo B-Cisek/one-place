@@ -1,4 +1,4 @@
-import type { SettingsDto } from '@one-place/shared'
+import { DEFAULT_THEME, type SettingsDto } from '@one-place/shared'
 import { QueryClient } from '@tanstack/vue-query'
 import { describe, expect, it, vi } from 'vitest'
 import { settingsKey, useUpdateSettings } from './settings'
@@ -8,7 +8,7 @@ const api = vi.hoisted(() => ({ patch: vi.fn() }))
 
 vi.mock('@/api/client', () => ({ apiClient: { api: { settings: { $patch: api.patch } } } }))
 
-const saved: SettingsDto = { locale: null, updatedAt: null, version: 0 }
+const saved: SettingsDto = { locale: null, theme: DEFAULT_THEME, updatedAt: null, version: 0 }
 
 describe('useUpdateSettings', () => {
   it('changes the language at once and brings it back when the API rejects it', async () => {
