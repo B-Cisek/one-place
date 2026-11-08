@@ -2,9 +2,10 @@ import type { SettingsDto, UpdateSettingsInput } from '@one-place/shared'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { parseResponse } from 'hono/client'
 import { apiClient } from '@/api/client'
-import { changeOptimistically } from './optimistic'
+import { changeOptimistically, hasLaterChanges } from './optimistic'
 
 export const settingsKey = ['settings'] as const
+const settingsChangeKey = ['settings', 'change'] as const
 
 export function useSettings() {
   return useQuery({
@@ -16,6 +17,7 @@ export function useSettings() {
 export function useUpdateSettings() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: settingsChangeKey,
     mutationFn: (changes: UpdateSettingsInput) =>
       parseResponse(apiClient.api.settings.$patch({ json: changes })),
     onMutate: (changes) =>
@@ -24,6 +26,9 @@ export function useUpdateSettings() {
         ...changes,
       })),
     onError: (_error, _changes, rollback) => rollback?.(),
-    onSuccess: (saved) => queryClient.setQueryData(settingsKey, saved),
+    onSuccess: (saved) => {
+      if (hasLaterChanges(queryClient, settingsChangeKey)) return
+      queryClient.setQueryData(settingsKey, saved)
+    },
   })
 }
